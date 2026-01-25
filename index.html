@@ -1,0 +1,1740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4F46E5">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Free NC DMV appointment tracker — get instant browser notifications when DMV appointment slots open across North Carolina. Fast, free and easy.">
+    <meta name="keywords" content="NC DMV appointments, North Carolina DMV, DMV schedule, DMV appointment tracker, DMV alerts, DMV notifications, NC DOT">
+    <meta name="robots" content="index, follow">
+
+    <!-- OpenGraph for social networks -->
+    <meta property="og:title" content="NC DMV Appointment Notifications">
+    <meta property="og:description" content="Instant browser alerts when North Carolina DMV appointment slots open. Free service.">
+    <meta property="og:url" content="https://dmv-appointments-nc.com/">
+    <meta property="og:image" content="https://dmv-appointments-nc.com/icon-512.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="NC DMV Appointment Notifications">
+    <meta name="twitter:description" content="Get instant notifications when NC DMV appointments open.">
+    <meta name="twitter:image" content="https://dmv-appointments-nc.com/icon-512.png">
+
+    <title>NC DMV Appointment Notifications</title>
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-4T3NXK8DP4"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-4T3NXK8DP4');
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "NC DMV Appointment Notifications",
+      "description": "Free NC DMV appointment tracker – get instant browser notifications when DMV appointment slots open across North Carolina",
+      "url": "https://dmv-appointments-nc.com/",
+      "applicationCategory": "UtilityApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      }
+    }
+  </script>
+
+
+    <link rel="canonical" href="https://dmv-appointments-nc.com/">
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+    <link rel="apple-touch-icon" href="/icon-192.png">
+
+    <style>
+        @media (max-width: 900px) {
+    .hide-on-mobile {
+        display: none !important;
+    }
+}
+
+        /* Donate popup */
+.donate-popup-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.donate-popup-backdrop.show {
+    display: flex;
+}
+
+/* Increased sizes and inner padding */
+.donate-popup {
+    background: radial-gradient(circle at top left, #FACC15, #F97316);
+    border-radius: 24px;
+    padding: 26px 28px 22px; /* увеличено */
+    max-width: 420px;        /* увеличено */
+    width: 90%;
+    color: #111827;
+    box-shadow: 0 30px 70px rgba(15, 23, 42, 0.85);
+    position: relative;
+}
+
+.donate-popup h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.donate-popup p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+    margin-bottom: 14px;
+}
+
+.donate-popup-note {
+    font-size: 0.8rem;
+    opacity: 0.85;
+    margin-top: 10px;
+}
+
+/* New nice red close button */
+.donate-popup-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    width: 28px;               /* размер кнопки */
+    height: 28px;
+    background: #ef4444;       /* красный кружок */
+    border-radius: 50%;        /* делаем круг */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;              /* белый крестик */
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+    transition: transform 0.18s ease,
+                background 0.18s ease,
+                box-shadow 0.18s ease;
+}
+
+.donate-popup-close:hover {
+    background: #dc2626;       /* чуть темнее при наведении */
+    transform: scale(1.15);    /* лёгкое увеличение  */
+    box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+
+
+
+        .free-banner {
+    font-size: 1.05rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(139, 92, 246, 0.3));
+    border: 2px solid rgba(139, 92, 246, 0.6);
+    color: #EDE9FE;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 6px;
+    box-shadow: 0 10px 35px rgba(99, 102, 241, 0.4);
+}
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4F46E5;
+            --primary-dark: #3730A3;
+            --primary-soft: #EEF2FF;
+            --success: #10B981;
+            --error: #EF4444;
+            --text: #111827;
+            --text-muted: #6B7280;
+            --bg: #0F172A;
+            --bg-card: #020617;
+            --border: #1F2937;
+            --accent: #FBBF24;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: radial-gradient(circle at top, #1D4ED8 0, #020617 55%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .page-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ===== TOPBAR REDESIGNED FOR A WIDE TEXT HEADER ===== */
+        .topbar {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 22px 16px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #E5E7EB;
+            text-align: center;
+        }
+
+        .topbar-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: linear-gradient(135deg, rgba(79, 70, 229, 0.3), rgba(99, 102, 241, 0.2));
+            box-shadow: 0 20px 40px rgba(79, 70, 229, 0.5);
+        }
+
+        .topbar-title span:first-child {
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #E5E7EB;
+            text-shadow: 0 2px 10px rgba(99, 102, 241, 0.6);
+        }
+
+        /* old classes for logo and pill can be left — they are simply not used
+        .topbar-left { ... }
+        .topbar-logo { ... }
+        .pill { ... }
+        etc.
+        */
+
+        .pill-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: var(--success);
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.35);
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: .7;
+            }
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 16px 16px 32px; /* some spacing from the header */
+            flex: 1;
+            display: flex;
+        }
+
+        .app-shell {
+            display: grid;
+            grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+            gap: 20px;
+            width: 100%;
+        }
+
+        .app-main {
+            background: rgba(15, 23, 42, 0.88);
+            border-radius: 22px;
+            border: 1px solid rgba(30, 64, 175, 0.7);
+            box-shadow:
+                0 25px 50px -12px rgba(15, 23, 42, 0.8),
+                0 0 0 1px rgba(15, 23, 42, 0.9);
+            padding: 22px 22px 18px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(20px);
+        }
+
+        .header {
+            text-align: left;
+            padding: 4px 0 12px;
+        }
+
+        .header h1 {
+            font-size: 1.55rem;
+            font-weight: 700;
+            color: #E5E7EB;
+            margin-bottom: 6px;
+            letter-spacing: 0.01em;
+        }
+
+        .header p {
+            font-size: 0.95rem;
+            color: #9CA3AF;
+            line-height: 1.5;
+        }
+
+        .header .icon {
+            font-size: 1.8rem;
+            margin-bottom: 6px;
+        }
+
+        .subheader-line {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+            font-size: 0.8rem;
+            color: #9CA3AF;
+        }
+
+        .subheader-badge {
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.6);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .subheader-badge small {
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.68rem;
+            color: #CBD5F5;
+        }
+
+        .subheader-badge strong {
+            font-size: 0.82rem;
+            color: #E5E7EB;
+        }
+
+        .card {
+            background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.25), rgba(15, 23, 42, 0.85));
+            border-radius: 18px;
+            padding: 18px 16px;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            margin-bottom: 14px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 0.96rem;
+            font-weight: 600;
+            text-align: center;
+            border: none;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease, background 0.16s ease, border-color 0.16s ease, color 0.16s ease;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            color: white;
+            box-shadow: 0 18px 40px rgba(79, 70, 229, 0.55);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 22px 55px rgba(79, 70, 229, 0.7);
+        }
+
+        .btn-secondary {
+            background: rgba(15, 23, 42, 0.7);
+            color: #E5E7EB;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            border-color: #6366F1;
+            color: #E0E7FF;
+            box-shadow: 0 10px 30px rgba(30, 64, 175, 0.55);
+        }
+
+        .btn-danger {
+            background: rgba(248, 113, 113, 0.12);
+            color: #FCA5A5;
+            border: 1px solid rgba(248, 113, 113, 0.7);
+        }
+
+        .btn-danger:hover:not(:disabled) {
+            background: #EF4444;
+            color: #F9FAFB;
+            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.6);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn + .btn {
+            margin-top: 10px;
+        }
+
+        .platform-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .platform-btn {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 14px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .platform-main {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .platform-btn:hover {
+            border-color: #6366F1;
+            box-shadow: 0 14px 32px rgba(37, 99, 235, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .platform-btn .icon {
+            font-size: 1.6rem;
+        }
+
+        .platform-btn .info h3 {
+            font-size: 0.98rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #E5E7EB;
+        }
+
+        .platform-btn .info p {
+            font-size: 0.8rem;
+            color: #9CA3AF;
+        }
+
+        .platform-tag {
+            font-size: 0.72rem;
+            padding: 4px 8px;
+            border-radius: 999px;
+            border: 1px solid rgba(148, 163, 184, 0.7);
+            color: #CBD5F5;
+        }
+
+        .setup-instructions {
+            background: rgba(15, 23, 42, 0.7);
+            border-left: 3px solid #6366F1;
+            padding: 14px 14px 12px;
+            border-radius: 14px;
+            margin-top: 10px;
+            border-top: 1px solid rgba(55, 65, 81, 0.9);
+        }
+
+        .setup-instructions h3 {
+            color: #E5E7EB;
+            margin-bottom: 8px;
+            font-size: 0.98rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .setup-instructions ol {
+            margin-left: 18px;
+            font-size: 0.86rem;
+        }
+
+        .setup-instructions li {
+            margin-bottom: 6px;
+            color: #D1D5DB;
+            line-height: 1.5;
+        }
+
+        .setup-instructions .note {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 10px;
+            font-size: 0.78rem;
+            color: #9CA3AF;
+            border: 1px dashed rgba(75, 85, 99, 0.9);
+            line-height: 1.5;
+        }
+
+        .category-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .category-item {
+            padding: 12px 12px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.18s ease;
+        }
+
+        .category-item:hover {
+            border-color: #6366F1;
+            transform: translateX(2px);
+        }
+
+        .category-item.selected {
+            border-color: #6366F1;
+            background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.4), rgba(15, 23, 42, 0.98));
+            box-shadow: 0 14px 32px rgba(79, 70, 229, 0.45);
+        }
+
+        .category-item h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-bottom: 2px;
+            color: #E5E7EB;
+        }
+
+        .category-item p {
+            font-size: 0.8rem;
+            color: #9CA3AF;
+            line-height: 1.4;
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+
+        .location-grid::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .location-grid::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 4px;
+        }
+
+        .location-grid::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 4px;
+        }
+
+        .location-grid::-webkit-scrollbar-thumb:hover {
+            background: rgba(99, 102, 241, 0.7);
+        }
+
+        .location-item {
+            padding: 9px 10px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            transition: all 0.15s ease;
+            font-size: 0.86rem;
+            color: #E5E7EB;
+        }
+
+        .location-item:hover {
+            border-color: #6366F1;
+            transform: scale(1.02);
+        }
+
+        .location-item.selected {
+            border-color: #4F46E5;
+            background: linear-gradient(135deg, #4F46E5, #6366F1);
+            color: white;
+            box-shadow: 0 14px 32px rgba(79, 70, 229, 0.6);
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            display: none;
+            font-size: 0.85rem;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .alert.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: #6EE7B7;
+            border: 1px solid rgba(16, 185, 129, 0.7);
+        }
+
+        .alert.error {
+            background: rgba(248, 113, 113, 0.1);
+            color: #FCA5A5;
+            border: 1px solid rgba(248, 113, 113, 0.8);
+        }
+
+        .alert.info {
+            background: rgba(59, 130, 246, 0.08);
+            color: #BFDBFE;
+            border: 1px solid rgba(59, 130, 246, 0.8);
+        }
+
+        .inline-error {
+            display: none;
+            padding: 9px 10px;
+            margin-top: 8px;
+            background: rgba(248, 113, 113, 0.12);
+            color: #FCA5A5;
+            border: 1px solid rgba(248, 113, 113, 0.75);
+            border-radius: 9px;
+            font-size: 0.82rem;
+        }
+
+        .inline-error.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        .spinner {
+            border: 3px solid rgba(31, 41, 55, 0.95);
+            border-top: 3px solid #6366F1;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 14px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            color: #A5B4FC;
+            font-weight: 500;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            gap: 6px;
+            transition: color 0.15s ease;
+        }
+
+        .back-btn:hover {
+            color: #C7D2FE;
+            text-decoration: underline;
+        }
+
+        .progress {
+            display: flex;
+            justify-content: flex-start;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .progress-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: rgba(55, 65, 81, 0.9);
+            transition: all 0.3s ease;
+        }
+
+        .progress-dot.active {
+            background: #6366F1;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: rgba(16, 185, 129, 0.12);
+            color: #6EE7B7;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            margin-top: 4px;
+            border: 1px solid rgba(16, 185, 129, 0.7);
+        }
+
+        .status-badge span {
+            font-size: 1rem;
+        }
+
+        .success-summary {
+            margin-top: 16px;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 12px;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            text-align: left;
+        }
+
+        .success-summary p {
+            font-size: 0.86rem;
+            color: #D1D5DB;
+            line-height: 1.6;
+        }
+
+        .success-summary p span.label {
+            display: inline-block;
+            width: 90px;
+            color: #9CA3AF;
+        }
+
+        .app-side {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .donate-panel {
+            background: radial-gradient(circle at top left, #F97316, #FACC15);
+            border-radius: 22px;
+            padding: 16px 16px 18px;
+            color: #1F2933;
+            box-shadow:
+                0 22px 55px rgba(194, 65, 12, 0.7),
+                0 0 0 1px rgba(251, 191, 36, 0.4);
+            cursor: pointer;
+            transition: transform 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .donate-panel:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 28px 70px rgba(194, 65, 12, 0.9),
+                0 0 0 1px rgba(251, 191, 36, 0.6);
+        }
+
+        .donate-panel-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .donate-panel-main {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .donate-circle {
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            background: rgba(250, 250, 249, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .donate-panel h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .donate-panel p {
+            font-size: 0.86rem;
+            line-height: 1.4;
+        }
+
+        .donate-tagline {
+            margin-top: 8px;
+            font-size: 0.78rem;
+            opacity: 0.85;
+            line-height: 1.4;
+        }
+
+        .donate-chip-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 9px;
+            flex-wrap: wrap;
+        }
+
+        .donate-chip {
+            font-size: 0.74rem;
+            padding: 4px 7px;
+            border-radius: 999px;
+            background: rgba(251, 191, 36, 0.22);
+            border: 1px solid rgba(217, 119, 6, 0.7);
+        }
+
+        .side-card {
+            background: rgba(15, 23, 42, 0.85);
+            border-radius: 20px;
+            padding: 14px 14px 12px;
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            color: #E5E7EB;
+        }
+
+        .side-card h4 {
+            font-size: 0.9rem;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .side-card ul {
+            list-style: none;
+            font-size: 0.8rem;
+            color: #9CA3AF;
+        }
+
+        .side-card li {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 4px;
+            line-height: 1.4;
+        }
+
+        .side-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 999px;
+            background: #4F46E5;
+            margin-top: 7px;
+            flex-shrink: 0;
+        }
+
+        .footer {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 8px 16px 18px;
+            color: #6B7280;
+            font-size: 0.78rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .footer a {
+            color: #9CA3AF;
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+
+        .footer a:hover {
+            color: #CBD5E1;
+        }
+
+        .linkedin-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 6px;
+            border-radius: 6px;
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            transition: all 0.2s ease;
+        }
+
+        .linkedin-link:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.5);
+            transform: translateY(-1px);
+            text-decoration: none;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 8px;
+            font-size: 0.8rem;
+            color: #9CA3AF;
+            margin-top: 14px;
+        }
+
+        .features-grid div {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .location-search {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid rgba(55, 65, 81, 0.9);
+            border-radius: 10px;
+            color: #E5E7EB;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            transition: border-color 0.15s ease;
+        }
+
+        .location-search:focus {
+            outline: none;
+            border-color: #6366F1;
+        }
+
+        .location-search::placeholder {
+            color: #6B7280;
+        }
+
+        @media (max-width: 900px) {
+    .app-shell {
+        grid-template-columns: minmax(0, 1fr);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .app-side {
+        order: 1;
+    }
+
+    .app-main {
+        order: 2;
+    }
+
+    .hide-on-mobile {
+        display: none !important;
+    }
+
+    .container {
+        padding-top: 10px;
+    }
+
+    .topbar {
+        padding-top: 16px;
+        padding-bottom: 8px;
+    }
+}
+
+        @media (max-width: 640px) {
+            .app-main {
+                padding: 16px 14px 14px;
+            }
+
+            .donate-panel {
+                padding: 12px 12px 14px;
+            }
+
+            .header h1 {
+                font-size: 1.35rem;
+            }
+
+            .topbar-title span:first-child {
+                font-size: 1.05rem;
+            }
+
+            .topbar-title span:last-child {
+                font-size: 0.8rem;
+                display: block; /* do not hide subtitle on mobile */
+            }
+
+            .topbar {
+                gap: 8px;
+            }
+
+            .location-grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                max-height: 280px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+.availability-toggle-btn {
+    margin-top: 12px;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(55, 65, 81, 0.9);
+    background: rgba(15, 23, 42, 0.95);
+    color: #E5E7EB;
+    font-size: 0.86rem;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+
+.availability-toggle-btn:hover {
+    background: rgba(17, 24, 39, 1);
+    border-color: rgba(99, 102, 241, 0.8);
+    transform: translateY(-1px);
+}
+
+.availability-panel {
+    margin-top: 10px;
+    border-radius: 16px;
+    border: 1px solid rgba(55, 65, 81, 0.9);
+    background: rgba(15, 23, 42, 0.96);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.25s ease;
+}
+
+.availability-panel.open {
+    max-height: 420px;
+}
+
+.availability-inner {
+    padding: 10px 10px 12px;
+}
+
+.availability-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.availability-title {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #E5E7EB;
+}
+
+.availability-subtitle {
+    font-size: 0.78rem;
+    color: #9CA3AF;
+}
+
+.availability-filter {
+    min-width: 150px;
+    background: rgba(15, 23, 42, 0.95);
+    border-radius: 999px;
+    border: 1px solid rgba(55, 65, 81, 0.9);
+    color: #E5E7EB;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+}
+
+.availability-list {
+    margin-top: 8px;
+    max-height: 260px;
+    overflow-y: auto;
+    padding-right: 2px;
+    scrollbar-width: thin;
+}
+
+.availability-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(31, 41, 55, 0.9);
+    background: rgba(15, 23, 42, 0.95);
+    font-size: 0.8rem;
+    margin-bottom: 6px;
+}
+
+.availability-row:hover {
+    border-color: rgba(99, 102, 241, 0.75);
+}
+
+.availability-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.availability-location {
+    font-weight: 600;
+    color: #E5E7EB;
+}
+
+.availability-meta {
+    font-size: 0.74rem;
+    color: #9CA3AF;
+}
+
+.availability-slots {
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.availability-empty {
+    font-size: 0.8rem;
+    color: #9CA3AF;
+    padding: 8px 4px;
+    text-align: left;
+}
+
+@media (max-width: 720px) {
+    .availability-panel.open {
+        max-height: 360px;
+    }
+}
+
+#availabilityFloatingBtn {
+    width: 100%;
+    margin-top: 12px;
+}
+
+
+
+/* Backdrop for availability modal */
+.availability-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+/* When modal is open */
+.availability-modal-backdrop.open {
+    display: flex;
+}
+
+/* Modal card */
+.availability-modal {
+    width: 100%;
+    max-width: 480px;
+    margin: 0 16px;
+    background: rgba(15, 23, 42, 1);
+    border-radius: 18px;
+    border: 1px solid rgba(55, 65, 81, 0.9);
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.65);
+    padding: 14px 14px 16px;
+}
+
+/* Header inside modal */
+.availability-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+/* Close button */
+.availability-close-btn {
+    border: none;
+    background: transparent;
+    color: #9CA3AF;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 999px;
+    line-height: 1;
+}
+
+.availability-close-btn:hover {
+    background: rgba(31, 41, 55, 0.9);
+    color: #E5E7EB;
+}
+
+/* Prevent scroll when modal is open */
+body.availability-modal-open {
+    overflow: hidden;
+}
+
+/* Grey style for zero slots */
+.availability-slots.availability-slots-empty {
+    background: rgba(55, 65, 81, 0.5);
+    color: #D1D5DB;
+    border-color: rgba(75, 85, 99, 0.9);
+}
+
+        /* Green - available */
+.availability-slots-available {
+    background: rgba(22, 163, 74, 0.15);
+    color: #6EE7B7;
+    border: 1px solid rgba(22, 163, 74, 0.8);
+    font-weight: 600;
+}
+
+/* Gray - unavailable */
+.availability-slots-unavailable {
+    background: rgba(55, 65, 81, 0.5);
+    color: #9CA3AF;
+    border: 1px solid rgba(75, 85, 99, 0.9);
+    font-style: italic;
+}
+
+</style>
+    <script src="/app.js"></script>
+</head>
+<body>
+<div class="page-shell">
+    <!-- ===== NEW HEADER ===== -->
+<header class="topbar">
+<div class="topbar-title">
+    <span class="free-banner">
+        💜 FREE Appointment Notifications 💜<br>
+        💜 North Carolina DMV 💜
+    </span>
+</div>
+</header>
+
+
+
+
+    <main class="container">
+        <div class="app-shell">
+            <div class="app-main">
+                <div class="alert" id="alert"></div>
+
+                <!-- Screen 1: Welcome -->
+                <div class="screen active" id="screen-welcome">
+                    <div class="header">
+                        <h1>🚦 Find NC DMV appointments faster</h1>
+                        <p>We track available appointment slots and send you instant browser notifications when slots appear.</p>
+
+                        <div class="subheader-line">
+                            <div class="subheader-badge">
+                                <strong>No registration, no spam, just alerts</strong>
+                            </div>
+                        </div>
+                    </div>
+
+
+<div class="card">
+    <button class="btn btn-primary" onclick="showScreen('platform')">
+        🔔 Start free monitoring
+    </button>
+
+    <div class="features-grid">
+        <div>✓ Browser notifications</div>
+        <div>✓ No login required</div>
+        <div>✓ Works on phone & desktop</div>
+    </div>
+
+    <button
+    id="availabilityFloatingBtn"
+    class="availability-toggle-btn"
+    onclick="openAvailabilityModal()"
+>
+    📊 View live availability
+</button>
+
+
+</div>
+
+                </div>
+
+                <!-- Screen 2: Platform Selection -->
+                <div class="screen" id="screen-platform">
+                    <span class="back-btn" onclick="showScreen('welcome')">← Back</span>
+                    <div class="progress">
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot"></div>
+                        <div class="progress-dot"></div>
+                    </div>
+
+                    <div class="header">
+                        <h1>Choose your device</h1>
+                        <p>  Open this page on the device where you want to receive DMV notifications,  then choose that device below.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="platform-grid">
+                            <div class="platform-btn" onclick="selectPlatform('iphone')">
+                                <div class="platform-main">
+                                    <div class="icon">📱</div>
+                                    <div class="info">
+                                        <h3>iPhone / iPad</h3>
+                                        <p>Use Safari for the best experience.</p>
+                                    </div>
+                                </div>
+                                <div class="platform-tag">Safari</div>
+                            </div>
+
+                            <div class="platform-btn" onclick="selectPlatform('android')">
+                                <div class="platform-main">
+                                    <div class="icon">🤖</div>
+                                    <div class="info">
+                                        <h3>Android phone</h3>
+                                        <p>Works great with Chrome.</p>
+                                    </div>
+                                </div>
+                                <div class="platform-tag">Chrome</div>
+                            </div>
+
+                            <div class="platform-btn" onclick="selectPlatform('desktop')">
+                                <div class="platform-main">
+                                    <div class="icon">💻</div>
+                                    <div class="info">
+                                        <h3>Desktop / Laptop</h3>
+                                        <p>Any modern browser is supported.</p>
+                                    </div>
+                                </div>
+                                <div class="platform-tag">Browser</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Screen 3: Setup Instructions -->
+                <div class="screen" id="screen-setup">
+                    <span class="back-btn" onclick="showScreen('platform')">← Back</span>
+
+                    <div class="progress">
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot"></div>
+                    </div>
+
+                    <div class="header">
+                        <h1>Quick setup</h1>
+                        <p>Follow the steps for your device, then continue.</p>
+                    </div>
+
+                    <div class="card">
+                        <!-- iPhone instructions -->
+                        <div class="setup-instructions" id="setup-iphone" style="display: none;">
+                            <h3>📱 iPhone / iPad</h3>
+                            <ol>
+                                <li>Open this website in <strong>Safari browser</strong> (this is required — other browsers won't work).</li>
+                                <li>Tap the <strong>Share button</strong> (⬆️ square with arrow) at the bottom or top-right of the screen.</li>
+                                <li>Select <strong>"Add to Home Screen"</strong>.</li>
+                                <li>Open the app from your Home Screen.</li>
+                                <li>Allow notifications when prompted — <strong>this is required</strong> to receive alerts.</li>
+                            </ol>
+                            <div class="note">
+                                If notifications don't arrive: Settings → Apps → find the app → Notifications → Enable. If the app doesn't appear in Settings, open it again and repeat the signup — iOS will show the permission popup.
+                            </div>
+                        </div>
+
+                        <!-- Android instructions -->
+                        <div class="setup-instructions" id="setup-android" style="display: none;">
+                            <h3>🤖 Android</h3>
+                            <ol>
+                                <li>Open this website in <strong>Chrome browser</strong> on your Android phone.</li>
+                                <li>Tap the menu icon <strong>(⋮)</strong> in the top-right corner and select <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</li>
+                                <li>Confirm the installation and open the app from your Home Screen.</li>
+                                <li>Allow notifications when prompted — <strong>this is required</strong> to receive alerts.</li>
+                                <li><strong>Important:</strong> Don't fully close the app — just minimize it. Notifications only work when Chrome is running in the background.</li>
+                                <li>To prevent the app from being closed automatically: <strong>Settings → Apps → Chrome → Battery → Select "Unrestricted"</strong></li>
+                            </ol>
+                            <div class="note">
+                                If notifications still don't arrive: Settings → Apps → Chrome → Notifications → Enable all
+                            </div>
+                        </div>
+
+                        <!-- Desktop instructions -->
+                        <div class="setup-instructions" id="setup-desktop" style="display: none;">
+                            <h3>💻 Desktop</h3>
+                            <ol>
+                                <li>Open this website on your computer.</li>
+                                <li><strong>Chrome:</strong> Click the install icon (💻↓ computer with arrow) in the top-right corner of the address bar, then click "Install".</li>
+                                <li><strong>Safari:</strong> Click the <strong>Share button</strong> (⬆️ square with arrow) in the top-right or bottom of the screen, then select "Add to Dock".</li>
+                                <li>Allow notifications when prompted — <strong>this is required</strong> to receive alerts.</li>
+                            </ol>
+                            <div class="note">
+                                If notifications don't arrive: Check your system settings. <strong>Windows:</strong> Settings → System → Notifications → Make sure Chrome/Safari is enabled. <strong>Mac:</strong> System Preferences → Notifications → Find your browser → Allow notifications.
+                            </div>
+                        </div>
+                        <button class="btn btn-primary" onclick="showScreen('category')" style="margin-top: 14px;">
+                            ✓ Done — continue
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Screen 4: Category Selection -->
+                <div class="screen" id="screen-category">
+                    <span class="back-btn" onclick="showScreen('setup')">← Back</span>
+
+                    <div class="progress">
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot active"></div>
+                        <div class="progress-dot active"></div>
+                    </div>
+
+                    <div class="header">
+                        <h1>What do you need?</h1>
+                        <p>Select the DMV service you are trying to book.</p>
+                    </div>
+
+                    <div class="card">
+                        <div class="category-list" id="categoryList">
+                            <div class="spinner"></div>
+                        </div>
+
+                        <button class="btn btn-primary" onclick="showScreen('locations')" id="categoryNextBtn" disabled style="margin-top: 14px;">
+                            Continue →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Screen 5: Location Selection -->
+                <div class="screen" id="screen-locations">
+                    <span class="back-btn" onclick="showScreen('category')">← Back</span>
+
+                    <div class="header">
+                        <h1>Choose locations</h1>
+                        <p>Select specific offices or skip to monitor all of NC.</p>
+                    </div>
+
+                    <div class="card">
+                        <input type="text" class="location-search" id="locationSearch" placeholder="🔍 Search locations..." onkeyup="filterLocations()">
+
+                        <div class="location-grid" id="locationGrid">
+                            <!-- Will be populated with locations -->
+                        </div>
+
+                        <button class="btn btn-secondary" onclick="skipLocations()" style="margin-top: 14px;">
+                            Monitor all locations in NC
+                        </button>
+
+                        <button class="btn btn-primary" onclick="subscribe()" id="subscribeBtn" disabled style="margin-top: 10px;">
+                            🔔 Start monitoring
+                        </button>
+
+                        <div class="inline-error" id="subscribeError"></div>
+                    </div>
+                </div>
+
+                <!-- Screen 6: Success -->
+                <div class="screen" id="screen-success">
+                    <div class="header">
+                        <div class="icon">✅</div>
+                        <h1>You're all set!</h1>
+                        <p>We'll notify you when matching appointments are found.</p>
+                        <div class="status-badge">
+                            <span>🔔</span> Monitoring active for your profile
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div style="text-align: center;">
+                            <div class="success-summary">
+                                <p><span class="label">Category:</span> <span id="successCategory"></span></p>
+                                <p style="margin-top: 4px;"><span class="label">Locations:</span> <span id="successLocations"></span></p>
+                            </div>
+
+                            <div style="margin-top: 14px; padding: 10px; background: rgba(251, 191, 36, 0.1); border: 1px solid rgba(251, 191, 36, 0.5); border-radius: 10px; font-size: 0.85rem; color: #FDE68A;">
+                                ⏰ <strong>Important:</strong> Your subscription will automatically expire in 3 days. You'll need to resubscribe to continue receiving notifications.
+                            </div>
+
+                            <button class="btn btn-secondary" onclick="testNotification()" style="margin-top: 14px;">
+                                🧪 Send test notification
+                            </button>
+
+                            <button class="btn btn-secondary" onclick="openInstructionsModal()" style="margin-top: 10px;">
+                                📖 View setup instructions
+                            </button>
+
+                            <button class="btn btn-danger" onclick="unsubscribe()" style="margin-top: 10px;">
+                                🔕 Unsubscribe
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Side panel with donation & info -->
+            <aside class="app-side">
+                <div class="donate-panel" onclick="window.open('https://ko-fi.com/gizred', '_blank')">
+                    <div class="donate-panel-header">
+                    </div>
+                    <div class="donate-panel-main">
+                        <div class="donate-circle">💛</div>
+                        <div>
+                            <h3>Help keep NC DMV alerts free</h3>
+                            <p>Your donation helps cover server costs and time spent maintaining the monitor.</p>
+                            <div class="donate-tagline">
+                                No subscriptions, no paywall — just a little support if this tool saves you time.
+                            </div>
+                            <div class="donate-chip-row">
+                                <div class="donate-chip">☕ Buy a coffee</div>
+                                <div class="donate-chip">⚙️ Keep servers running</div>
+                                <div class="donate-chip">❤️ Say "thank you"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-card" id="card-how-it-works">
+                    <h4>How it works</h4>
+                    <ul>
+                        <li>
+                            <span class="side-dot"></span>
+                            <span>We automatically check the official NC DMV appointment system.</span>
+                        </li>
+                        <li>
+                            <span class="side-dot"></span>
+                            <span>When a slot matches your category & location — you get a notification.</span>
+                        </li>
+                        <li>
+                            <span class="side-dot"></span>
+                            <span>You can unsubscribe anytime with one click.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="side-card" id="card-tips">
+                    <h4>Tips</h4>
+                    <ul>
+                        <li>
+                            <span class="side-dot"></span>
+                            <span>Allow notifications when the permission prompt appears — otherwise we can’t alert you.</span>
+                        </li>
+                        <li>
+                            <span class="side-dot"></span>
+                            <span>When you receive a notification that a free slot has been found for your category, you can simply tap the notification and the DMV website will open, where you will need to manually book the slot</span>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </main>
+
+        <!-- Small donate popup after successful subscription -->
+    <div class="donate-popup-backdrop" id="donatePopup">
+        <div class="donate-popup">
+            <div class="donate-popup-close" onclick="closeDonatePopup()">✕</div>
+            <h3>Did this help you catch an appointment?</h3>
+            <p>
+                If you managed to grab an open DMV slot thanks to this tool,
+                you can say “thank you” with a small tip. Keeping this
+                monitor running and servers online is not free — your support
+                really helps. 💛
+            </p>
+            <button class="btn btn-secondary" onclick="handleDonateClick()">
+                🙏 Thank you
+            </button>
+        </div>
+    </div>
+
+
+<footer class="footer">
+    <span>Free NC DMV appointment notifications (unofficial helper tool).</span>
+    <span>
+        Author:
+        <a href="https://www.linkedin.com/in/mikhail-drogalev-a4bbab341/" target="_blank" rel="noopener noreferrer" class="linkedin-link">
+            💼 LinkedIn
+        </a>
+    </span>
+<span>
+    This free tool automatically monitors the official North Carolina DMV appointment system
+    and sends instant browser notifications when new appointment slots become available.
+    It checks all DMV locations in North Carolina every few minutes and works on mobile and desktop.
+    <br>
+    This project is not affiliated with the NC DOT or the DMV.
+</span>
+</footer>
+</div>
+
+
+<!-- Instructions Modal -->
+<div id="instructionsModal" class="availability-modal-backdrop">
+    <div class="availability-modal" style="max-width: 560px;">
+        <div class="availability-modal-header">
+            <div>
+                <div class="availability-title" style="font-size: 1.1rem;">Setup Instructions</div>
+                <div class="availability-subtitle">
+                    Choose your device to see platform-specific instructions
+                </div>
+            </div>
+            <button
+                type="button"
+                class="availability-close-btn"
+                onclick="closeInstructionsModal()"
+            >
+                ✕
+            </button>
+        </div>
+
+        <div class="availability-inner">
+            <div class="platform-grid">
+                <div class="platform-btn" onclick="showInstructionForPlatform('iphone')">
+                    <div class="platform-main">
+                        <div class="icon">📱</div>
+                        <div class="info">
+                            <h3>iPhone / iPad</h3>
+                            <p>Use Safari for the best experience.</p>
+                        </div>
+                    </div>
+                    <div class="platform-tag">Safari</div>
+                </div>
+
+                <div class="platform-btn" onclick="showInstructionForPlatform('android')">
+                    <div class="platform-main">
+                        <div class="icon">🤖</div>
+                        <div class="info">
+                            <h3>Android phone</h3>
+                            <p>Works great with Chrome.</p>
+                        </div>
+                    </div>
+                    <div class="platform-tag">Chrome</div>
+                </div>
+
+                <div class="platform-btn" onclick="showInstructionForPlatform('desktop')">
+                    <div class="platform-main">
+                        <div class="icon">💻</div>
+                        <div class="info">
+                            <h3>Desktop / Laptop</h3>
+                            <p>Any modern browser is supported.</p>
+                        </div>
+                    </div>
+                    <div class="platform-tag">Browser</div>
+                </div>
+            </div>
+
+            <!-- iPhone instructions -->
+            <div class="setup-instructions" id="modal-setup-iphone" style="display: none; margin-top: 14px;">
+                <h3>📱 iPhone / iPad</h3>
+                <ol>
+                    <li>Open this website in <strong>Safari browser</strong> (this is required – other browsers won't work).</li>
+                    <li>Tap the <strong>Share button</strong> (⬆️ square with arrow) at the bottom or top-right of the screen.</li>
+                    <li>Select <strong>"Add to Home Screen"</strong>.</li>
+                    <li>Open the app from your Home Screen.</li>
+                    <li>Allow notifications when prompted – <strong>this is required</strong> to receive alerts.</li>
+                </ol>
+                <div class="note">
+                    If notifications don't arrive: Settings → Apps → find the app → Notifications → Enable. If the app doesn't appear in Settings, open it again and repeat the signup – iOS will show the permission popup.
+                </div>
+            </div>
+
+            <!-- Android instructions -->
+            <div class="setup-instructions" id="modal-setup-android" style="display: none; margin-top: 14px;">
+                <h3>🤖 Android</h3>
+                <ol>
+                    <li>Open this website in <strong>Chrome browser</strong> on your Android phone.</li>
+                    <li>Tap the menu icon <strong>(⋮)</strong> in the top-right corner and select <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong>.</li>
+                    <li>Confirm the installation and open the app from your Home Screen.</li>
+                    <li>Allow notifications when prompted – <strong>this is required</strong> to receive alerts.</li>
+                    <li><strong>Important:</strong> Don't fully close the app – just minimize it. Notifications only work when Chrome is running in the background.</li>
+                    <li>To prevent the app from being closed automatically: <strong>Settings → Apps → Chrome → Battery → Select "Unrestricted"</strong></li>
+                </ol>
+                <div class="note">
+                    If notifications still don't arrive: Settings → Apps → Chrome → Notifications → Enable all
+                </div>
+            </div>
+
+            <!-- Desktop instructions -->
+            <div class="setup-instructions" id="modal-setup-desktop" style="display: none; margin-top: 14px;">
+                <h3>💻 Desktop</h3>
+                <ol>
+                    <li>Open this website on your computer.</li>
+                    <li><strong>Chrome:</strong> Click the install icon (💻↓ computer with arrow) in the top-right corner of the address bar, then click "Install".</li>
+                    <li><strong>Safari:</strong> Click the <strong>Share button</strong> (⬆️ square with arrow) in the top-right or bottom of the screen, then select "Add to Dock".</li>
+                    <li>Allow notifications when prompted – <strong>this is required</strong> to receive alerts.</li>
+                </ol>
+                <div class="note">
+                    If notifications don't arrive: Check your system settings. <strong>Windows:</strong> Settings → System → Notifications → Make sure Chrome/Safari is enabled. <strong>Mac:</strong> System Preferences → Notifications → Find your browser → Allow notifications.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="availabilityModal" class="availability-modal-backdrop">
+    <div class="availability-modal">
+        <div class="availability-modal-header">
+            <div>
+                <div class="availability-title">Live DMV availability</div>
+                <div class="availability-subtitle">
+                    Choose a category to see all locations and their latest status.
+                </div>
+            </div>
+            <button
+                type="button"
+                class="availability-close-btn"
+                onclick="closeAvailabilityModal()"
+            >
+                ✕
+            </button>
+        </div>
+
+        <div class="availability-inner">
+            <div class="availability-header">
+                <div class="availability-title">
+                    Category
+                </div>
+                <select
+                    id="availabilityCategorySelect"
+                    class="availability-filter"
+                    onchange="onAvailabilityCategoryChange()"
+                >
+                    <!-- options will be filled by JS -->
+                </select>
+            </div>
+
+            <div id="availabilityList" class="availability-list">
+                <div class="availability-empty">
+                    Loading availability data…
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
