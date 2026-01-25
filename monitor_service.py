@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from database import Database
 
 BASE_DIR = Path(__file__).resolve().parent
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.local")
 
 
 class ServerErrorException(Exception):

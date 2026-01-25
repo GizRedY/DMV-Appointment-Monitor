@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 from database import Database
 
 BASE_DIR = Path(__file__).resolve().parent
-load_dotenv(BASE_DIR / ".env")
+load_dotenv(BASE_DIR / ".env.local")
 
 # ============================================================================
 # LOGGING SETUP

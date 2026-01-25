@@ -4,7 +4,7 @@ __pycache__/
 *.pyd
 .venv/
 venv/
-.env
+.env.local
 .idea/
 shared/
 data/
