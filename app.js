@@ -677,6 +677,7 @@ function renderAvailabilityList(categoryKey) {
 }
 
 // Open modal and load data if needed
+// Open modal and load data if needed
 async function openAvailabilityModal() {
     const modal = document.getElementById('availabilityModal');
     const listEl = document.getElementById('availabilityList');
@@ -690,13 +691,22 @@ async function openAvailabilityModal() {
     modal.classList.add('open');
     document.body.classList.add('availability-modal-open');
 
-    // If the data isn’t available yet, show a loading state
+    // Show loading state
+    listEl.innerHTML = '<div class="availability-empty">Loading availability data…</div>';
+
+    // If data isn't loaded yet, load it now and wait
     if (availabilityData.length === 0) {
-        listEl.innerHTML = '<div class="availability-empty">Loading availability data…</div>';
-        return;
+        console.log('Data not loaded yet, loading now...');
+        await updateAvailabilityData();
+
+        // If still no data after loading, show error
+        if (availabilityData.length === 0) {
+            listEl.innerHTML = '<div class="availability-empty">Failed to load data. Please refresh the page.</div>';
+            return;
+        }
     }
 
-    // Populate categories if they don’t exist yet
+    // Populate categories if they don't exist yet
     if (selectEl.options.length === 0) {
         const categories = Array.from(
             new Set(availabilityData.map(item => item.category))
@@ -749,15 +759,17 @@ window.onAvailabilityCategoryChange = onAvailabilityCategoryChange;
 // AUTO-UPDATE AVAILABILITY DATA
 // ============================================================================
 
-let availabilityUpdateInterval = null;
+//let availabilityUpdateInterval = null;
 
 async function updateAvailabilityData() {
     try {
+        console.log('🔄 Loading availability data...');
         const resp = await fetch(`${API_URL}/availability?t=${Date.now()}`);
         if (!resp.ok) {
             throw new Error('HTTP ' + resp.status);
         }
         availabilityData = await resp.json();
+        console.log('✅ Availability data loaded:', availabilityData.length, 'items');
 
         // If the modal is open, update the UI
         const modal = document.getElementById('availabilityModal');
@@ -791,7 +803,7 @@ async function updateAvailabilityData() {
             }
         }
     } catch (err) {
-        console.error('Failed to update availability data', err);
+        console.error('❌ Failed to update availability data', err);
     }
 }
 
@@ -967,11 +979,18 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Subscription restore result:', restored);
     });
 
-    // Load availability data immediately
-    updateAvailabilityData();
-
-    // Start auto-update every 10 seconds
-    availabilityUpdateInterval = setInterval(updateAvailabilityData, 10000);
+    // Load availability data immediately with retry
+    console.log('Starting initial data load...');
+    updateAvailabilityData().then(() => {
+        console.log('Initial data load completed');
+    }).catch(err => {
+        console.error('Initial data load failed:', err);
+        // Retry after 2 seconds
+        setTimeout(() => {
+            console.log('Retrying data load...');
+            updateAvailabilityData();
+        }, 2000);
+    });
 
     console.log('✅ App initialized successfully');
     console.log('='.repeat(60));
