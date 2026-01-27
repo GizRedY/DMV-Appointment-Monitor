@@ -52,8 +52,7 @@ app = FastAPI(title="DMV Monitor API", version="2.0.0") # docs_url=None, openapi
 
 def require_admin(x_admin_token: str | None = Header(default=None)):
     """
-    Simple admin protection for maintenance endpoints.
-    Set ADMIN_TOKEN in environment variables.
+    Admin protection.
     """
 
     if x_admin_token == os.getenv("ADMIN_TOKEN"):

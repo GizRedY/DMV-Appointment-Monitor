@@ -358,8 +358,9 @@ class DataStorage:
         self.db = db
 
     async def save_slots_info(self, category: str, slots_data: List[Dict]):
-        """Save slots information to database.
-        IMPORTANT: Store category as key (e.g. 'driver_license_first_time'), not label.
+        """
+        Save slots information to database.
+        Store category as key (e.g. 'driver_license_first_time'), not label.
         """
         try:
             # Map label -> key (fallback to the original value if already a key)
@@ -595,7 +596,7 @@ class LocationChecker:
             if location in visited_locations:
                 continue
 
-            loc = page.locator(".QflowObjectItem.Active-Unit", has_text=location)
+            loc = page.locator(".QflowObjectItem.Active-Unit", has_text=location).first
 
             if await loc.count() == 0:
                 continue
@@ -603,10 +604,10 @@ class LocationChecker:
             visited_locations.add(location)
 
             self.logger.info(f"Entering location: {location}")
-            await self.page_navigator.safe_click(page, loc.first, self.config.calendar_page_text)
 
             try:
                 try:
+                    await self.page_navigator.safe_click(page, loc, self.config.calendar_page_text)
                     total_slots = await self.slot_checker.check_slots(page, location)
                 except Exception as e:
                     self.logger.warning(f"Error checking slots at {location}: {e}")
