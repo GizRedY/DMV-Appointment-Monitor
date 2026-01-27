@@ -168,13 +168,6 @@ class CategoryInfo(BaseModel):
     description: str
 
 
-class StatusResponse(BaseModel):
-    """Service status"""
-    status: str
-    total_subscriptions: int
-    active_categories: List[str]
-
-
 class VapidKeyResponse(BaseModel):
     """VAPID public key response"""
     public_key: str
