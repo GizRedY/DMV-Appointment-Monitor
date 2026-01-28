@@ -5,7 +5,22 @@ from datetime import datetime, timedelta
 from typing import List, Dict, Optional
 import logging
 
-logger = logging.getLogger(__name__)
+BASE_DIR = Path(__file__).resolve().parent
+LOGS_DIR = BASE_DIR / "shared" / "logs"
+LOGS_DIR.mkdir(parents=True, exist_ok=True)
+
+logger = logging.getLogger("database")
+logger.setLevel(logging.INFO)
+
+if not logger.handlers:
+    file_handler = logging.FileHandler(LOGS_DIR / "database.log", encoding="utf-8")
+    formatter = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(name)s | %(message)s"
+    )
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+logger.propagate = False
 
 
 class Database:
@@ -292,7 +307,7 @@ class Database:
                 """, (category, location_name, slots_count, timestamp))
 
             conn.commit()
-            logger.info(f"Saved slots info for {len(slots_data)} locations in category {category}")
+            # logger.info(f"Saved slots info for {len(slots_data)} locations in category {category}")
 
         except Exception as e:
             logger.error(f"Error saving slots info: {e}")

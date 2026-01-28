@@ -61,7 +61,7 @@ def require_admin(x_admin_token: str | None = Header(default=None)):
 
 
 
-# CORS middleware        # In case if I divide API and Front
+# CORS middleware        # In case if I divide API and Front origins
 # app.add_middleware(
 #     CORSMiddleware,
 #     allow_origins=["*"],
@@ -504,7 +504,7 @@ async def test_notification(user_id: str):
 # DATABASE MAINTENANCE ENDPOINTS
 # ============================================================================
 
-@app.post("/maintenance/cleanup-old-subscriptions", dependencies=[Depends(require_admin)])
+@app.delete("/maintenance/cleanup-old-subscriptions", dependencies=[Depends(require_admin)])
 async def cleanup_old_subscriptions(max_age_hours: int = 72):
     """Remove subscriptions older than specified hours (admin endpoint)"""
     try:
