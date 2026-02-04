@@ -163,7 +163,7 @@ class ScreenshotManager:
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         filepath = folder / f"screenshot_{timestamp}.png"
 
-        await page.screenshot(path=str(filepath), full_page=True)
+        await page.screenshot(path=str(filepath), full_page=False)
         self.logger.warning("Screenshot Saved")
 
 
@@ -387,21 +387,8 @@ class PageNavigator:
         self.logger = logger
         self.screenshot_manager = screenshot_manager
 
-    async def is_server_error_page(self, page: Page) -> bool:
-        try:
-            content = await page.content()
-        except Error:
-            return False
-
-        if "Unfortunately, we have encountered an error" in content:
-            self.logger.warning("Detected NCDMV 500 error page")
-            await self.screenshot_manager.take_screenshot(page)
-            raise ServerErrorException()
-
-        return False
-
     async def wait_for_spinner(self, page: Page, appear_timeout: int = 1000,
-                               disappear_timeout: int = 15000):
+                               disappear_timeout: int = 20000):
         loader = page.locator('img[src*="search-loading.gif"]')
 
         try:
@@ -451,11 +438,21 @@ class PageNavigator:
 
                 return True
 
-            except Exception:
+            except Exception as e:
+                content = ""
+                try:
+                    content = await page.content()
+                except Exception:
+                    pass
+                if "Unfortunately, we have encountered an error" in content:
+                    self.logger.warning("Detected NCDMV 500 error page")
+                    raise ServerErrorException() from e
+
                 if attempt == max_attempts - 1:
                     self.logger.warning(f"All safe_click('{target}') attempts exhausted")
                     await self.screenshot_manager.take_screenshot(page)
-                    raise ServerErrorException()
+                    raise ServerErrorException() from e
+
                 else:
                     continue
 
