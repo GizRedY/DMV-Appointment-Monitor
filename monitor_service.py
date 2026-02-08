@@ -157,14 +157,22 @@ class ScreenshotManager:
         if not self.config.screenshot_switch:
             return
 
-        folder = self.config.screenshot_folder
-        folder.mkdir(parents=True, exist_ok=True)
+        try:
+            if page.is_closed():
+                self.logger.warning("Cannot take screenshot: page is closed")
+                return
 
-        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filepath = folder / f"screenshot_{timestamp}.png"
+            folder = self.config.screenshot_folder
+            folder.mkdir(parents=True, exist_ok=True)
 
-        await page.screenshot(path=str(filepath), full_page=False)
-        self.logger.warning("Screenshot Saved")
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filepath = folder / f"screenshot_{timestamp}.png"
+
+            await page.screenshot(path=str(filepath), full_page=False, timeout=5000, animations="disabled")
+            self.logger.warning("Screenshot Saved")
+
+        except Exception as e:
+            self.logger.warning(f"Failed to take screenshot: {e}")
 
 
 class SubscriptionManager:
@@ -403,6 +411,7 @@ class PageNavigator:
         except Exception as e:
             self.logger.warning(f"Loader did NOT disappear: {e}")
             await self.screenshot_manager.take_screenshot(page)
+            raise
 
     async def safe_click(self, page: Page, target, expected_text=None,
                          timeout=15000, max_attempts=3):
