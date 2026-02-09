@@ -629,6 +629,10 @@ class LocationChecker:
                 except ServerErrorException:
                     total_slots = {}
 
+                except PlaywrightTimeoutError:
+                    self.logger.info("Loader didn't disappear search-loading.gif")
+                    total_slots = {}
+
                 except Exception as e:
                     self.logger.warning(f"Error checking slots at {location}: {e}")
                     await self.screenshot_manager.take_screenshot(page)
