@@ -6,6 +6,7 @@ from typing import List, Dict, Set
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 
 from playwright.async_api import Error, async_playwright, Page, Locator
 from pywebpush import webpush
@@ -404,12 +405,19 @@ class PageNavigator:
         try:
             await loader.wait_for(state="visible", timeout=appear_timeout)
             self.logger.info("Found loader search-loading.gif")
-        except Exception:
+
+        except PlaywrightTimeoutError:
+            self.logger.info("Loader didn't appear search-loading.gif")
+            return
+
+        except Exception as e:
+            self.logger.warning(f"Error while waited loader: {e}")
             raise
 
         try:
             await loader.wait_for(state="hidden", timeout=disappear_timeout)
             self.logger.info("Loader disappeared")
+
         except Exception as e:
             self.logger.info(f"Loader did NOT disappear: {e}")
             raise
@@ -479,7 +487,7 @@ class PageNavigator:
             await page.go_back()
             await expected_locator.wait_for(state="visible", timeout=15000)
 
-        except TimeoutError:
+        except PlaywrightTimeoutError:
             raise RestartRequiredException()
 
     async def open_main_page(self, page: Page, url: str):
