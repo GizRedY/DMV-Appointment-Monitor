@@ -16,6 +16,8 @@ from database import Database
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env.local")
 
+class RestartRequiredException(Exception):
+    pass
 
 class ServerErrorException(Exception):
     pass
@@ -403,14 +405,13 @@ class PageNavigator:
             await loader.wait_for(state="visible", timeout=appear_timeout)
             self.logger.info("Found loader search-loading.gif")
         except Exception:
-            return
+            raise
 
         try:
             await loader.wait_for(state="hidden", timeout=disappear_timeout)
             self.logger.info("Loader disappeared")
         except Exception as e:
-            self.logger.warning(f"Loader did NOT disappear: {e}")
-            await self.screenshot_manager.take_screenshot(page)
+            self.logger.info(f"Loader did NOT disappear: {e}")
             raise
 
     async def safe_click(self, page: Page, target, expected_text=None,
@@ -434,10 +435,11 @@ class PageNavigator:
             try:
                 if expected_locator is not None:
                     try:
-                        if await expected_locator.is_visible(timeout=300):
+                        if await expected_locator.is_visible(timeout=3000):
                             return True
-                    except Exception:
-                        pass
+                    except Exception as e:
+                        self.logger.info(f"The locator could not be found: {e}")
+                        raise
 
                 await click_locator.wait_for(state="visible", timeout=timeout)
                 await click_locator.click(timeout=5000)
@@ -460,7 +462,7 @@ class PageNavigator:
                 if attempt == max_attempts - 1:
                     self.logger.warning(f"All safe_click('{target}') attempts exhausted")
                     await self.screenshot_manager.take_screenshot(page)
-                    raise ServerErrorException() from e
+                    raise RestartRequiredException() from e
 
                 else:
                     continue
@@ -478,14 +480,14 @@ class PageNavigator:
             await expected_locator.wait_for(state="visible", timeout=15000)
 
         except TimeoutError:
-            raise ServerErrorException()
+            raise RestartRequiredException()
 
     async def open_main_page(self, page: Page, url: str):
         try:
             await page.goto(url, timeout=60000)
             await page.get_by_text(self.config.main_page_text).first.wait_for(timeout=15000)
         except Exception:
-            raise ServerErrorException()
+            raise RestartRequiredException()
 
 
 class SlotChecker:
@@ -615,6 +617,10 @@ class LocationChecker:
                 try:
                     await self.page_navigator.safe_click(page, loc, self.config.calendar_page_text)
                     total_slots = await self.slot_checker.check_slots(page, location)
+
+                except ServerErrorException:
+                    total_slots = {}
+
                 except Exception as e:
                     self.logger.warning(f"Error checking slots at {location}: {e}")
                     await self.screenshot_manager.take_screenshot(page)
@@ -673,7 +679,7 @@ class CategoryChecker:
                     await self.page_navigator.safe_click(page, '#cmdMakeAppt',
                                                          self.config.category_page_text)
                     self.logger.info("Re-entered category selection")
-                except ServerErrorException:
+                except RestartRequiredException:
                     self.logger.warning("Failed to re-enter category selection")
                     raise
 
@@ -729,8 +735,8 @@ class DMVMonitor:
 
                             await self.category_checker.check_category(page)
 
-                        except ServerErrorException as e:
-                            self.logger.warning(f"ServerErrorException: {e}")
+                        except Exception as e:
+                            self.logger.warning(f"ServerError: {e}")
                             self.logger.info("Restarting browser...")
 
                             if context:
@@ -750,9 +756,6 @@ class DMVMonitor:
                             await asyncio.sleep(2)
 
                     self.logger.info("Restarting browser...")
-
-                except ServerErrorException:
-                    continue
 
                 except Exception as e:
                     self.logger.error(f"Critical browser error: {e}")
