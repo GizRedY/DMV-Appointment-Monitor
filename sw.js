@@ -1,5 +1,5 @@
 // Service Worker for PWA and Push Notifications
-const CACHE_NAME = 'dmv-monitor-v83';
+const CACHE_NAME = 'dmv-monitor-v84';
 const urlsToCache = [
   '/app.js',
   '/manifest.json'

@@ -538,7 +538,7 @@ async def get_locations_with_slots():
 # API ENDPOINTS
 # ============================================================================
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "ok"}
 
