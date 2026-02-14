@@ -4,6 +4,9 @@ Backend / Automation Pet Project (Python, FastAPI)
 Live Demo:
 https://dmv-appointments-nc.com/
 
+Service Status (Uptime Monitor):
+https://stats.uptimerobot.com/k9YORiE075/802351503
+
 Deployment Notes:
 The project is deployed on a Linux VPS and runs as a long-living backend service.
 The API server is exposed to the internet via the Caddy web server, which is used as a
