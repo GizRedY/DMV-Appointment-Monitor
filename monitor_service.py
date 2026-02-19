@@ -2,12 +2,13 @@ import asyncio
 import os
 import json
 import logging
+import base64
 from typing import List, Dict, Set
 from pathlib import Path
 from datetime import datetime
 from urllib.parse import urlparse
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
-
+from zoneinfo import ZoneInfo
 from playwright.async_api import Error, async_playwright, Page, Locator
 from pywebpush import webpush
 from dotenv import load_dotenv
@@ -19,6 +20,7 @@ load_dotenv(BASE_DIR / ".env.local")
 
 class RestartRequiredException(Exception):
     pass
+
 
 class ServerErrorException(Exception):
     pass
@@ -43,7 +45,7 @@ class Config:
         self.screenshot_switch = True
         self.screenshot_folder = screenshots_dir
 
-        self.calendar_page_text = "Choose a Date"
+        self.calendar_page_text = "Please select date and time"
         self.location_page_text = "Select a Location"
         self.category_page_text = "Please select an appointment type"
         self.main_page_text = "Welcome to the NCDMV Driver Service Appointment Scheduler"
@@ -168,11 +170,20 @@ class ScreenshotManager:
             folder = self.config.screenshot_folder
             folder.mkdir(parents=True, exist_ok=True)
 
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S-%f")
             filepath = folder / f"screenshot_{timestamp}.png"
 
-            await page.screenshot(path=str(filepath), full_page=False, timeout=5000, animations="disabled")
-            self.logger.warning("Screenshot Saved")
+            try:
+                await page.screenshot(path=str(filepath), full_page=False, timeout=5000, animations="disabled")
+                self.logger.warning("Screenshot Saved")
+
+            except Exception:
+                client = await page.context.new_cdp_session(page)
+                result = await client.send("Page.captureScreenshot", {"format": "png"})
+                data = base64.b64decode(result["data"])
+                with open(str(filepath), "wb") as f:
+                    f.write(data)
+                self.logger.warning("Screenshot Saved via CDP fallback")
 
         except Exception as e:
             self.logger.warning(f"Failed to take screenshot: {e}")
@@ -464,13 +475,13 @@ class PageNavigator:
                 except Exception:
                     pass
                 if "Unfortunately, we have encountered an error" in content:
-                    self.logger.warning("Detected NCDMV 500 error page")
+                    self.logger.info("Detected NCDMV 500 error page")
                     raise ServerErrorException() from e
 
                 if attempt == max_attempts - 1:
                     self.logger.warning(f"All safe_click('{target}') attempts exhausted")
                     await self.screenshot_manager.take_screenshot(page)
-                    raise RestartRequiredException() from e
+                    raise RestartRequiredException(str(e)) from e
 
                 else:
                     continue
@@ -513,7 +524,7 @@ class SlotChecker:
 
         total_time_slots = {}
 
-        slots_current_month = await self._check_month_slots(page, location)
+        slots_current_month = await self._check_month_slots(page)
         total_time_slots.update(slots_current_month)
 
         if next_button_is_available:
@@ -521,14 +532,14 @@ class SlotChecker:
             await self.page_navigator.safe_click(page, next_button_check)
             await self.page_navigator.wait_for_spinner(page)
 
-            slots_next_month = await self._check_month_slots(page, location)
+            slots_next_month = await self._check_month_slots(page)
             total_time_slots.update(slots_next_month)
 
         total_count = sum(len(times) for times in total_time_slots.values())
         self.logger.info(f"Free slots found in {location}: {total_count}")
         return total_time_slots
 
-    async def _check_month_slots(self, page: Page, location: str) -> Dict[str, List[str]]:
+    async def _check_month_slots(self, page: Page) -> Dict[str, List[str]]:
         try:
             month_elem = page.locator(".ui-datepicker-month").first
             year_elem = page.locator(".ui-datepicker-year").first
@@ -539,7 +550,6 @@ class SlotChecker:
             self.logger.info(f"Processing calendar: {month_text} {year_text}")
         except Exception as e:
             self.logger.warning(f"Failed to extract month/year: {e}")
-            from zoneinfo import ZoneInfo
             now = datetime.now(ZoneInfo("America/New_York"))
             month_text = self.config.months_en[now.month - 1]
             year_text = str(now.year)
@@ -631,6 +641,9 @@ class LocationChecker:
 
                 except PlaywrightTimeoutError:
                     self.logger.info("Loader didn't disappear search-loading.gif")
+                    total_slots = {}
+
+                except RestartRequiredException:
                     total_slots = {}
 
                 except Exception as e:
