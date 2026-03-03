@@ -65,6 +65,8 @@ class Config:
         # Browser
         self.max_cycles_before_restart = 2
 
+        self.location_timeout_sec = 20
+
         # Categories and locations
         self.categories = [
             "Driver License - First Time",
@@ -519,8 +521,8 @@ class SlotChecker:
     async def check_slots(self, page: Page, location: str) -> Dict[str, List[str]]:
         await self.page_navigator.wait_for_spinner(page)
 
-        next_button_check = page.locator("a.ui-datepicker-next:not(.ui-state-disabled)")
-        next_button_is_available = await next_button_check.count() > 0
+        next_button = page.locator("a.ui-datepicker-next:not(.ui-state-disabled)")
+        next_button_is_available = await next_button.count() > 0
 
         total_time_slots = {}
 
@@ -529,7 +531,7 @@ class SlotChecker:
 
         if next_button_is_available:
             self.logger.info("Switching to next month...")
-            await self.page_navigator.safe_click(page, next_button_check)
+            await self.page_navigator.safe_click(page, next_button)
             await self.page_navigator.wait_for_spinner(page)
 
             slots_next_month = await self._check_month_slots(page)
@@ -633,8 +635,20 @@ class LocationChecker:
 
             try:
                 try:
-                    await self.page_navigator.safe_click(page, loc, self.config.calendar_page_text)
-                    total_slots = await self.slot_checker.check_slots(page, location)
+                    await asyncio.wait_for(
+                        self.page_navigator.safe_click(page, loc, self.config.calendar_page_text),
+                        timeout=self.config.location_timeout_sec
+                    )
+
+                    total_slots = await asyncio.wait_for(
+                        self.slot_checker.check_slots(page, location),
+                        timeout=self.config.location_timeout_sec
+                    )
+
+                except asyncio.TimeoutError:
+                    self.logger.warning("Location timeout")
+                    await self.screenshot_manager.take_screenshot(page)
+                    total_slots = {}
 
                 except ServerErrorException:
                     total_slots = {}
