@@ -342,9 +342,9 @@ class NotificationManager:
         body = (
                 f"📋 {category}\n"
                 f"📍 {location_name}\n"
-                f"📅 Available slots:\n" +
-                "\n".join(display_lines) +
-                more_dates_suffix
+                f"📅 Available slots:\n"
+                + "\n".join(display_lines)
+                + more_dates_suffix
         )
 
         sent_count = 0

@@ -254,7 +254,7 @@ class Database:
         try:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT category, location_name, has_slots, last_checked 
+                SELECT category, location_name, has_slots, last_checked
                 FROM last_check
                 ORDER BY location_name, category
             """)
@@ -287,7 +287,7 @@ class Database:
                 cursor.execute("""
                     INSERT INTO last_check (category, location_name, has_slots, last_checked)
                     VALUES (?, ?, 0, ?)
-                    ON CONFLICT(category, location_name) 
+                    ON CONFLICT(category, location_name)
                     DO UPDATE SET 
                         has_slots = 0,
                         last_checked = excluded.last_checked 
