@@ -152,8 +152,8 @@ class Database:
             updated_at = datetime.now().isoformat()
 
             cursor.execute("""
-                INSERT OR REPLACE INTO subscriptions 
-                (user_id, push_subscription, categories, locations, date_range_days, 
+                INSERT OR REPLACE INTO subscriptions
+                (user_id, push_subscription, categories, locations, date_range_days,
                  created_at, updated_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?)
             """, (
@@ -288,9 +288,9 @@ class Database:
                     INSERT INTO last_check (category, location_name, has_slots, last_checked)
                     VALUES (?, ?, 0, ?)
                     ON CONFLICT(category, location_name)
-                    DO UPDATE SET 
+                    DO UPDATE SET
                         has_slots = 0,
-                        last_checked = excluded.last_checked 
+                        last_checked = excluded.last_checked
                 """, (category, location,
                       timestamp))  # excluded - это строка в памяти SQL которую пытались вставить. Существует только в Conflict
 
@@ -302,8 +302,8 @@ class Database:
                 cursor.execute("""
                     INSERT INTO last_check (category, location_name, has_slots, last_checked)
                     VALUES (?, ?, ?, ?)
-                    ON CONFLICT(category, location_name) 
-                    DO UPDATE SET 
+                    ON CONFLICT(category, location_name)
+                    DO UPDATE SET
                         has_slots = excluded.has_slots,
                         last_checked = excluded.last_checked
                 """, (category, location_name, slots_count, timestamp))
@@ -324,7 +324,7 @@ class Database:
         try:
             cursor = conn.cursor()
             cursor.execute("""
-                SELECT category, location_name, has_slots, last_checked 
+                SELECT category, location_name, has_slots, last_checked
                 FROM last_check
                 WHERE has_slots > 0
             """)
