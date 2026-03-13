@@ -1,0 +1,31 @@
+services:
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: dmv-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./shared:/app/shared
+    env_file:
+      - .env.local
+    environment:
+      - TZ=America/New_York
+    command: python api.py
+
+  monitor:
+    build:
+      context: .
+      dockerfile: Dockerfile.monitor
+    container_name: dmv-monitor
+    restart: unless-stopped
+    volumes:
+      - ./shared:/app/shared
+    env_file:
+      - .env.local
+    environment:
+      - TZ=America/New_York
+    command: python monitor_service.py

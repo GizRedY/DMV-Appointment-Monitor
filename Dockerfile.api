@@ -1,0 +1,19 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+COPY requirements.api.txt .
+RUN pip install --no-cache-dir -r requirements.api.txt
+
+COPY api.py .
+COPY database.py .
+COPY index.html .
+COPY app.js .
+COPY sw.js .
+COPY manifest.json .
+COPY robots.txt .
+COPY sitemap.xml .
+COPY icon-192.png .
+COPY icon-512.png .
+
+EXPOSE 8000
