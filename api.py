@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Header, Depends
+from fastapi import FastAPI, HTTPException, Header, Depends
 from fastapi.responses import HTMLResponse, FileResponse
 from pydantic import BaseModel, Field
 from typing import List, Optional
@@ -16,14 +16,12 @@ from database import Database
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env.local")
 
-# ============================================================================
-# LOGGING SETUP
-# ============================================================================
+#  ============================================================================
+#  LOGGING SETUP
+#  ============================================================================
 
 SHARED_DIR = BASE_DIR / "shared"
 DATA_DIR = SHARED_DIR / "data"
-
-
 
 VAPID_PRIVATE_KEY = os.getenv("VAPID_PRIVATE_KEY")
 VAPID_PUBLIC_KEY = os.getenv("VAPID_PUBLIC_KEY")
@@ -47,8 +45,8 @@ logging.basicConfig(
 
 logger = logging.getLogger("API")
 
+app = FastAPI(title="DMV Monitor API", version="2.0.0")  # docs_url=None, openapi_url=None
 
-app = FastAPI(title="DMV Monitor API", version="2.0.0") # docs_url=None, openapi_url=None
 
 def require_admin(x_admin_token: str | None = Header(default=None)):
     """
@@ -60,17 +58,16 @@ def require_admin(x_admin_token: str | None = Header(default=None)):
     raise HTTPException(status_code=401, detail="Unauthorized")
 
 
+#  CORS middleware        #  In case if I divide API and Front origins
+#  app.add_middleware(
+#      CORSMiddleware,
+#      allow_origins=["*"],
+#      allow_credentials=True,
+#      allow_methods=["*"],
+#      allow_headers=["*"],
+#  )
 
-# CORS middleware        # In case if I divide API and Front origins
-# app.add_middleware(
-#     CORSMiddleware,
-#     allow_origins=["*"],
-#     allow_credentials=True,
-#     allow_methods=["*"],
-#     allow_headers=["*"],
-# )
-
-# DMV Categories
+#  DMV Categories
 DMV_CATEGORIES = {
     "driver_license_first_time": {
         "name": "Driver License - First Time",
@@ -127,9 +124,9 @@ DMV_CATEGORIES = {
 }
 
 
-# ============================================================================
-# REQUEST/RESPONSE MODELS
-# ============================================================================
+#  ============================================================================
+#  REQUEST/RESPONSE MODELS
+#  ============================================================================
 
 class PushSubscriptionKeys(BaseModel):
     """Push subscription keys"""
@@ -147,8 +144,8 @@ class SubscriptionRequest(BaseModel):
     """Request to create/update subscription"""
     user_id: str
     push_subscription: Optional[str] = None
-    categories: List[str] = Field(default_factory=list) # Specifically indicated the creation of a separate object
-    locations: List[str] = Field(default_factory=list)  #      'Field(default_factory=list)' instead of '[]'
+    categories: List[str] = Field(default_factory=list)  # Specifically indicated the creation of a separate object
+    locations: List[str] = Field(default_factory=list)  # 'Field(default_factory=list)' instead of '[]'
     date_range_days: int = 14
 
 
@@ -181,9 +178,9 @@ class AvailabilityItem(BaseModel):
     last_checked: str
 
 
-# ============================================================================
-# HELPER FUNCTIONS
-# ============================================================================
+#  ============================================================================
+#  HELPER FUNCTIONS
+#  ============================================================================
 
 def send_push_notification(subscription_info: dict, title: str, body: str,
                            url: str = "/") -> bool:
@@ -196,7 +193,7 @@ def send_push_notification(subscription_info: dict, title: str, body: str,
         push_sub = json.loads(subscription_info['push_subscription'])
         endpoint = push_sub.get('endpoint', '')
 
-        # Determine audience based on endpoint
+        #  Determine audience based on endpoint
         if 'apple.com' in endpoint:
             aud = 'https://web.push.apple.com'
         elif 'fcm.googleapis.com' in endpoint:
@@ -231,12 +228,13 @@ def send_push_notification(subscription_info: dict, title: str, body: str,
             vapid_claims=vapid_claims
         )
 
-        logger.info(f"Push notification sent successfully")
+        logger.info("Push notification sent successfully")
         return True
 
     except WebPushException as e:
         logger.error(f"WebPush error: {e}")
-        if e.response and e.response.status_code in [404, 410]: # 404 / 410 = push endpoint is no longer valid (user disabled notifications, cleared site data, or browser invalidated subscription)
+        if e.response and e.response.status_code in [404,
+                                                     410]:  # 404 / 410 = push endpoint is no longer valid (user disabled notifications, cleared site data, or browser invalidated subscription)
             logger.warning("Subscription no longer valid")
         return False
     except Exception as e:
@@ -244,9 +242,9 @@ def send_push_notification(subscription_info: dict, title: str, body: str,
         return False
 
 
-# ============================================================================
-# STATIC FILE SERVING
-# ============================================================================
+#  ============================================================================
+#  STATIC FILE SERVING
+#  ============================================================================
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index():
@@ -329,9 +327,9 @@ async def serve_robots():
     return HTMLResponse("Robots.txt not found", status_code=404)
 
 
-# ============================================================================
-# API ENDPOINTS
-# ============================================================================
+#  ============================================================================
+#   API ENDPOINTS
+#  ============================================================================
 
 @app.get("/vapid-public-key", response_model=VapidKeyResponse)
 async def get_vapid_public_key():
@@ -373,7 +371,7 @@ async def get_availability():
             except Exception:
                 continue
 
-        # items.sort(key=lambda x: (x.location_name.lower(), x.category)) #NOTE: ordering is guaranteed by ORDER BY in get_all_last_checks() / (database.py)
+        #  items.sort(key=lambda x: (x.location_name.lower(), x.category)) #NOTE: ordering is guaranteed by ORDER BY in get_all_last_checks() / (database.py)
         return items
     except Exception as e:
         logger.error(f"Error getting availability: {e}")
@@ -384,7 +382,7 @@ async def get_availability():
 async def create_subscription(subscription: SubscriptionRequest):
     """Create or update a subscription"""
     try:
-        # Validation
+        #  Validation
         if not subscription.user_id:
             raise HTTPException(status_code=400, detail="user_id is required")
 
@@ -397,7 +395,7 @@ async def create_subscription(subscription: SubscriptionRequest):
         if not subscription.locations:
             raise HTTPException(status_code=400, detail="At least one location is required")
 
-        # Check if subscription exists
+        #  Check if subscription exists
         existing = db.get_subscription(subscription.user_id)
 
         if existing:
@@ -405,7 +403,7 @@ async def create_subscription(subscription: SubscriptionRequest):
         else:
             logger.info(f"Creating new subscription for user: {subscription.user_id}")
 
-        # Save subscription
+        #  Save subscription
         result = db.save_subscription(
             user_id=subscription.user_id,
             push_subscription=subscription.push_subscription,
@@ -500,9 +498,9 @@ async def test_notification(user_id: str):
         raise HTTPException(status_code=500, detail="Failed to send test notification")
 
 
-# ============================================================================
-# DATABASE MAINTENANCE ENDPOINTS
-# ============================================================================
+#  ============================================================================
+#  DATABASE MAINTENANCE ENDPOINTS
+#  ============================================================================
 
 @app.delete("/maintenance/cleanup-old-subscriptions", dependencies=[Depends(require_admin)])
 async def cleanup_old_subscriptions(max_age_hours: int = 72):
@@ -517,7 +515,7 @@ async def cleanup_old_subscriptions(max_age_hours: int = 72):
         else:
             return {
                 "message": "No old subscriptions to remove"
-                    }
+            }
     except Exception as e:
         logger.error(f"Error during cleanup: {e}")
         raise HTTPException(status_code=500, detail="Cleanup failed")
@@ -534,23 +532,23 @@ async def get_locations_with_slots():
         raise HTTPException(status_code=500, detail="Failed to get locations")
 
 
-# ============================================================================
-# API ENDPOINTS
-# ============================================================================
+#  ============================================================================
+#  API ENDPOINTS
+#  ============================================================================
 
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "ok"}
 
 
-# ============================================================================
-# RUN SERVER
-# ============================================================================
+#  ============================================================================
+#  RUN SERVER
+#  ============================================================================
 
 if __name__ == "__main__":
     import uvicorn
 
-    # Check VAPID keys
+    #  Check VAPID keys
     if not VAPID_PRIVATE_KEY or VAPID_PRIVATE_KEY == "YOUR_PRIVATE_KEY_HERE":
         logger.warning("=" * 80)
         logger.warning("VAPID KEYS NOT CONFIGURED!")
@@ -559,7 +557,7 @@ if __name__ == "__main__":
         logger.warning("Then set VAPID_PRIVATE_KEY and VAPID_PUBLIC_KEY environment variables")
         logger.warning("=" * 80)
 
-    # Run server
+    #  Run server
     uvicorn.run(
         app,
         host="0.0.0.0",

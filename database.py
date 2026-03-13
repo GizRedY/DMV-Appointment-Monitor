@@ -43,7 +43,7 @@ class Database:
         try:
             cursor = conn.cursor()
 
-            # Subscriptions table
+            #  Subscriptions table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS subscriptions (
                     user_id TEXT PRIMARY KEY,
@@ -57,7 +57,7 @@ class Database:
                 )
             """)
 
-            # Last check table
+            #  Last check table
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS last_check (
                     id INTEGER PRIMARY KEY,
@@ -84,8 +84,9 @@ class Database:
         try:
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT * FROM subscriptions WHERE user_id = :user_id", # После двоеточия мы указываем имя ключа у которого будет необходимое значение
-                {"user_id": user_id} # Имя ключа по факту может быть любым.
+                "SELECT * FROM subscriptions WHERE user_id = :user_id",
+                # После двоеточия мы указываем имя ключа у которого будет необходимое значение
+                {"user_id": user_id}  # Имя ключа по факту может быть любым.
             )
 
             row = cursor.fetchone()
@@ -243,9 +244,9 @@ class Database:
         finally:
             conn.close()
 
-    # ============================================================================
-    # LAST CHECK METHODS
-    # ============================================================================
+    #  ============================================================================
+    #  LAST CHECK METHODS
+    #  ============================================================================
 
     def get_all_last_checks(self) -> List[Dict]:
         """Get all last check records"""
@@ -281,7 +282,7 @@ class Database:
             cursor = conn.cursor()
             timestamp = datetime.now().isoformat()
 
-            # Update all locations for this category to 0 slots first
+            #  Update all locations for this category to 0 slots first
             for location in locations:
                 cursor.execute("""
                     INSERT INTO last_check (category, location_name, has_slots, last_checked)
@@ -290,9 +291,10 @@ class Database:
                     DO UPDATE SET 
                         has_slots = 0,
                         last_checked = excluded.last_checked 
-                """, (category, location, timestamp)) #excluded - это строка в памяти SQL которую пытались вставить. Существует только в Conflict
+                """, (category, location,
+                      timestamp))  # excluded - это строка в памяти SQL которую пытались вставить. Существует только в Conflict
 
-            # Update locations that have slots
+            #  Update locations that have slots
             for slot in slots_data:
                 location_name = slot['location']
                 slots_count = slot['slots']
@@ -307,7 +309,7 @@ class Database:
                 """, (category, location_name, slots_count, timestamp))
 
             conn.commit()
-            # logger.info(f"Saved slots info for {len(slots_data)} locations in category {category}")
+            #  logger.info(f"Saved slots info for {len(slots_data)} locations in category {category}")
 
         except Exception as e:
             logger.error(f"Error saving slots info: {e}")

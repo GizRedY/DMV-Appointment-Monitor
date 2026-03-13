@@ -9,7 +9,7 @@ from datetime import datetime
 from urllib.parse import urlparse
 from playwright.async_api import TimeoutError as PlaywrightTimeoutError
 from zoneinfo import ZoneInfo
-from playwright.async_api import Error, async_playwright, Page, Locator
+from playwright.async_api import async_playwright, Page, Locator
 from pywebpush import webpush
 from dotenv import load_dotenv
 
@@ -17,6 +17,7 @@ from database import Database
 
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env.local")
+
 
 class RestartRequiredException(Exception):
     pass
@@ -54,20 +55,19 @@ class Config:
             "a7ade79b-996d-4971-8766-97feb75254de"
         )
 
-
-        # VAPID settings
+        #  VAPID settings
         self.vapid_private_key = os.getenv("VAPID_PRIVATE_KEY")
         self.vapid_subject = os.getenv("VAPID_SUBJECT")
 
-        # Subscriptions
+        #  Subscriptions
         self.max_subscription_age_hours = 72
 
-        # Browser
+        #  Browser
         self.max_cycles_before_restart = 2
 
         self.location_timeout_sec = 20
 
-        # Categories and locations
+        #  Categories and locations
         self.categories = [
             "Driver License - First Time",
             "Driver License Duplicate",
@@ -387,7 +387,7 @@ class DataStorage:
         Store category as key (e.g. 'driver_license_first_time'), not label.
         """
         try:
-            # Map label -> key (fallback to the original value if already a key)
+            #  Map label -> key (fallback to the original value if already a key)
             category_key = self.config.category_map.get(category, category)
 
             self.db.save_slots_info(
