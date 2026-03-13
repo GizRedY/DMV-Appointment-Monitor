@@ -36,4 +36,5 @@ jobs:
           script: |
             cd /root/dmv-app
             git pull origin main
-            docker compose up --build -d
+            docker compose pull 2>/dev/null || true
+            docker compose up -d
