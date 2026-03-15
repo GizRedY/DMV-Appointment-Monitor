@@ -651,7 +651,8 @@ class LocationChecker:
                     total_slots = {}
 
                 except ServerErrorException:
-                    total_slots = {}
+                    self.logger.warning("ServerError caught in check_locations — aborting location loop")
+                    raise
 
                 except PlaywrightTimeoutError:
                     self.logger.info("Loader didn't disappear search-loading.gif")
@@ -671,8 +672,17 @@ class LocationChecker:
 
                 slots_data.append({"location": location, "slots": total_slots_nums})
 
+
             finally:
-                await self.page_navigator.go_back(page, self.config.location_page_text)
+
+                try:
+                    await self.page_navigator.go_back(page, self.config.location_page_text)
+
+                except RestartRequiredException:
+                    raise
+
+                except Exception as e:
+                    self.logger.warning(f"go_back failed: {e}")
 
             self.logger.info(f"Exited calendar: {location}")
 
@@ -749,64 +759,76 @@ class DMVMonitor:
 
     async def run(self):
         while True:
-            async with async_playwright() as p:
-                browser = None
-                try:
-                    browser = await p.chromium.launch(headless=True)
-                    self.logger.info("Browser started")
+            try:
+                await asyncio.wait_for(self._run_once(), timeout=4800)
+            except asyncio.TimeoutError:
+                self.logger.warning("Global watchdog timeout — force restarting")
+            except Exception as e:
+                self.logger.warning(f"Global error: {e}")
+            await asyncio.sleep(5)
 
-                    cycles_count = 0
-                    max_cycles = self.config.max_cycles_before_restart
+    async def _run_once(self):
+        async with async_playwright() as p:
+            browser = None
+            try:
+                browser = await p.chromium.launch(headless=True)
+                self.logger.info("Browser started")
 
-                    while cycles_count < max_cycles:
-                        context = None
-                        try:
-                            context = await browser.new_context(
-                                geolocation={"longitude": -78.65, "latitude": 35.78},
-                                permissions=["geolocation"],
-                            )
+                cycles_count = 0
+                max_cycles = self.config.max_cycles_before_restart
 
-                            page = await context.new_page()
+                while cycles_count < max_cycles:
+                    context = None
+                    try:
+                        context = await browser.new_context(
+                            geolocation={"longitude": -78.65, "latitude": 35.78},
+                            permissions=["geolocation"],
+                        )
 
-                            self.subscription_manager.remove_old_subscriptions()
-                            cycles_count += 1
-                            self.logger.info(f"Cycle {cycles_count} of {max_cycles}")
+                        page = await context.new_page()
 
-                            await self.category_checker.check_category(page)
+                        self.subscription_manager.remove_old_subscriptions()
+                        cycles_count += 1
+                        self.logger.info(f"Cycle {cycles_count} of {max_cycles}")
 
-                        except Exception as e:
-                            self.logger.warning(f"ServerError: {e}")
-                            self.logger.info("Restarting browser...")
+                        await self.category_checker.check_category(page)
 
-                            if context:
-                                try:
-                                    await context.close()
-                                except Exception:
-                                    pass
-                            break
+                    except RestartRequiredException as e:
+                        self.logger.warning(f"RestartRequired — restarting browser: {e}")
+                        break
 
-                        finally:
-                            if context:
-                                try:
-                                    await context.close()
-                                except Exception:
-                                    pass
 
-                            await asyncio.sleep(2)
+                    except ServerErrorException as e:
+                        self.logger.warning(f"ServerError — restarting browser: {e}")
+                        break
 
-                    self.logger.info("Restarting browser...")
 
-                except Exception as e:
-                    self.logger.error(f"Critical browser error: {e}")
+                    except Exception as e:
+                        self.logger.warning(f"Unexpected error — restarting browser: {e}")
+                        break
 
-                finally:
-                    if browser:
-                        try:
-                            await browser.close()
-                        except Exception:
-                            pass
+                    finally:
+                        if context:
+                            try:
+                                await context.close()
+                            except Exception:
+                                pass
 
-                    await asyncio.sleep(5)
+                        await asyncio.sleep(2)
+
+                self.logger.info("Restarting browser...")
+
+            except Exception as e:
+                self.logger.error(f"Critical browser error: {e}")
+
+            finally:
+                if browser:
+                    try:
+                        await browser.close()
+                    except Exception:
+                        pass
+
+                await asyncio.sleep(5)
 
 
 if __name__ == "__main__":
