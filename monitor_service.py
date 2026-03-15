@@ -340,11 +340,11 @@ class NotificationManager:
 
         title = "🚗 New DMV appointment available!"
         body = (
-            f"📋 {category}\n"
-            f"📍 {location_name}\n"
-            f"📅 Available slots:\n"
-            + "\n".join(display_lines)
-            + more_dates_suffix
+                f"📋 {category}\n"
+                f"📍 {location_name}\n"
+                f"📅 Available slots:\n"
+                + "\n".join(display_lines)
+                + more_dates_suffix
         )
 
         sent_count = 0
@@ -674,7 +674,6 @@ class LocationChecker:
 
 
             finally:
-
                 try:
                     await self.page_navigator.go_back(page, self.config.location_page_text)
 
@@ -797,11 +796,9 @@ class DMVMonitor:
                         self.logger.warning(f"RestartRequired — restarting browser: {e}")
                         break
 
-
                     except ServerErrorException as e:
                         self.logger.warning(f"ServerError — restarting browser: {e}")
                         break
-
 
                     except Exception as e:
                         self.logger.warning(f"Unexpected error — restarting browser: {e}")
