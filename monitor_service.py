@@ -340,11 +340,11 @@ class NotificationManager:
 
         title = "🚗 New DMV appointment available!"
         body = (
-                f"📋 {category}\n"
-                f"📍 {location_name}\n"
-                f"📅 Available slots:\n"
-                + "\n".join(display_lines)
-                + more_dates_suffix
+            f"📋 {category}\n"
+            f"📍 {location_name}\n"
+            f"📅 Available slots:\n"
+            + "\n".join(display_lines)
+            + more_dates_suffix
         )
 
         sent_count = 0
@@ -671,7 +671,6 @@ class LocationChecker:
                 await self.notification_manager.send_notification(category, location, total_slots)
 
                 slots_data.append({"location": location, "slots": total_slots_nums})
-
 
             finally:
                 try:
