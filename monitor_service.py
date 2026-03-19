@@ -272,14 +272,11 @@ class PushNotificationService:
                 vapid_private_key=self.config.vapid_private_key,
                 vapid_claims=vapid_claims,
             )
-
             return True
 
 
         except Exception as e:
-
             self.logger.warning(f"Push error: {repr(e)}")
-
             if "410" in str(e) or "unsubscribed or expired" in str(e):
                 return "expired"
 
@@ -346,11 +343,11 @@ class NotificationManager:
 
         title = "🚗 New DMV appointment available!"
         body = (
-                f"📋 {category}\n"
-                f"📍 {location_name}\n"
-                f"📅 Available slots:\n"
-                + "\n".join(display_lines)
-                + more_dates_suffix
+            f"📋 {category}\n"
+            f"📍 {location_name}\n"
+            f"📅 Available slots:\n"
+            + "\n".join(display_lines)
+            + more_dates_suffix
         )
 
         sent_count = 0
