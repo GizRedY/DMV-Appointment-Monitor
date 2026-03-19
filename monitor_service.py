@@ -274,7 +274,6 @@ class PushNotificationService:
             )
             return True
 
-
         except Exception as e:
             self.logger.warning(f"Push error: {repr(e)}")
             if "410" in str(e) or "unsubscribed or expired" in str(e):
