@@ -275,8 +275,14 @@ class PushNotificationService:
 
             return True
 
+
         except Exception as e:
+
             self.logger.warning(f"Push error: {repr(e)}")
+
+            if "410" in str(e) or "unsubscribed or expired" in str(e):
+                return "expired"
+
             return False
 
 
@@ -340,35 +346,57 @@ class NotificationManager:
 
         title = "🚗 New DMV appointment available!"
         body = (
-            f"📋 {category}\n"
-            f"📍 {location_name}\n"
-            f"📅 Available slots:\n"
-            + "\n".join(display_lines)
-            + more_dates_suffix
+                f"📋 {category}\n"
+                f"📍 {location_name}\n"
+                f"📅 Available slots:\n"
+                + "\n".join(display_lines)
+                + more_dates_suffix
         )
 
         sent_count = 0
+        max_attempts = 3
 
         for sub in interested:
             push_subscription_json = sub.get("push_subscription")
             user_id = sub.get("user_id", "unknown")
 
-            try:
-                ok = await asyncio.to_thread(
-                    self.push_service.send_push,
-                    push_subscription_json,
-                    title,
-                    body,
-                )
-            except Exception as e:
-                self.logger.warning(f"Error sending notification to user {user_id}: {e}")
-                ok = False
+            ok = False
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    ok = await asyncio.to_thread(
+                        self.push_service.send_push,
+                        push_subscription_json,
+                        title,
+                        body,
+                    )
+                except Exception as e:
+                    self.logger.warning(f"Error sending notification to user {user_id} (attempt {attempt}): {e}")
+                    ok = False
 
-            if ok:
-                sent_count += 1
-                self.logger.info(f"Notification successfully sent to user {user_id}")
+                if ok == "expired":
+                    self.logger.warning(f"Subscription expired (410) for user {user_id} — deleting immediately")
+                    try:
+                        self.subscription_manager.db.delete_subscription(user_id)
+                    except Exception as ex:
+                        self.logger.warning(f"Failed to delete subscription {user_id}: {ex}")
+                    break
+
+                if ok:
+                    sent_count += 1
+                    self.logger.info(f"Notification sent to user {user_id} (attempt {attempt})")
+                    break
+
+                self.logger.warning(f"Attempt {attempt}/{max_attempts} failed for user {user_id}")
+                if attempt < max_attempts:
+                    await asyncio.sleep(2)
+
             else:
-                self.logger.warning(f"Failed to send notification to user {user_id}")
+                # все 3 попытки провалились
+                self.logger.warning(f"All {max_attempts} attempts failed for user {user_id} — deleting subscription")
+                try:
+                    self.subscription_manager.db.delete_subscription(user_id)
+                except Exception as ex:
+                    self.logger.warning(f"Failed to delete subscription {user_id}: {ex}")
 
         self.logger.info(f"Total successfully sent: {sent_count}")
         return sent_count
@@ -659,7 +687,7 @@ class LocationChecker:
                     total_slots = {}
 
                 except RestartRequiredException:
-                    total_slots = {}
+                    raise
 
                 except Exception as e:
                     self.logger.warning(f"Error checking slots at {location}: {e}")
@@ -758,9 +786,15 @@ class DMVMonitor:
     async def run(self):
         while True:
             try:
-                await asyncio.wait_for(self._run_once(), timeout=4800)
+                await asyncio.wait_for(self._run_once(), timeout=1800)  # 30 минут макс
             except asyncio.TimeoutError:
                 self.logger.warning("Global watchdog timeout — force restarting")
+                for task in asyncio.all_tasks():
+                    if task is not asyncio.current_task():
+                        task.cancel()
+                await asyncio.sleep(3)
+            except asyncio.CancelledError:
+                pass
             except Exception as e:
                 self.logger.warning(f"Global error: {e}")
             await asyncio.sleep(5)
