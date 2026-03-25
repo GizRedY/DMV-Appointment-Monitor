@@ -137,14 +137,12 @@ class Logger:
         self.logger = logging.getLogger(__name__)
 
     def _setup_logging(self):
-        logger = logging.getLogger()
-        logger.setLevel(self.config.log_level)
-        logger.handlers.clear()
-
-        handler = logging.FileHandler(self.config.log_file, encoding="utf-8")
-        handler.setLevel(self.config.log_level)
-        handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
-        logger.addHandler(handler)
+        logging.basicConfig(
+            filename=self.config.log_file,
+            level=self.config.log_level,
+            format="%(asctime)s [%(levelname)s] %(message)s",
+            encoding="utf-8"
+        )
 
     def info(self, message: str):
         self.logger.info(message)

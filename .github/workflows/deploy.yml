@@ -36,5 +36,5 @@ jobs:
           script: |
             cd /root/dmv-app
             git pull origin main
-            docker compose pull 2>/dev/null || true
-            docker compose up -d
+            docker compose build
+            docker compose up -d --force-recreate
