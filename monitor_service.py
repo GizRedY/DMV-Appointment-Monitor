@@ -65,7 +65,7 @@ class Config:
         #  Browser
         self.max_cycles_before_restart = 2
 
-        self.location_timeout_sec = 20
+        self.location_timeout_sec = 120
 
         #  Categories and locations
         self.categories = [
@@ -176,7 +176,7 @@ class ScreenshotManager:
             filepath = folder / f"screenshot_{timestamp}.png"
 
             try:
-                await page.screenshot(path=str(filepath), full_page=False, timeout=5000, animations="disabled")
+                await page.screenshot(path=str(filepath), full_page=True, timeout=5000, animations="disabled")
                 self.logger.warning("Screenshot Saved")
 
             except Exception:
@@ -501,7 +501,7 @@ class PageNavigator:
                 except Exception:
                     pass
                 if "Unfortunately, we have encountered an error" in content:
-                    self.logger.info("Detected NCDMV 500 error page")
+                    self.logger.warning("Detected NCDMV 500 error page")
                     raise ServerErrorException() from e
 
                 if attempt == max_attempts - 1:
