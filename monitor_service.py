@@ -41,7 +41,7 @@ class Config:
 
         self.db_path = data_dir / "dmv_monitor.db"
         self.log_file = logs_dir / "dmv_monitor.log"
-        self.log_level = logging.WARNING
+        self.log_level = logging.INFO
 
         self.screenshot_switch = True
         self.screenshot_folder = screenshots_dir
@@ -456,7 +456,7 @@ class PageNavigator:
             self.logger.info("Loader disappeared")
 
         except Exception as e:
-            self.logger.info(f"Loader did NOT disappear: {e}")
+            self.logger.warning(f"Loader did NOT disappear: {e}")
             raise
 
     async def safe_click(self, page: Page, target, expected_text=None,
