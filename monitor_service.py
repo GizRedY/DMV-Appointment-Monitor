@@ -133,23 +133,18 @@ class Logger:
 
     def __init__(self, config: Config):
         self.config = config
-        self.logger = logging.getLogger("dmv_monitor")
         self._setup_logging()
+        self.logger = logging.getLogger(__name__)
 
     def _setup_logging(self):
-        self.logger.setLevel(self.config.log_level)
-        self.logger.handlers.clear()
+        logger = logging.getLogger()
+        logger.setLevel(self.config.log_level)
+        logger.handlers.clear()
 
-        file_handler = logging.FileHandler(self.config.log_file, encoding="utf-8")
-        file_handler.setLevel(self.config.log_level)
-
-        formatter = logging.Formatter(
-            "%(asctime)s [%(levelname)s] %(message)s"
-        )
-        file_handler.setFormatter(formatter)
-
-        self.logger.addHandler(file_handler)
-        self.logger.propagate = False
+        handler = logging.FileHandler(self.config.log_file, encoding="utf-8")
+        handler.setLevel(self.config.log_level)
+        handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+        logger.addHandler(handler)
 
     def info(self, message: str):
         self.logger.info(message)
