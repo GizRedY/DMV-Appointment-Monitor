@@ -65,7 +65,7 @@ class Config:
         #  Browser
         self.max_cycles_before_restart = 2
 
-        self.location_timeout_sec = 120
+        self.location_timeout_sec = 180
 
         #  Categories and locations
         self.categories = [
@@ -782,7 +782,7 @@ class DMVMonitor:
     async def run(self):
         while True:
             try:
-                await asyncio.wait_for(self._run_once(), timeout=1800)  # 30 минут макс
+                await asyncio.wait_for(self._run_once(), timeout=6000)
             except asyncio.TimeoutError:
                 self.logger.warning("Global watchdog timeout — force restarting")
                 for task in asyncio.all_tasks():
