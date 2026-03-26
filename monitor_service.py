@@ -782,7 +782,7 @@ class DMVMonitor:
     async def run(self):
         while True:
             try:
-                await asyncio.wait_for(self._run_once(), timeout=6000)
+                await asyncio.wait_for(self._run_once(), timeout=18000)
             except asyncio.TimeoutError:
                 self.logger.warning("Global watchdog timeout — force restarting")
                 for task in asyncio.all_tasks():
