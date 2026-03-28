@@ -5,3 +5,5 @@ pywebpush~=2.1.2
 pydantic~=2.12.5
 cryptography~=46.0.3
 python-dotenv~=1.2.1
+pytest
+httpx
