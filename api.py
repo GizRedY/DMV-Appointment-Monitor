@@ -14,7 +14,7 @@ from urllib.parse import urlparse
 from database import Database
 
 BASE_DIR = Path(__file__).resolve().parent
-load_dotenv(BASE_DIR / ".env.local")
+load_dotenv(BASE_DIR / ".env")
 
 #  ============================================================================
 #  LOGGING SETUP
@@ -31,7 +31,7 @@ LOGS_DIR = SHARED_DIR / "logs"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-db = Database(DATA_DIR / "dmv_monitor.db")
+db = Database()
 LOG_FILE = LOGS_DIR / "api.log"
 
 logging.basicConfig(

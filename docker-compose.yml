@@ -1,5 +1,20 @@
 services:
 
+  postgres:
+    image: postgres:16
+    container_name: dmv-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: dmv_monitor
+      POSTGRES_USER: dmv_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
   api:
     build:
       context: .
@@ -11,9 +26,11 @@ services:
     volumes:
       - ./shared:/app/shared
     env_file:
-      - .env.local
+      - .env
     environment:
       - TZ=America/New_York
+    depends_on:
+      - postgres
     command: python api.py
 
   monitor:
@@ -25,7 +42,12 @@ services:
     volumes:
       - ./shared:/app/shared
     env_file:
-      - .env.local
+      - .env
     environment:
       - TZ=America/New_York
+    depends_on:
+      - postgres
     command: python monitor_service.py
+
+volumes:
+  postgres_data:
