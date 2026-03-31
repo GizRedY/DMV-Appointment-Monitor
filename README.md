@@ -1,115 +1,184 @@
-NC DMV Appointment Monitor
-Backend / Automation Pet Project (Python, FastAPI)
+# NC DMV Appointment Monitor
 
-Live Demo:
-https://dmv-appointments-nc.com/
+> Live production project · Running since November 2025
 
-Service Status (Uptime Monitor):
-https://stats.uptimerobot.com/k9YORiE075/802351503
+**🌐 Live Demo:** https://dmv-appointments-nc.com/
+**📊 Service Status:** https://stats.uptimerobot.com/k9YORiE075/802351503
 
-Deployment Notes:
-The project is deployed on a Linux VPS and runs as a long-living backend service.
-The API server is exposed to the internet via the Caddy web server, which is used as a
-reverse proxy and automatically manages HTTPS certificates (Let's Encrypt).
+---
 
-The domain name is manually configured:
-- DNS records are pointed to the VPS public IP address
-- Caddy routes HTTPS traffic to the FastAPI application
-- the monitoring service runs as a separate background process on the same server
+![UI Screenshot](docs/images/ui.png)
 
-OVERVIEW
-This project is a production-ready pet project designed to demonstrate backend engineering,
+---
+
+## Production Stats
+
+> Last updated: March 2026
+
+![Google Analytics](docs/images/analytics.png)
+
+![Google Search Console](docs/images/search-console.png)
+
+![Uptime](docs/images/uptime.png)
+
+- **78 active users** in the past 28 days
+- **361 impressions** in Google Search over 3 months
+- **Average position 9.2** in Google Search
+- **99.984% uptime** since launch
+- Organic traffic from Google, Bing, DuckDuckGo, Facebook, ChatGPT
+- Real users from Durham, Raleigh, Charlotte, Atlanta and other NC cities
+
+---
+
+## What It Does
+
+The application continuously monitors the official North Carolina DMV appointment
+scheduling website and delivers instant browser push notifications to users when
+new appointment slots become available for selected categories and locations.
+
+![Push Notification](docs/images/notification.png)
+
+---
+
+## Overview
+
+Production-ready pet project designed to demonstrate backend engineering,
 automation, and system design skills using Python and FastAPI.
-
-The application continuously monitors the official North Carolina DMV appointment scheduling
-website and delivers instant browser push notifications to users when new appointment slots
-become available for selected categories and locations.
 
 The system consists of:
 - an asynchronous monitoring service built with Playwright
 - a FastAPI backend API
-- a SQLite persistence layer
+- a PostgreSQL persistence layer
 - a Progressive Web App frontend with Push Notifications
+- a CI/CD pipeline with automated testing and deployment
 
-This project is intended as a portfolio showcase for Backend Engineer roles.
+---
 
-ARCHITECTURE
+## Deployment
+
+The project is deployed on a Linux VPS and runs as a long-running backend service.
+The API server is exposed to the internet via the Caddy web server, which acts as a
+reverse proxy and automatically manages HTTPS certificates via Let's Encrypt.
+
+**DNS & Routing:**
+- DNS records point to the VPS public IP
+- Caddy routes HTTPS traffic to the FastAPI application
+- The monitoring service runs as a separate background Docker container
+
+**Infrastructure:**
+- All services run in Docker containers orchestrated via Docker Compose
+- PostgreSQL data is persisted in a named Docker volume
+- CI/CD is handled via GitHub Actions
+
+---
+
+## Architecture
+
 The system is split into three logical components:
 
-1) Monitoring Service (Playwright)
-2) Backend API (FastAPI)
-3) Frontend Client (PWA)
+**1. Monitoring Service (Playwright)**
+Headless browser automation that navigates the NC DMV scheduler,
+checks availability across all categories and locations, and writes
+results to the shared PostgreSQL database.
 
-The monitoring service runs independently from the API server and communicates through a shared
-SQLite database. This separation allows the crawler to be restarted or scaled independently
-from the API layer.
+**2. Backend API (FastAPI)**
+REST API that serves the frontend, manages push subscriptions,
+and exposes availability data from the database.
 
-TECH STACK
-Backend:
-- Python 3
-- FastAPI
-- Pydantic
-- SQLite
-- pywebpush
+**3. Frontend Client (PWA)**
+Progressive Web App that polls the API for availability updates
+and receives browser push notifications.
+
+All three components share a single PostgreSQL database running
+as a separate Docker container.
+
+---
+
+## Tech Stack
+
+**Backend:**
+- Python 3.12
+- FastAPI + Pydantic
+- PostgreSQL + psycopg2
+- pywebpush (VAPID Web Push)
 - asyncio
 
-Monitoring:
+**Monitoring:**
 - Playwright (headless Chromium)
 - asyncio
 - robust retry and error-handling logic
 
-Frontend:
-- HTML / CSS
-- Vanilla JavaScript
-- Service Worker
-- Push API
+**Frontend:**
+- HTML / Vanilla JavaScript
+- Service Worker + Push API
 - PWA Manifest
 
-PROJECT STRUCTURE
-api.py
+**Infrastructure:**
+- Docker + Docker Compose
+- Caddy (reverse proxy + HTTPS)
+- GitHub Actions (CI/CD)
+- Linux VPS
+
+---
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions with a three-stage pipeline:
+
+**On every push to main:**
+- Lint — flake8 checks the entire codebase
+- Test — pytest runs 8 integration tests against the API layer
+
+**On manual trigger (workflow_dispatch):**
+- Deploy — SSH into VPS, pull latest code, rebuild Docker images,
+  restart containers, run smoke test against `/health` endpoint,
+  auto-rollback to previous version if smoke test fails
+
+---
+
+## Project Structure
+
+**api.py**
 FastAPI application that:
-- serves the frontend
+- serves the frontend (HTML, JS, PWA assets)
 - exposes REST API endpoints
-- manages subscriptions
-- sends push notifications
+- manages push subscriptions (create, get, delete)
+- sends Web Push notifications via VAPID
 
-monitor_service.py
+**monitor_service.py**
 Long-running monitoring service that:
-- navigates the NC DMV scheduler UI
-- checks categories, locations, calendars, and time slots
-- detects new availability
-- sends notifications to matching subscribers
-- stores availability snapshots
+- navigates the NC DMV scheduler UI with Playwright
+- checks all categories, locations, calendars, and time slots
+- detects new availability and sends push notifications to matching subscribers
+- stores availability snapshots to the shared database
+- auto-restarts browser after configurable number of cycles
 
-database.py
-SQLite data-access layer:
-- schema initialization
-- subscription CRUD
+**database.py**
+PostgreSQL data-access layer:
+- schema initialization on startup
+- subscription CRUD operations
 - availability snapshot storage
-- cleanup utilities
+- cleanup utilities for expired subscriptions
 
-index.html
-Main PWA user interface.
+**docker-compose.yml**
+Defines three services:
+- `dmv-postgres` — PostgreSQL 16 database
+- `dmv-api` — FastAPI application
+- `dmv-monitor` — Playwright monitoring service
 
-app.js
-Frontend logic:
-- Service Worker registration
-- push subscription creation
-- subscription restore
-- availability polling
-- UI state management
+**index.html / app.js / sw.js**
+Progressive Web App:
+- Service Worker registration and push subscription management
+- availability polling and UI state management
+- push notification handling and click routing
 
-sw.js
-Service Worker:
-- static asset caching
-- push notification handling
-- notification click routing
+---
 
-DATABASE SCHEMA:
+## Database Schema
 
-subscriptions table:
+**subscriptions table:**
 - user_id (primary key)
-- push_subscription (JSON)
+- push_subscription (JSON string)
 - categories (JSON array)
 - locations (JSON array)
 - date_range_days
@@ -117,23 +186,36 @@ subscriptions table:
 - updated_at
 - last_notification_sent
 
-last_check table:
+**last_check table:**
+- id (serial primary key)
 - category
 - location_name
 - has_slots
 - last_checked
 
-RELIABILITY CONSIDERATIONS
+---
+
+## Reliability
+
 - automatic retries for UI interactions
 - spinner and loading-state detection
-- browser restarts after multiple cycles
+- global watchdog timeout with forced browser restart
 - screenshot capture on critical errors
-- isolation between monitor and API layers
+- isolation between monitor and API layers via separate Docker containers
+- smoke test with automatic rollback on failed deployment
 
-SECURITY
+---
+
+## Security
+
 - VAPID-based Web Push authentication
 - admin endpoints protected by token header
+- PostgreSQL access via dedicated user with password authentication
+- secrets stored in environment variables, never committed to repository
 - no passwords or personal data stored
 
-AUTHOR
+---
+
+## Author
+
 Mikhail Drogalev
