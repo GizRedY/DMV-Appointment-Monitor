@@ -1,15 +1,10 @@
 import pytest
-import tempfile
 import os
-from pathlib import Path
 from fastapi.testclient import TestClient
 
 
 @pytest.fixture(scope="session")
 def client():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-
         # Подменяем переменные окружения ДО импорта api
         os.environ.setdefault("VAPID_PRIVATE_KEY", "test_key")
         os.environ.setdefault("VAPID_PUBLIC_KEY", "test_key")

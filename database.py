@@ -343,3 +343,4 @@ class Database:
             return results
         finally:
             conn.close()
+
