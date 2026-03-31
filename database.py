@@ -30,7 +30,8 @@ class Database:
 
     def __init__(self, database_url: str = None):
         self.database_url = database_url or os.getenv("DATABASE_URL")
-        self._init_database()
+        if self.database_url:
+            self._init_database()
 
     def _get_connection(self):
         conn = psycopg2.connect(self.database_url)

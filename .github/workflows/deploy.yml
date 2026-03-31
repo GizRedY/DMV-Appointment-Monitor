@@ -50,6 +50,7 @@ jobs:
           VAPID_PUBLIC_KEY: "test_key"
           VAPID_SUBJECT: "mailto:test@test.com"
           ADMIN_TOKEN: "test_token"
+          DATABASE_URL: ""
         run: pytest tests/ -v
 
   deploy:
