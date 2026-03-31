@@ -3,11 +3,13 @@
 > Live production project · Running since November 2025
 
 **🌐 Live Demo:** https://dmv-appointments-nc.com/
+
 **📊 Service Status:** https://stats.uptimerobot.com/k9YORiE075/802351503
 
 ---
 
-![UI Screenshot](docs/images/ui.png)
+**Live Demo — dmv-appointments-nc.com**
+<img src="docs/images/ui.png" width="700">
 
 ---
 
@@ -15,11 +17,18 @@
 
 > Last updated: March 2026
 
-![Google Analytics](docs/images/analytics.png)
+**Google Analytics — March 2026 (last 28 days)**
+<img src="docs/images/analytics.png" width="700">
 
-![Google Search Console](docs/images/search-console.png)
+---
 
-![Uptime](docs/images/uptime.png)
+**Google Search Console — last 3 months**
+<img src="docs/images/search-console.png" width="700">
+
+---
+
+**UptimeRobot — Service Status**
+<img src="docs/images/uptime.png" width="700">
 
 - **78 active users** in the past 28 days
 - **361 impressions** in Google Search over 3 months
@@ -36,7 +45,8 @@ The application continuously monitors the official North Carolina DMV appointmen
 scheduling website and delivers instant browser push notifications to users when
 new appointment slots become available for selected categories and locations.
 
-![Push Notification](docs/images/notification.png)
+**Push notification example**
+<img src="docs/images/notification.png" width="350">
 
 ---
 
