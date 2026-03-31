@@ -9,6 +9,7 @@
 ---
 
 **Live Demo — dmv-appointments-nc.com**
+
 <img src="docs/images/ui.png" width="700">
 
 ---
@@ -18,16 +19,19 @@
 > Last updated: March 2026
 
 **Google Analytics — March 2026 (last 28 days)**
+
 <img src="docs/images/analytics.png" width="700">
 
 ---
 
 **Google Search Console — last 3 months**
+
 <img src="docs/images/search-console.png" width="700">
 
 ---
 
 **UptimeRobot — Service Status**
+
 <img src="docs/images/uptime.png" width="700">
 
 - **78 active users** in the past 28 days
@@ -46,6 +50,7 @@ scheduling website and delivers instant browser push notifications to users when
 new appointment slots become available for selected categories and locations.
 
 **Push notification example**
+
 <img src="docs/images/notification.png" width="350">
 
 ---
