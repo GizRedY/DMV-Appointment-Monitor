@@ -17,11 +17,11 @@
 ## Origin Story
 
 In July 2025 I relocated to North Carolina. Like thousands of new residents,
-I immediately ran into the same problem — booking a DMV appointment was nearly
+I immediately ran into the same problem - booking a DMV appointment was nearly
 impossible. Every available slot was 3+ months out. I tried 4 times and failed.
 
 So I wrote a script. It monitored the DMV scheduler and caught an open slot
-within 3 days — for both me and my wife. We got our Driver IDs without waiting months.
+within 3 days - for both me and my wife. We got our Driver IDs without waiting months.
 
 After that I decided to turn it into a proper free tool and help others in the
 same situation. At the time, similar services existed but charged money. I built
@@ -40,13 +40,13 @@ real people across North Carolina book DMV appointments faster.
 
 <img src="docs/images/analytics.png" width="700">
 
---
+---
 
 **Google Search Console — last 3 months**
 
 <img src="docs/images/search-console.png" width="700">
 
---
+---
 
 **UptimeRobot — Service Status**
 
@@ -60,11 +60,11 @@ real people across North Carolina book DMV appointments faster.
 - Real users from Durham, Raleigh, Charlotte, Atlanta and other NC cities
 - Voluntary donations received via Ko-fi from grateful users
 
---
+---
 
 **Ko-fi — Voluntary Support from Users**
 
-<img src="docs/images/kofi.png" width="400">
+<img src="docs/images/kofi.png" width="500">
 
 ---
 
