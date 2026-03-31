@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from database import Database
 
 BASE_DIR = Path(__file__).resolve().parent
-load_dotenv(BASE_DIR / ".env.local")
+load_dotenv(BASE_DIR / ".env")
 
 
 class RestartRequiredException(Exception):
@@ -760,7 +760,7 @@ class DMVMonitor:
     def __init__(self):
         self.config = Config()
         self.logger = Logger(self.config)
-        self.db = Database(self.config.db_path)
+        self.db = Database()
         self.screenshot_manager = ScreenshotManager(self.config, self.logger)
         self.subscription_manager = SubscriptionManager(self.config, self.logger, self.db)
         self.push_service = PushNotificationService(self.config, self.logger)

@@ -5,6 +5,7 @@ pywebpush~=2.1.2
 pydantic~=2.12.5
 cryptography~=46.0.3
 python-dotenv~=1.2.1
+psycopg2-binary~=2.9.9
 flake8
 pytest
 httpx
