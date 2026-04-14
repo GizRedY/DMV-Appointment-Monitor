@@ -785,15 +785,12 @@ class DMVMonitor:
                 await asyncio.wait_for(self._run_once(), timeout=18000)
             except asyncio.TimeoutError:
                 self.logger.warning("Global watchdog timeout — force restarting")
-                for task in asyncio.all_tasks():
-                    if task is not asyncio.current_task():
-                        task.cancel()
-                await asyncio.sleep(3)
             except asyncio.CancelledError:
-                pass
+                self.logger.warning("Monitor cancelled — exiting")
+                return
             except Exception as e:
                 self.logger.warning(f"Global error: {e}")
-            await asyncio.sleep(5)
+            await asyncio.sleep(10)
 
     async def _run_once(self):
         async with async_playwright() as p:
@@ -843,6 +840,10 @@ class DMVMonitor:
                         await asyncio.sleep(2)
 
                 self.logger.info("Restarting browser...")
+
+            except asyncio.CancelledError:
+                self.logger.warning("_run_once: cancelled by watchdog, closing browser")
+                raise
 
             except Exception as e:
                 self.logger.error(f"Critical browser error: {e}")
