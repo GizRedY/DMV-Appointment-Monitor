@@ -9,7 +9,7 @@ def test_get_categories(client):
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
-    assert len(data) == 13  # У тебя ровно 13 категорий в DMV_CATEGORIES
+    assert len(data) == 11
 
     # Проверяем структуру одного элемента
     first = data[0]
@@ -40,7 +40,7 @@ def test_create_and_get_subscription(client):
     payload = {
         "user_id": "test-user-abc",
         "push_subscription": '{"endpoint":"https://fcm.googleapis.com/test","keys":{"p256dh":"test","auth":"test"}}',
-        "categories": ["driver_license_renewal"],
+        "categories": ["existing_driver_license"],
         "locations": ["Durham East"],
         "date_range_days": 14
     }
@@ -62,7 +62,7 @@ def test_delete_subscription(client):
     payload = {
         "user_id": "user-to-delete",
         "push_subscription": '{"endpoint":"https://fcm.googleapis.com/test","keys":{"p256dh":"test","auth":"test"}}',
-        "categories": ["id_card"],
+        "categories": ["state_identification_card"],
         "locations": ["Cary"],
         "date_range_days": 7
     }
