@@ -725,6 +725,30 @@ class CategoryChecker:
         await self.page_navigator.safe_click(page, 'Make an Appointment', self.config.category_page_text)
         self.logger.info("Opened category selection")
 
+        for category in self.config.categories:
+            self.logger.info(f"Processing category: {category}")
+
+            try:
+                await self.page_navigator.safe_click(page, category, self.config.location_page_text)
+                self.logger.info(f"Entered category: {category}")
+
+                await self.location_checker.check_locations(page, category)
+
+                await self.page_navigator.go_back(page, self.config.category_page_text)
+
+            except Exception as e:
+                self.logger.warning(f"Error processing category {category}: {e}")
+                await self.screenshot_manager.take_screenshot(page)
+
+                try:
+                    await self.page_navigator.open_main_page(page, self.config.url)
+                    await self.page_navigator.safe_click(page, 'Make an Appointment',
+                                                         self.config.category_page_text)
+                    self.logger.info("Re-entered category selection")
+                except RestartRequiredException:
+                    self.logger.warning("Failed to re-enter category selection")
+                    raise
+
 
 class DMVMonitor:
 
