@@ -69,58 +69,50 @@ def require_admin(x_admin_token: str | None = Header(default=None)):
 
 #  DMV Categories
 DMV_CATEGORIES = {
-    "driver_license_first_time": {
-        "name": "Driver License - First Time",
-        "description": "New driver over 18, new N.C. resident, REAL ID"
+    "commercial_driver_license": {
+        "name": "Commercial Driver License (CDL or CLP)",
+        "description": "CDL or CLP for commercial vehicles"
     },
-    "driver_license_duplicate": {
-        "name": "Driver License Duplicate",
-        "description": "Replace lost or stolen license, change name or address, REAL ID"
+    "existing_driver_license": {
+        "name": "Existing Driver License",
+        "description": "Renew, replace, update, or upgrade to REAL ID"
     },
-    "driver_license_renewal": {
-        "name": "Driver License Renewal",
-        "description": "Renew an existing license without any changes, REAL ID"
+    "first_driver_license_or_permit": {
+        "name": "First Driver License or Permit (age 18 or older)",
+        "description": "New driver age 18+, new NC resident, REAL ID"
     },
-    "fees": {
-        "name": "Fees",
-        "description": "License reinstatement appointment, administrative hearings, and medical certifications"
+    "medical_reexam": {
+        "name": "Medical Re-exam",
+        "description": "Required medical re-examination (NCDMV told you to come in)"
     },
-    "id_card": {
-        "name": "ID Card",
-        "description": "State ID card, REAL ID"
-    },
-    "knowledge_computer_test": {
-        "name": "Knowledge/Computer Test",
-        "description": "Written, traffic signs, vision"
-    },
-    "legal_presence": {
-        "name": "Legal Presence",
-        "description": "For non-citizens to prove they are legally authorized to be in the U.S."
+    "motorcycle_endorsement": {
+        "name": "Motorcycle Endorsement",
+        "description": "Add motorcycle endorsement to your license"
     },
     "motorcycle_skills_test": {
         "name": "Motorcycle Skills Test",
         "description": "Schedule a motorcycle driving skills test"
     },
-    "non_cdl_road_test": {
-        "name": "Non-CDL Road Test",
-        "description": "Schedule a driving skills test"
+    "out_of_state_license_transfer": {
+        "name": "Out-of-State License Transfer",
+        "description": "Transfer your driver license from another state"
     },
-    "permits": {
-        "name": "Permits",
-        "description": "Adult permit, CDL"
+    "state_identification_card": {
+        "name": "State Identification Card",
+        "description": "State ID card (not a driver license), REAL ID"
     },
     "teen_driver_level_1": {
-        "name": "Teen Driver Level 1",
+        "name": "Teen Driver - Learner Permit (under 18, Level 1)",
         "description": "Limited learner permit - ages 15-17"
     },
     "teen_driver_level_2": {
-        "name": "Teen Driver Level 2",
+        "name": "Teen Driver - Road Test (under 18, Level 2)",
         "description": "Limited provisional license - ages 16-17; Level 1 permit"
     },
     "teen_driver_level_3": {
-        "name": "Teen Driver Level 3",
+        "name": "Teen Driver - Full Provisional License (under 18, Level 3)",
         "description": "Full provisional license - ages 16-17; Level 2 license"
-    }
+    },
 }
 
 
