@@ -49,7 +49,7 @@ def test_create_and_get_subscription(client):
     assert response.status_code == 200
     data = response.json()
     assert data["user_id"] == "test-user-abc"
-    assert data["categories"] == ["driver_license_renewal"]
+    assert data["categories"] == ["existing_driver_license"]
 
     # Получаем
     response = client.get("/subscriptions/test-user-abc")
