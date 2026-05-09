@@ -48,8 +48,8 @@ class Config:
 
         self.calendar_page_text = "Please select date and time"
         self.location_page_text = "Select a Location"
-        self.category_page_text = "Please select an appointment type"
-        self.main_page_text = "Welcome to the NCDMV Driver Service Appointment Scheduler"
+        self.category_page_text = "What kind of appointment do you need?"
+        self.main_page_text = "What kind of appointment do you need?"
         self.url = (
             "https://skiptheline.ncdot.gov/Webapp/Appointment/Index/"
             "a7ade79b-996d-4971-8766-97feb75254de"
@@ -526,7 +526,7 @@ class PageNavigator:
     async def open_main_page(self, page: Page, url: str):
         try:
             await page.goto(url, timeout=60000)
-            await page.get_by_text(self.config.main_page_text).first.wait_for(timeout=15000)
+            await page.get_by_text(self.config.category_page_text).first.wait_for(timeout=15000)
         except Exception:
             raise RestartRequiredException()
 
@@ -722,8 +722,6 @@ class CategoryChecker:
 
     async def check_category(self, page: Page):
         await self.page_navigator.open_main_page(page, self.config.url)
-
-        await self.page_navigator.safe_click(page, '#cmdMakeAppt', self.config.category_page_text)
         self.logger.info("Opened category selection")
 
         for category in self.config.categories:
@@ -743,8 +741,6 @@ class CategoryChecker:
 
                 try:
                     await self.page_navigator.open_main_page(page, self.config.url)
-                    await self.page_navigator.safe_click(page, '#cmdMakeAppt',
-                                                         self.config.category_page_text)
                     self.logger.info("Re-entered category selection")
                 except RestartRequiredException:
                     self.logger.warning("Failed to re-enter category selection")
