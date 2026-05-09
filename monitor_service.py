@@ -41,7 +41,7 @@ class Config:
 
         self.db_path = data_dir / "dmv_monitor.db"
         self.log_file = logs_dir / "dmv_monitor.log"
-        self.log_level = logging.INFO
+        self.log_level = logging.WARNING
 
         self.screenshot_switch = True
         self.screenshot_folder = screenshots_dir
