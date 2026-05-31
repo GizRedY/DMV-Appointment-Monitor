@@ -246,6 +246,13 @@ async def serve_index():
         return FileResponse(html_file)
     return HTMLResponse("<h1>index.html not found</h1>", status_code=404)
 
+@app.get("/style.css")
+async def serve_style_css():
+    """Serve style.css"""
+    css_file = BASE_DIR / "style.css"
+    if css_file.exists():
+        return FileResponse(css_file, media_type="text/css")
+    return HTMLResponse("style.css not found", status_code=404)
 
 @app.get("/app.js")
 async def serve_app_js():
