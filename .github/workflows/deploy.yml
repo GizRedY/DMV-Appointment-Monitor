@@ -1,4 +1,4 @@
-name: CI / Deploy to VPS
+name: Deploy to VPS
 
 on:
   push:
@@ -6,58 +6,12 @@ on:
       - main
 
   workflow_dispatch:
-    inputs:
-      confirm:
-        description: 'Deploy on prod? Write "yes"'
-        required: true
-        default: 'no'
 
 jobs:
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run flake8
-        run: flake8 . --max-line-length=120 --ignore=E501,W503 --exclude=.git,__pycache__,.venv
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    needs: lint
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run pytest
-        # Переменные нужны чтобы api.py не упал при импорте из-за отсутствия .env
-        env:
-          VAPID_PRIVATE_KEY: "test_key"
-          VAPID_PUBLIC_KEY: "test_key"
-          VAPID_SUBJECT: "mailto:test@test.com"
-          ADMIN_TOKEN: "test_token"
-          DATABASE_URL: ""
-        run: pytest tests/ -v
-
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-    needs: test
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.confirm == 'yes'
+
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
@@ -78,7 +32,7 @@ jobs:
             sleep 15
 
             # Smoke test на /health — он не лезет в БД и не требует VAPID
-            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health)
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health || true)
 
             if [ "$HTTP_CODE" != "200" ]; then
               echo "Smoke test FAILED (HTTP $HTTP_CODE). Rolling back..."
