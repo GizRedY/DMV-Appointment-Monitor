@@ -50,6 +50,7 @@ class Config:
         self.location_page_text = "Select a Location"
         self.category_page_text = "What kind of appointment do you need?"
         self.main_page_text = "Welcome to the NCDMV Driver Service Appointment Scheduler"
+        self.privacy_act_statement_page_text = "Privacy Act Statement"
         self.url = (
             "https://skiptheline.ncdot.gov/Webapp/Appointment/Index/"
             "a7ade79b-996d-4971-8766-97feb75254de"
@@ -451,8 +452,12 @@ class PageNavigator:
             await loader.wait_for(state="hidden", timeout=disappear_timeout)
             self.logger.info("Loader disappeared")
 
+        except PlaywrightTimeoutError:
+            self.logger.info("Loader did not disappear (timeout) — skipping location")
+            raise
+
         except Exception as e:
-            self.logger.warning(f"Loader did NOT disappear: {e}")
+            self.logger.warning(f"Unexpected error waiting for loader to hide: {e}")
             raise
 
     async def safe_click(self, page: Page, target, expected_text=None,
@@ -723,6 +728,7 @@ class CategoryChecker:
     async def check_category(self, page: Page):
         await self.page_navigator.open_main_page(page, self.config.url)
         await self.page_navigator.safe_click(page, 'Make an Appointment', self.config.category_page_text)
+        await self.page_navigator.safe_click(page, 'Continue', self.config.privacy_act_statement_page_text)
         self.logger.info("Opened category selection")
 
         for category in self.config.categories:
