@@ -238,6 +238,46 @@ def send_push_notification(subscription_info: dict, title: str, body: str,
 #  STATIC FILE SERVING
 #  ============================================================================
 
+@app.get("/customization-sheet", response_class=HTMLResponse)
+async def serve_customization_sheet():
+    """Serve the Home Customization sheet (standalone tool)."""
+    html_file = BASE_DIR / "customization.html"
+    if html_file.exists():
+        return FileResponse(html_file)
+    return HTMLResponse("<h1>customization.html not found</h1>", status_code=404)
+
+
+@app.get("/cs-manifest.json")
+async def serve_cs_manifest():
+    f = BASE_DIR / "cs-manifest.json"
+    if f.exists():
+        return FileResponse(f, media_type="application/json")
+    return HTMLResponse("cs-manifest.json not found", status_code=404)
+
+
+@app.get("/cs-sw.js")
+async def serve_cs_service_worker():
+    f = BASE_DIR / "cs-sw.js"
+    if f.exists():
+        return FileResponse(f, media_type="application/javascript")
+    return HTMLResponse("cs-sw.js not found", status_code=404)
+
+
+@app.get("/cs-icon-192.png")
+async def serve_cs_icon_192():
+    f = BASE_DIR / "cs-icon-192.png"
+    if f.exists():
+        return FileResponse(f, media_type="image/png")
+    return HTMLResponse("Icon not found", status_code=404)
+
+
+@app.get("/cs-icon-512.png")
+async def serve_cs_icon_512():
+    f = BASE_DIR / "cs-icon-512.png"
+    if f.exists():
+        return FileResponse(f, media_type="image/png")
+    return HTMLResponse("Icon not found", status_code=404)
+
 @app.get("/", response_class=HTMLResponse)
 async def serve_index():
     """Serve main HTML UI"""

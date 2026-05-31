@@ -16,5 +16,10 @@ COPY robots.txt .
 COPY sitemap.xml .
 COPY icon-192.png .
 COPY icon-512.png .
+COPY customization.html .
+COPY cs-manifest.json .
+COPY cs-sw.js .
+COPY cs-icon-192.png .
+COPY cs-icon-512.png .
 
 EXPOSE 8000
