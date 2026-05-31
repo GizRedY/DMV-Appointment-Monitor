@@ -97,6 +97,44 @@
 </head>
 
 <body>
+<!-- Monitoring paused modal -->
+<div id="maintenanceModal" class="maintenance-modal-backdrop">
+    <div class="maintenance-modal">
+        <div class="maintenance-icon">⚠️</div>
+
+        <h2>Monitoring temporarily paused</h2>
+
+        <p>
+            NC DMV recently changed the official appointment website.
+            Because of this, location monitoring and appointment alerts are
+            temporarily disabled while we update the tracker.
+        </p>
+
+        <p class="maintenance-small">
+            You can still visit the official NC DMV website manually to check
+            appointment availability.
+        </p>
+
+        <div class="maintenance-actions">
+            <a
+                href="https://skiptheline.ncdot.gov/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="maintenance-btn maintenance-btn-primary"
+            >
+                Open official NC DMV site
+            </a>
+
+            <button
+                type="button"
+                class="maintenance-btn maintenance-btn-secondary"
+                onclick="closeMaintenanceModal()"
+            >
+                Continue to website
+            </button>
+        </div>
+    </div>
+</div>
     <div class="page-shell">
         <!-- ===== NEW HEADER ===== -->
         <header class="topbar">

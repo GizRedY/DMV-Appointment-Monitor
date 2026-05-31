@@ -25,8 +25,13 @@ jobs:
             cd /root/dmv-app
 
             git pull origin main
-            docker compose build
-            docker compose up -d --force-recreate
+
+            # Stop old monitor container if it exists
+            docker compose stop monitor || true
+            docker compose rm -f monitor || true
+
+            # Build and run only the website/API stack
+            docker compose up -d --build --force-recreate --remove-orphans api postgres
 
             echo "Waiting for app to start..."
             sleep 15

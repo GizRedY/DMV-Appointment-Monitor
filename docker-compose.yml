@@ -34,6 +34,8 @@ services:
     command: python api.py
 
   monitor:
+    profiles:
+      - monitor
     build:
       context: .
       dockerfile: Dockerfile.monitor

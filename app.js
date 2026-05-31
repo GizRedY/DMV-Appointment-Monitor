@@ -13,6 +13,61 @@ const state = {
 const API_URL = window.location.origin;
 
 // ============================================================================
+// TEMPORARY MAINTENANCE MODE
+// ============================================================================
+
+const MONITORING_PAUSED = true;
+
+function openMaintenanceModal() {
+    const modal = document.getElementById('maintenanceModal');
+    if (!modal) return;
+
+    modal.classList.add('open');
+    document.body.classList.add('maintenance-modal-open');
+}
+
+function closeMaintenanceModal() {
+    const modal = document.getElementById('maintenanceModal');
+    if (!modal) return;
+
+    modal.classList.remove('open');
+    document.body.classList.remove('maintenance-modal-open');
+}
+
+function applyMaintenanceMode() {
+    if (!MONITORING_PAUSED) return;
+
+    openMaintenanceModal();
+
+    const startBtn = document.querySelector('button[onclick="showScreen(\'platform\')"]');
+    const availabilityBtn = document.getElementById('availabilityFloatingBtn');
+    const categoryNextBtn = document.getElementById('categoryNextBtn');
+    const subscribeBtn = document.getElementById('subscribeBtn');
+
+    [startBtn, availabilityBtn, categoryNextBtn, subscribeBtn].forEach(btn => {
+        if (!btn) return;
+
+        btn.disabled = true;
+        btn.classList.add('maintenance-disabled');
+        btn.title = 'Monitoring is temporarily paused while we update the DMV tracker.';
+    });
+
+    if (startBtn) {
+        startBtn.textContent = '⚠️ Monitoring temporarily paused';
+    }
+
+    if (availabilityBtn) {
+        availabilityBtn.textContent = '⚠️ Live availability temporarily unavailable';
+    }
+
+    if (subscribeBtn) {
+        subscribeBtn.textContent = '⚠️ Monitoring paused';
+    }
+}
+
+window.closeMaintenanceModal = closeMaintenanceModal;
+
+// ============================================================================
 // SCREEN MANAGEMENT
 // ============================================================================
 
@@ -968,6 +1023,15 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('DMV Monitor - Frontend Initialization');
     console.log('='.repeat(60));
     console.log('DOM loaded, initializing app...');
+
+    applyMaintenanceMode();
+
+    if (MONITORING_PAUSED) {
+    console.log('Monitoring is paused. Backend calls skipped.');
+    console.log('✅ App initialized in maintenance mode');
+    console.log('='.repeat(60));
+    return;
+    }
     console.log('User Agent:', navigator.userAgent);
     console.log('Service Worker support:', 'serviceWorker' in navigator);
     console.log('Push Manager support:', 'PushManager' in window);

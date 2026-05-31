@@ -8,6 +8,7 @@ RUN pip install --no-cache-dir -r requirements.api.txt
 COPY api.py .
 COPY database.py .
 COPY index.html .
+COPY style.css .
 COPY app.js .
 COPY sw.js .
 COPY manifest.json .
