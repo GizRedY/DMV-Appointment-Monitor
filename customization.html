@@ -142,6 +142,18 @@
     padding:10px 16px;font-size:14px;width:100%;min-width:8.5in;box-sizing:border-box;flex-wrap:wrap;
   }
   .toolbar .toolbar-hint{margin-left:auto;opacity:.8;font-size:12px;}
+
+  /* Tabs bar (multiple sheets) */
+  .tabs-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;
+    padding:8px 16px 0;max-width:8.5in;margin:0 auto;box-sizing:border-box;}
+  .tab{display:inline-flex;align-items:center;gap:8px;background:#e9edf4;color:#33425c;
+    border:1px solid #c9d3e3;border-bottom:none;border-radius:8px 8px 0 0;
+    padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;max-width:240px;}
+  .tab.active{background:#fff;color:#2f5fc4;border-color:#2f5fc4;}
+  .tab .tab-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .tab .tab-close{font-size:15px;line-height:1;opacity:.55;border-radius:50%;
+    width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;}
+  .tab .tab-close:hover{opacity:1;background:#d6deec;}
   .toolbar button{
     background:var(--purple);color:#fff;border:0;padding:8px 16px;border-radius:6px;
     font-size:14px;cursor:pointer;font-family:inherit;
@@ -155,6 +167,7 @@
     *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
     body{background:#fff;}
     .toolbar{display:none;}
+    .tabs-bar{display:none;}
     .icon-menu{display:none!important;}
     .ac-list{display:none!important;}
     .modal-bg{display:none!important;}
@@ -267,11 +280,14 @@
 <div class="toolbar">
   <button onclick="doPrint()">Print / Save PDF</button>
   <button class="tmpl-btn" onclick="openTemplate()">Template</button>
+  <button onclick="duplicateSheet()">Duplicate</button>
   <button id="undoBtn" onclick="doUndo()" disabled>&#8630; Undo</button>
   <button id="redoBtn" onclick="doRedo()" disabled>&#8631; Redo</button>
   <button onclick="clearAll()">Clear form</button>
   <span class="toolbar-hint">This screen prints identically to the paper form</span>
 </div>
+
+<div class="tabs-bar" id="tabsBar"></div>
 
 <div class="sheet">
 
@@ -722,24 +738,34 @@
     document.getElementById('iconMenu').style.display = 'none';
   }
 
-  document.querySelectorAll('.icon-circle').forEach(function(ic){
-    ic.addEventListener('click', function(e){ openIconMenu(e, ic); });
+  document.addEventListener('click', function(e){
+    var ic = e.target.closest && e.target.closest('.icon-circle');
+    if(ic){ openIconMenu(e, ic); }
   });
   document.addEventListener('click', function(){
     document.getElementById('iconMenu').style.display = 'none';
   });
 
-  // ---- Auto-shrink the plan name when it gets long ----
+  // ---- Auto-shrink the plan name when it gets long ---- (delegated)
+  document.addEventListener('input', function(e){
+    if(e.target.classList && e.target.classList.contains('plan-name')){
+      var len = e.target.value.length;
+      var size = 19;
+      if(len > 23){ size = Math.max(12, 19 * 23 / len); }
+      e.target.style.fontSize = size + 'px';
+    }
+  });
   var planInput = document.querySelector('.plan-name');
   if(planInput){
-    planInput.addEventListener('input', function(){
+    var _noop = function(){
       var len = this.value.length;
       var size = 19;                       // full size up to 23 chars
       if(len > 23){
         size = Math.max(12, 19 * 23 / len); // shrink, but never below 12px
       }
       this.style.fontSize = size + 'px';
-    });
+    };
+    void _noop;
   }
 
   // =====================================================================
@@ -1293,6 +1319,96 @@
     document.querySelectorAll('.type-badge').forEach(function(b){ b.remove(); });
     document.querySelectorAll('.type-input').forEach(function(i){ i.removeAttribute('data-device-id'); });
   }
+
+  // =====================================================================
+  //  TABS — multiple independent sheets (Path 1: state snapshots)
+  // =====================================================================
+  var sheetEl = document.querySelector('.sheet');
+  var tabs = [];           // [{id, name, html, undo, redo}]
+  var activeTabId = null;
+  var tabSeq = 0;
+
+  // write current input values & sizes into the DOM attributes so innerHTML keeps them
+  function syncDomValues(){
+    sheetEl.querySelectorAll('input').forEach(function(i){
+      i.setAttribute('value', i.value);
+      if(i.style.fontSize) i.setAttribute('style','font-size:'+i.style.fontSize); else i.removeAttribute('style');
+    });
+  }
+  function currentPlanName(){
+    var p = sheetEl.querySelector('.plan-name');
+    return p ? (p.value || '') : '';
+  }
+  function captureActive(){
+    if(activeTabId === null) return;
+    syncDomValues();
+    var t = tabs.find(function(x){ return x.id === activeTabId; });
+    if(t){ t.html = sheetEl.innerHTML; t.undo = undoStack; t.redo = redoStack; t.name = currentPlanName() || t.name; }
+  }
+  function loadTab(id){
+    var t = tabs.find(function(x){ return x.id === id; });
+    if(!t) return;
+    sheetEl.innerHTML = t.html;
+    undoStack = t.undo || []; redoStack = t.redo || [];
+    activeTabId = id;
+    updateUndoButtons();
+    renderTabs();
+  }
+  function switchTab(id){
+    if(id === activeTabId) return;
+    captureActive();
+    loadTab(id);
+  }
+  function tabLabel(name){ return name && name.trim() ? name.trim() : 'Untitled'; }
+  function renderTabs(){
+    var bar = document.getElementById('tabsBar');
+    if(tabs.length <= 1){ bar.innerHTML=''; return; }  // hide bar when only one sheet
+    bar.innerHTML = '';
+    tabs.forEach(function(t){
+      var name = (t.id === activeTabId) ? (currentPlanName() || t.name) : t.name;
+      var el = document.createElement('div');
+      el.className = 'tab' + (t.id === activeTabId ? ' active' : '');
+      el.innerHTML = '<span class="tab-name">'+ tabLabel(name).replace(/</g,'&lt;') +'</span>'
+                   + '<span class="tab-close" title="Close">&times;</span>';
+      el.querySelector('.tab-name').addEventListener('click', function(){ switchTab(t.id); });
+      el.querySelector('.tab-close').addEventListener('click', function(e){ e.stopPropagation(); closeTab(t.id); });
+      bar.appendChild(el);
+    });
+  }
+  function duplicateSheet(){
+    captureActive();
+    var t = tabs.find(function(x){ return x.id === activeTabId; });
+    if(!t) return;
+    var copyId = ++tabSeq;
+    var copy = { id: copyId, name: 'Budget-Friendly Coverage', html: t.html, undo: [], redo: [] };
+    tabs.push(copy);
+    loadTab(copyId);
+    // rename the plan on the new copy
+    var planEl = sheetEl.querySelector('.plan-name');
+    if(planEl){ planEl.value = 'Budget-Friendly Coverage'; planEl.dispatchEvent(new Event('input',{bubbles:true})); }
+    renderTabs();
+  }
+  function closeTab(id){
+    if(tabs.length <= 1) return;
+    var idx = tabs.findIndex(function(x){ return x.id === id; });
+    if(idx === -1) return;
+    var wasActive = (id === activeTabId);
+    tabs.splice(idx, 1);
+    if(wasActive){
+      var next = tabs[Math.max(0, idx-1)];
+      loadTab(next.id);
+    } else {
+      renderTabs();
+    }
+  }
+  // initialize first tab from the initial sheet content
+  (function initTabs(){
+    tabSeq = 1;
+    activeTabId = 1;
+    syncDomValues();
+    tabs.push({ id:1, name: currentPlanName() || 'Plan 1', html: sheetEl.innerHTML, undo: undoStack, redo: redoStack });
+    renderTabs();
+  })();
 
   // ---- PWA: register service worker (offline support) ----
   if('serviceWorker' in navigator){
