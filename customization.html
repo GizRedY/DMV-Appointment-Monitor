@@ -91,6 +91,7 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f5fc4' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12l3 3 5-6'/%3E%3C/svg%3E");}
   .dev-toggle.left{left:-20px;}
   .dev-toggle.right{right:-20px;}
+  .dev-toggle.pressing{transform:translateY(-50%) scale(1.45);transition:transform 0.9s ease-out;opacity:.6;}
   tr.off input{color:#bdbdbd;text-decoration:line-through;}
   tr.off .dev-toggle{
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c4554d' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9 9l6 6M15 9l-6 6'/%3E%3C/svg%3E");}
@@ -529,11 +530,11 @@
       return '<tr>'
            + '<td class="type-cell-r">'+typeInput+'</td>'
            + '<td><input type="text"></td>'
-           + '<td class="qty qty-cell"><input type="text" class="qty-input"><span class="dev-toggle right" onclick="toggleDevice(event,this)"></span></td>'
+           + '<td class="qty qty-cell"><input type="text" class="qty-input"><span class="dev-toggle right"></span></td>'
            + '</tr>';
     }
     return '<tr>'
-         + '<td class="type-cell">'+typeInput+'<span class="dev-toggle left" onclick="toggleDevice(event,this)"></span></td>'
+         + '<td class="type-cell">'+typeInput+'<span class="dev-toggle left"></span></td>'
          + '<td><input type="text"></td>'
          + '<td class="qty"><input type="text" class="qty-input"></td>'
          + '</tr>';
@@ -609,7 +610,7 @@
   }
 
   function toggleDevice(e, dot){
-    e.stopPropagation();
+    if(e && e.stopPropagation) e.stopPropagation();
     var tr = dot.closest('tr');
     var wasOff = tr.classList.contains('off');
     tr.classList.toggle('off');
@@ -618,6 +619,73 @@
       function(){ tr.classList.toggle('off', !wasOff); }
     );
   }
+
+  // clear a whole row (Type / Location / QTY + badge + device id), Undo-aware
+  function clearRow(dot){
+    var tr = dot.closest('tr');
+    if(!tr) return;
+    var typeInp = tr.querySelector('.type-input');
+    var inputs = tr.querySelectorAll('input');
+    // snapshot for undo
+    var snap = [];
+    inputs.forEach(function(i){ snap.push({el:i, val:i.value, fs:i.style.fontSize}); });
+    var devId = typeInp ? typeInp.getAttribute('data-device-id') : null;
+    var wasOff = tr.classList.contains('off');
+    var hadBadge = typeInp ? typeInp.closest('td').classList.contains('has-badge') : false;
+
+    function doClear(){
+      inputs.forEach(function(i){ i.value=''; i.style.fontSize=''; });
+      if(typeInp){ typeInp.removeAttribute('data-device-id'); setRowBadge(typeInp, null); }
+      tr.classList.remove('off');
+    }
+    function restore(){
+      snap.forEach(function(s){ s.el.value=s.val; s.el.style.fontSize=s.fs; });
+      if(typeInp){
+        if(devId) typeInp.setAttribute('data-device-id', devId);
+        var cat = typeInp.getAttribute('data-cat') || '';
+        var dev = devId ? findById(cat, devId) : null;
+        setRowBadge(typeInp, dev);
+      }
+      tr.classList.toggle('off', wasOff);
+    }
+    doClear();
+    pushAction(restore, doClear);
+  }
+
+  // tap = toggle, long-press (1.5s) = clear row — bound to the existing dot
+  (function(){
+    var LONG_MS = 1000;
+    var timer = null, longFired = false, activeDot = null;
+    function start(e){
+      var dot = e.target.closest('.dev-toggle');
+      if(!dot) return;
+      e.preventDefault(); e.stopPropagation();
+      activeDot = dot; longFired = false;
+      dot.classList.add('pressing');
+      timer = setTimeout(function(){
+        longFired = true;
+        dot.classList.remove('pressing');
+        clearRow(dot);
+        if(navigator.vibrate) navigator.vibrate(30);
+      }, LONG_MS);
+    }
+    function end(e){
+      if(!activeDot) return;
+      clearTimeout(timer);
+      activeDot.classList.remove('pressing');
+      if(!longFired){ toggleDevice(e, activeDot); }  // short tap -> toggle
+      activeDot = null;
+    }
+    function cancel(){
+      if(timer) clearTimeout(timer);
+      if(activeDot) activeDot.classList.remove('pressing');
+      activeDot = null;
+    }
+    document.addEventListener('pointerdown', start, true);
+    document.addEventListener('pointerup', end, true);
+    document.addEventListener('pointercancel', cancel, true);
+    document.addEventListener('pointerleave', cancel, true);
+  })();
 
   function addTwoLines(section){
     var cat = section.getAttribute('data-cat') || '';
