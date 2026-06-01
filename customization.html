@@ -1196,6 +1196,13 @@
     fillCategory('home', home);
     fillCategory('keypad', keypad);
 
+    // name the plan automatically
+    var planEl = document.querySelector('.plan-name');
+    if(planEl){
+      planEl.value = 'Comprehensive Coverage';
+      planEl.dispatchEvent(new Event('input', {bubbles:true}));  // trigger auto-shrink
+    }
+
     // reset undo history (template is a fresh start)
     undoStack = []; redoStack = []; updateUndoButtons();
     closeTemplate();
