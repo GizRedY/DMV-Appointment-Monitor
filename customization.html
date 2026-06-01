@@ -429,9 +429,9 @@
           <span class="bc-name">DR Horton</span>
           <span class="bc-desc">Partner · Alarm.com cameras · free starter devices</span>
         </button>
-        <button type="button" class="builder-card disabled" disabled>
+        <button type="button" class="builder-card" onclick="startOther()">
           <span class="bc-name">Other</span>
-          <span class="bc-desc">Coming later</span>
+          <span class="bc-desc">Generic builder · same questions · Mini door/window system</span>
         </button>
       </div>
     </div>
@@ -455,7 +455,6 @@
       <div class="q-section">Rooms — Heat sensors (enter how many of each)</div>
       <div class="q-grid">
         <div class="q"><label>Laundry</label><input type="number" id="qLaundry" min="0" max="5" value="1"></div>
-        <div class="q"><label>Garage rooms</label><input type="number" id="qGarageRooms" min="0" max="5" value="1"></div>
         <div class="q"><label>Kitchen</label><input type="number" id="qKitchen" min="0" max="5" value="1"></div>
         <div class="q"><label>Big Closet</label><input type="number" id="qCloset" min="0" max="5" value="0"></div>
       </div>
@@ -470,7 +469,7 @@
       <div class="q-section">Other</div>
       <div class="q-grid">
         <div class="q"><label>Exterior walls (cameras)</label>
-          <select id="qWalls"><option value="2">2 walls</option><option value="4" selected>4 walls</option></select></div>
+          <select id="qWalls"><option value="0">No cameras</option><option value="2">2 walls</option><option value="4" selected>4 walls</option></select></div>
         <div class="q"><label>Motion / Glassbreak (free)</label>
           <select id="qMotionType"><option value="motion" selected>Motion</option><option value="glassbreak">Glassbreak</option><option value="none">None</option></select></div>
         <div class="q chk-q"><label><input type="checkbox" id="qCO" checked> Fuel burning system or garage attached (adds CO per floor)</label></div>
@@ -478,9 +477,11 @@
 
       <div class="q-section">Free devices included</div>
       <div class="q-grid free-grid">
-        <div class="q chk-q"><label><input type="checkbox" id="qFreeDoorbell" checked> Doorbell Camera</label></div>
-        <div class="q chk-q"><label><input type="checkbox" id="qFreeDeako" checked> Deako Smart Switch</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeDoorbell"> Doorbell Camera</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeDeako"> Deako Smart Switch</label></div>
         <div class="q chk-q"><label><input type="checkbox" id="qFreeEcho"> Alexa Echo Pop</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeSmoke"> Smoke (top floor)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreePlug"> Smart Plug (free)</label></div>
       </div>
 
       <div class="modal-actions">
@@ -542,16 +543,17 @@
   function rowHTML(side, cat){
     cat = cat || '';
     var typeInput = '<input type="text" class="type-input" data-cat="'+cat+'" autocomplete="off">';
+    var locInput  = '<input type="text" class="loc-input" data-cat="'+cat+'" autocomplete="off">';
     if(side === 'right'){
       return '<tr>'
            + '<td class="type-cell-r">'+typeInput+'</td>'
-           + '<td><input type="text"></td>'
+           + '<td>'+locInput+'</td>'
            + '<td class="qty qty-cell"><input type="text" class="qty-input"><span class="dev-toggle right"></span></td>'
            + '</tr>';
     }
     return '<tr>'
          + '<td class="type-cell">'+typeInput+'<span class="dev-toggle left"></span></td>'
-         + '<td><input type="text"></td>'
+         + '<td>'+locInput+'</td>'
          + '<td class="qty"><input type="text" class="qty-input"></td>'
          + '</tr>';
   }
@@ -740,10 +742,15 @@
 
   document.addEventListener('click', function(e){
     var ic = e.target.closest && e.target.closest('.icon-circle');
-    if(ic){ openIconMenu(e, ic); }
-  });
-  document.addEventListener('click', function(){
-    document.getElementById('iconMenu').style.display = 'none';
+    var menu = document.getElementById('iconMenu');
+    if(ic){
+      openIconMenu(e, ic);
+      return;
+    }
+    // clicking anywhere else (except inside the menu) closes it
+    if(!e.target.closest || !e.target.closest('#iconMenu')){
+      menu.style.display = 'none';
+    }
   });
 
   // ---- Auto-shrink the plan name when it gets long ---- (delegated)
@@ -792,7 +799,8 @@
       {id:"fire_smoke", name:"Smoke", price:229},
       {id:"fire_co",    name:"CO", price:219},
       {id:"fire_heat",  name:"Heat", price:129},
-      {id:"fire_flood", name:"Flood", price:149}
+      {id:"fire_flood", name:"Flood", price:149},
+      {id:"fire_smoke_free", name:"Smoke", price:0, free:true}
     ],
     video: [
       {id:"vid_out",   name:"OUT Camera", price:349},
@@ -804,6 +812,7 @@
     home: [
       {id:"home_garage",   name:"Garage Door", price:249},
       {id:"home_plug",     name:"Smart Plug", price:159},
+      {id:"home_plug_free",name:"Smart Plug", price:0, free:true},
       {id:"home_lock",     name:"Smart Lock", price:249},
       {id:"home_thermo",   name:"Thermostat", price:249},
       {id:"home_deako_sd", name:"Deako Simple Dimmer", price:79},
@@ -885,20 +894,46 @@
   }
 
   // ---------- Autocomplete ----------
+  // Suggested location names per category (free typing still allowed)
+  var LOCATIONS = {
+    security: ['Main Door','Garage Door','Back Door','Windows','2 Floor','Garage'],
+    fire:     ['1 Floor','2 Floor','Each BedRoom','Laundry','Garage','Kitchen','Big Closet','Dishwasher','Heating Tank'],
+    video:    ['Front Porch','Driveway','Back Yard','Left Side','Right Side','Back Windows'],
+    home:     ['Garage','Up / Down','Entry','Driveway Light','BackYard Light','Porch Light','Any'],
+    keypad:   ['Entry','2 Floor','Person']
+  };
+
   var acList = document.getElementById('acList');
-  var acInput = null, acItems = [], acActive = -1;
+  var acInput = null, acItems = [], acActive = -1, acMode = 'type';  // 'type' | 'loc' | 'qty'
+  var QTY_OPTIONS = ['1','2','3','4'];
 
   function showAutocomplete(input){
+    var isLoc = input.classList.contains('loc-input');
+    var isQty = input.classList.contains('qty-input');
+    acMode = isQty ? 'qty' : (isLoc ? 'loc' : 'type');
     var cat = input.getAttribute('data-cat');
-    var list = CATALOG[cat] || [];
     var q = input.value.trim().toLowerCase();
-    var matches = list.filter(function(d){ return d.name.toLowerCase().indexOf(q) !== -1; });
-    if(q === '') matches = list.slice();
+    var matches;
+    if(isQty){
+      matches = QTY_OPTIONS.filter(function(nm){ return nm.indexOf(q) !== -1; })
+                           .map(function(nm){ return {name:nm}; });
+      if(q === '') matches = QTY_OPTIONS.map(function(nm){ return {name:nm}; });
+    } else if(isLoc){
+      var locs = LOCATIONS[cat] || [];
+      matches = locs.filter(function(name){ return name.toLowerCase().indexOf(q) !== -1; })
+                    .map(function(name){ return {name:name}; });
+      if(q === '') matches = locs.map(function(name){ return {name:name}; });
+    } else {
+      var list = CATALOG[cat] || [];
+      matches = list.filter(function(d){ return d.name.toLowerCase().indexOf(q) !== -1; });
+      if(q === '') matches = list.slice();
+    }
     if(!matches.length){ hideAutocomplete(); return; }
 
     acInput = input; acItems = matches; acActive = -1;
     acList.innerHTML = matches.map(function(d,i){
-      return '<div class="ac-item" data-i="'+i+'"><span>'+d.name+' '+badgeHTML(d)+'</span></div>';
+      var label = (isLoc || isQty) ? d.name : (d.name + ' ' + badgeHTML(d));
+      return '<div class="ac-item" data-i="'+i+'"><span>'+label+'</span></div>';
     }).join('');
     var r = input.getBoundingClientRect();
     acList.style.left = (window.scrollX + r.left) + 'px';
@@ -916,16 +951,21 @@
   function hideAutocomplete(){ acList.style.display='none'; acInput=null; acItems=[]; acActive=-1; }
   function pickAutocomplete(i){
     if(!acInput || !acItems[i]) return;
-    var dev = acItems[i];
-    acInput.value = dev.name;
-    acInput.setAttribute('data-device-id', dev.id);   // remember exact catalog entry
-    setRowBadge(acInput, dev);
+    var item = acItems[i];
+    if(acMode === 'loc' || acMode === 'qty'){
+      acInput.value = item.name;       // location/qty: just fill the text
+      hideAutocomplete();
+      return;
+    }
+    acInput.value = item.name;
+    acInput.setAttribute('data-device-id', item.id);   // remember exact catalog entry
+    setRowBadge(acInput, item);
     fitTypeFont(acInput);
     hideAutocomplete();
   }
 
   document.addEventListener('focusin', function(e){
-    if(e.target.classList && e.target.classList.contains('type-input')){
+    if(e.target.classList && (e.target.classList.contains('type-input') || e.target.classList.contains('loc-input') || e.target.classList.contains('qty-input'))){
       showAutocomplete(e.target);
     }
   });
@@ -935,6 +975,8 @@
       e.target.removeAttribute('data-device-id');
       setRowBadge(e.target, null);
       fitTypeFont(e.target);
+      showAutocomplete(e.target);
+    } else if(e.target.classList && (e.target.classList.contains('loc-input') || e.target.classList.contains('qty-input'))){
       showAutocomplete(e.target);
     }
   });
@@ -1021,13 +1063,12 @@
     if(total > 0){
       var months = total <= 3500 ? 25 : 36;
       var monthly = total / months;
-      var ICON_PCT = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1d9e75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>';
       var ICON_CAL = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1d9e75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2.5" x2="8" y2="6"/><line x1="16" y1="2.5" x2="16" y2="6"/><path d="M12 13v3l2 1"/></svg>';
       var ICON_NOFEE = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#1d9e75" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="5.6" y1="5.6" x2="18.4" y2="18.4"/><path d="M9.5 9.2c.4-.7 1.2-1.1 2.5-1.1 1.6 0 2.5.7 2.5 1.7M14 14.4c-.3.9-1.2 1.5-2.5 1.5-1.4 0-2.3-.5-2.6-1.4"/></svg>';
       box.innerHTML =
         '<div class="fin-amount">$'+monthly.toFixed(2)+'<span class="fin-per"> /mo · '+months+' months</span></div>'
       + '<div class="fin-perks">'
-      +   '<span class="fin-perk">'+ICON_PCT+'0% APR — interest-free</span>'
+      +   '<span class="fin-perk">0% APR — interest-free</span>'
       +   '<span class="fin-perk">'+ICON_CAL+'First payment in ~30 days — nothing due today</span>'
       +   '<span class="fin-perk">'+ICON_NOFEE+'Pay off anytime, no penalty</span>'
       + '</div>';
@@ -1103,9 +1144,10 @@
   function closeTemplate(){ document.getElementById('tmplBg').classList.remove('show'); }
   var DRH_DEFAULTS = {
     qFloors:2, qBeds:4, qAdults:2, qDoors:3, qWindows:5,
-    qLaundry:1, qGarageRooms:1, qKitchen:1, qCloset:0,
+    qLaundry:1, qKitchen:1, qCloset:0,
     qDishwasher:1, qHeatTank:1
   };
+  var templateKind = 'drhorton';   // 'drhorton' | 'other'
   function resetTemplateDefaults(){
     Object.keys(DRH_DEFAULTS).forEach(function(id){
       var el = document.getElementById(id);
@@ -1115,14 +1157,30 @@
     document.getElementById('qCO').checked = true;
     document.getElementById('qWalls').value = '4';
     document.getElementById('qMotionType').value = 'motion';
-    document.getElementById('qFreeDoorbell').checked = true;
-    document.getElementById('qFreeDeako').checked = true;
+    document.getElementById('qFreeDoorbell').checked = false;
+    document.getElementById('qFreeDeako').checked = false;
     document.getElementById('qFreeEcho').checked = false;
+    document.getElementById('qFreeSmoke').checked = false;
+    document.getElementById('qFreePlug').checked = false;
   }
   function startDrHorton(){
+    templateKind = 'drhorton';
     resetTemplateDefaults();
-    document.getElementById('tmplStepBuilder').style.display = 'none';
+    document.getElementById('qFreeDoorbell').checked = true;   // DR Horton: doorbell included
+    document.getElementById('qFreeDeako').checked = true;      // DR Horton: deako included
     document.getElementById('tmplStepQuestions').style.display = 'block';
+    document.querySelector('#tmplStepQuestions .sub').textContent =
+      'DR Horton — answer a few questions and the form fills itself. You can edit everything after.';
+    document.getElementById('tmplStepBuilder').style.display = 'none';
+  }
+  function startOther(){
+    templateKind = 'other';
+    resetTemplateDefaults();
+    document.getElementById('qMotionType').value = 'none';   // Other: Motion/Glassbreak rarely given
+    document.getElementById('tmplStepQuestions').style.display = 'block';
+    document.querySelector('#tmplStepQuestions .sub').textContent =
+      'Other (generic) — answer a few questions and the form fills itself. You can edit everything after.';
+    document.getElementById('tmplStepBuilder').style.display = 'none';
   }
   function backToBuilder(){
     document.getElementById('tmplStepQuestions').style.display = 'none';
@@ -1198,7 +1256,6 @@
     var windows  = n('qWindows');
     var hasGarage= document.getElementById('qHasGarage').checked;
     var laundry  = n('qLaundry');
-    var garageRm = n('qGarageRooms');
     var kitchen  = n('qKitchen');
     var closet   = n('qCloset');
     var dishwash = n('qDishwasher');
@@ -1208,16 +1265,21 @@
     var freeBell = document.getElementById('qFreeDoorbell').checked;
     var freeDeako= document.getElementById('qFreeDeako').checked;
     var freeEcho = document.getElementById('qFreeEcho').checked;
+    var freeSmoke= document.getElementById('qFreeSmoke').checked;
+    var freePlug = document.getElementById('qFreePlug').checked;
     var motionType = document.getElementById('qMotionType').value; // 'motion' | 'glassbreak' | 'none'
 
     // ---------- FIRE & CO ----------
     var fire = [];
-    // Smoke: one per floor + one per bedroom
-    for(var f=1; f<=floors; f++){ fire.push({id:'fire_smoke', location:floorName(f), qty:1}); }
+    // Smoke: one per floor + one per bedroom; top floor free if "Smoke included" is on
+    for(var f=1; f<=floors; f++){
+      var topFloor = (f === floors);
+      fire.push({id: (freeSmoke && topFloor) ? 'fire_smoke_free' : 'fire_smoke', location:floorName(f), qty:1});
+    }
     if(beds > 0){ fire.push({id:'fire_smoke', location:'Each BedRoom', qty:beds}); }
     // Heat: per existing room
     for(var i=0;i<laundry;i++) fire.push({id:'fire_heat', location:'Laundry', qty:1});
-    for(var i2=0;i2<garageRm;i2++) fire.push({id:'fire_heat', location:'Garage', qty:1});
+    if(hasGarage) fire.push({id:'fire_heat', location:'Garage', qty:1});
     for(var i3=0;i3<kitchen;i3++) fire.push({id:'fire_heat', location:'Kitchen', qty:1});
     for(var i4=0;i4<closet;i4++) fire.push({id:'fire_heat', location:'Big Closet', qty:1});
     // Flood: laundry + dishwasher + heating tank
@@ -1227,40 +1289,73 @@
     // CO: per floor if fuel burning / attached garage
     if(addCO){ for(var c=1;c<=floors;c++) fire.push({id:'fire_co', location:floorName(c), qty:1}); }
     // keep Fire grouped by type: Smoke -> Heat -> Flood -> CO
-    var fireOrder = {fire_smoke:0, fire_heat:1, fire_flood:2, fire_co:3};
+    var fireOrder = {fire_smoke:0, fire_smoke_free:0, fire_heat:1, fire_flood:2, fire_co:3};
     fire.sort(function(a,b){ return (fireOrder[a.id] - fireOrder[b.id]); });
 
-    // ---------- VIDEO (Alarm.com for DR Horton) ----------
+    // ---------- VIDEO ----------
     var video = [];
+    // doorbell is independent of cameras — add it whenever its checkbox is on
     if(freeBell) video.push({id:'vid_bell_free', location:'Front Porch', qty:1});
-    var camLocs = walls === 4 ? ['Driveway','Back Yard','Left Side','Right Side'] : ['Driveway','Back Yard'];
-    camLocs.forEach(function(loc){ video.push({id:'vid_out', location:loc, qty:1}); });
-    video.push({id:'vid_in', location:'Back Windows', qty:1});  // always one indoor
+    if(walls > 0){
+      var camLocs = walls === 4 ? ['Driveway','Back Yard','Left Side','Right Side']
+                  : ['Driveway','Back Yard'];   // walls === 2
+      camLocs.forEach(function(loc){ video.push({id:'vid_out', location:loc, qty:1}); });
+      video.push({id:'vid_in', location:'Back Windows', qty:1});  // one indoor
+    }
+    // walls === 0 -> No cameras: no OUT/IN cameras (doorbell above still allowed)
 
     // ---------- SECURITY ----------
     var sec = [];
-    // Independent free caps: doors max 3 (Main, Garage, Back) or 2 without garage; windows max 4.
-    // Doors and windows do NOT share budget.
 
-    // -- Doors --
-    // Main Door: plain free Mini (no upgrade)
-    sec.push({id:'sec_mini_free', location:'Main Door', qty:1});
-    if(hasGarage){ sec.push({id:'sec_mini_free', location:'Garage Door', qty:1}); }
-    // Back Door: free upgrade to Mini-Shock (within door budget)
-    if(doors >= (hasGarage?3:2)){
-      sec.push({id:'sec_minishock_up', location:'Back Door', qty:1});
-    }
-    // doors beyond the free 3 (or 2) -> paid Mini-Shock, no badge
-    var freeDoorsMax = hasGarage ? 3 : 2;   // Main + Garage + Back  (or Main + Back)
-    for(var ed=freeDoorsMax; ed<doors; ed++){
-      sec.push({id:'sec_minishock', location:'Extra Door', qty:1});
-    }
+    if(templateKind === 'other'){
+      // Other: exactly 4 free Mini slots, assigned by priority:
+      // 1) Main Door (Mini free), 2) Garage Door (Mini free, if garage),
+      // 3) Back Door (Mini-Shock upgrade), 4+) windows (Mini-Shock upgrade).
+      // Anything beyond the 4 free slots is paid Mini-Shock.
+      var freeLeft = 4;
+      // Main Door
+      sec.push({id:'sec_mini_free', location:'Main Door', qty:1}); freeLeft--;
+      // Garage Door
+      if(hasGarage && freeLeft > 0){ sec.push({id:'sec_mini_free', location:'Garage Door', qty:1}); freeLeft--; }
+      // Back Door (only if there are >=2 doors, i.e. a back door exists)
+      var backDoorExists = doors >= 2;
+      if(backDoorExists && freeLeft > 0){ sec.push({id:'sec_minishock_up', location:'Back Door', qty:1}); freeLeft--; }
+      // remaining free slots go to windows as free Mini-Shock upgrades
+      var winIdx = 1;
+      while(freeLeft > 0 && winIdx <= windows){
+        sec.push({id:'sec_minishock_up', location:'Window '+winIdx, qty:1});
+        winIdx++; freeLeft--;
+      }
+      // extra doors beyond Main/Garage/Back -> paid Mini-Shock
+      var assignedDoors = 1 + (hasGarage?1:0) + (backDoorExists?1:0);
+      for(var xd=assignedDoors; xd<doors; xd++){
+        sec.push({id:'sec_minishock', location:'Extra Door', qty:1});
+      }
+      // remaining windows beyond the free ones -> paid Mini-Shock
+      for(var xw=winIdx; xw<=windows; xw++){
+        sec.push({id:'sec_minishock', location:'Window '+xw, qty:1});
+      }
+    } else {
+      // DR Horton door/window system
+      // Independent free caps: doors max 3 (Main, Garage, Back) or 2 without garage; windows max 4.
 
-    // -- Windows -- own budget: first 4 are free upgrade, rest paid
-    var winFreeMax = 4;
-    for(var w=1; w<=windows; w++){
-      if(w <= winFreeMax){ sec.push({id:'sec_minishock_up', location:'Window '+w, qty:1}); }
-      else { sec.push({id:'sec_minishock', location:'Window '+w, qty:1}); }
+      // -- Doors --
+      sec.push({id:'sec_mini_free', location:'Main Door', qty:1});
+      if(hasGarage){ sec.push({id:'sec_mini_free', location:'Garage Door', qty:1}); }
+      if(doors >= (hasGarage?3:2)){
+        sec.push({id:'sec_minishock_up', location:'Back Door', qty:1});
+      }
+      var freeDoorsMax = hasGarage ? 3 : 2;
+      for(var ed=freeDoorsMax; ed<doors; ed++){
+        sec.push({id:'sec_minishock', location:'Extra Door', qty:1});
+      }
+
+      // -- Windows -- own budget: first 4 are free upgrade, rest paid
+      var winFreeMax = 4;
+      for(var w=1; w<=windows; w++){
+        if(w <= winFreeMax){ sec.push({id:'sec_minishock_up', location:'Window '+w, qty:1}); }
+        else { sec.push({id:'sec_minishock', location:'Window '+w, qty:1}); }
+      }
     }
     // Indoor Siren on 2nd floor if 2 floors
     if(floors >= 2){ sec.push({id:'sec_siren', location:'2 Floor', qty:1}); }
@@ -1275,15 +1370,24 @@
 
     // ---------- HOME AUTOMATION ----------
     var home = [];
-    // builder-installed devices the client already has — connect & show as free
-    if(hasGarage) home.push({id:'home_garage_free', location:'Garage', qty:1});
-    home.push({id:'home_thermo_free', location:'Up / Down', qty:floors});  // 2 floors -> 2, 1 floor -> 1
-    home.push({id:'home_lock_free', location:'Entry', qty:1});
-    // always-offered paid Smart Switches (not free)
-    home.push({id:'home_deako_sw', location:'Driveway Light', qty:1});
-    home.push({id:'home_deako_sw', location:'BackYard Light', qty:1});
+    if(templateKind !== 'other'){
+      // DR Horton: builder-installed devices the client already has — connect & show as free
+      if(hasGarage) home.push({id:'home_garage_free', location:'Garage', qty:1});
+      home.push({id:'home_thermo_free', location:'Up / Down', qty:floors});  // 2 floors -> 2, 1 floor -> 1
+      home.push({id:'home_lock_free', location:'Entry', qty:1});
+      // always-offered paid Smart Switches (not free)
+      home.push({id:'home_deako_sw', location:'Driveway Light', qty:1});
+      home.push({id:'home_deako_sw', location:'BackYard Light', qty:1});
+    } else {
+      // Other: paid Smart Lock for the entry (no builder-installed freebies)
+      home.push({id:'home_lock', location:'Entry', qty:1});
+    }
     if(freeDeako) home.push({id:'home_deako_sw_free', location:'Porch Light', qty:1});
     if(freeEcho)  home.push({id:'home_echo_free', location:'Any', qty:1});
+    // always offer one paid Smart Plug (both templates)
+    home.push({id:'home_plug', location:'Any', qty:1});
+    // optional free Smart Plug if the checkbox is on
+    if(freePlug) home.push({id:'home_plug_free', location:'Any', qty:1});
 
     // ---------- KEYPADS / KEY FOBS ----------
     var keypad = [];
