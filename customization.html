@@ -26,7 +26,7 @@
   .sheet{
     width:8.5in;
     min-height:11in;
-    margin:18px auto;
+    margin:0 auto 18px;
     background:var(--paper);
     padding:0.25in 0.62in 0.4in;
     box-shadow:0 6px 24px rgba(0,0,0,.35);
@@ -91,7 +91,7 @@
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232f5fc4' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8 12l3 3 5-6'/%3E%3C/svg%3E");}
   .dev-toggle.left{left:-20px;}
   .dev-toggle.right{right:-20px;}
-  .dev-toggle.pressing{transform:translateY(-50%) scale(1.45);transition:transform 0.9s ease-out;opacity:.6;}
+  .dev-toggle.pressing{transform:translateY(-50%) scale(1.45);transition:transform 0.45s ease-out;opacity:.6;}
   tr.off input{color:#bdbdbd;text-decoration:line-through;}
   tr.off .dev-toggle{
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c4554d' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9 9l6 6M15 9l-6 6'/%3E%3C/svg%3E");}
@@ -105,6 +105,9 @@
   .ac-item .badge-gift, .ac-item .badge-arrow{vertical-align:-2px;}
   td.type-cell .type-input, td.type-cell-r .type-input{padding-right:6px;}
   td.type-cell.has-badge .type-input, td.type-cell-r.has-badge .type-input{padding-right:30px;}
+  /* voucher coverage colors (also print) */
+  .type-input.vou-full, .loc-input.vou-full{color:#15883f !important;}
+  .type-input.vou-partial, .loc-input.vou-partial{color:#d98a00 !important;}
 
   /* ---------- Footer ---------- */
   .footer{display:grid;grid-template-columns:96px 1fr 1fr;gap:10px;margin-top:6px;align-items:start;}
@@ -144,12 +147,13 @@
   .toolbar .toolbar-hint{margin-left:auto;opacity:.8;font-size:12px;}
 
   /* Tabs bar (multiple sheets) */
-  .tabs-bar{display:flex;gap:6px;align-items:center;flex-wrap:wrap;
-    padding:8px 16px 0;max-width:8.5in;margin:0 auto;box-sizing:border-box;}
+  .tabs-bar{display:flex;gap:6px;align-items:flex-end;flex-wrap:wrap;
+    padding:14px 16px 0;max-width:8.5in;margin:0 auto -1px;box-sizing:border-box;}
+  .tabs-bar:empty{padding:0;margin:0;}
   .tab{display:inline-flex;align-items:center;gap:8px;background:#e9edf4;color:#33425c;
     border:1px solid #c9d3e3;border-bottom:none;border-radius:8px 8px 0 0;
-    padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;max-width:240px;}
-  .tab.active{background:#fff;color:#2f5fc4;border-color:#2f5fc4;}
+    padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;max-width:240px;position:relative;z-index:2;}
+  .tab.active{background:var(--paper);color:#2f5fc4;border-color:#2f5fc4;}
   .tab .tab-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .tab .tab-close{font-size:15px;line-height:1;opacity:.55;border-radius:50%;
     width:16px;height:16px;display:inline-flex;align-items:center;justify-content:center;}
@@ -174,6 +178,7 @@
     .calc-btn{display:none!important;}
     .tmpl-btn{display:none!important;}
     .sfp-btn{display:none!important;}
+    .vou-btn{display:none!important;}
     .totals input{visibility:visible!important;}
     .sheet{margin:0;box-shadow:none;width:auto;min-height:auto;padding:0;}
     /* tighten vertical spacing so everything fits one Letter page */
@@ -194,6 +199,21 @@
     padding:3px 7px;font-size:10px;font-weight:600;cursor:pointer;font-family:inherit;opacity:.5;}
   .sfp-btn:hover{opacity:1;}
   .sfp-btn.active{background:#2f5fc4;color:#fff;border-color:#2f5fc4;opacity:1;}
+  /* VOU (voucher breakdown) button — next to SFP */
+  .vou-btn{position:absolute;top:6px;left:46px;z-index:5;display:none;
+    background:#f0f2f6;color:#1d9e75;border:1px solid #cdeede;border-radius:5px;
+    padding:3px 7px;font-size:10px;font-weight:700;cursor:pointer;font-family:inherit;opacity:.85;}
+  .vou-btn:hover{opacity:1;}
+  .vou-rows{margin-top:6px;}
+  .vou-line{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid #eef0f4;}
+  .vou-name{flex:1;font-weight:600;font-size:14px;}
+  .vou-amt{font-weight:700;color:#15883f;}
+  .vou-dot{width:11px;height:11px;border-radius:50%;flex:none;}
+  .vou-dot.green{background:#15883f;}
+  .vou-dot.yellow{background:#d98a00;}
+  .vou-sub{font-size:12px;color:#d98a00;font-weight:600;padding:2px 0 4px 19px;}
+  .calc-error{margin:10px 0 0;padding:10px 12px;border-radius:8px;background:#fdeaea;
+    border:1px solid #f0b8b8;color:#b3261e;font-size:13px;font-weight:600;line-height:1.4;}
   .calc-btn{background:#2f5fc4;color:#fff;border:0;border-radius:7px;
     padding:10px 22px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;
     box-shadow:0 1px 3px rgba(20,45,110,.3);}
@@ -293,6 +313,7 @@
 
   <div class="brand">
     <button type="button" class="sfp-btn" id="toggleFull" onclick="toggleFullPrice()" title="">SFP</button>
+    <button type="button" class="vou-btn" id="vouBtn" onclick="openVoucherBreakdown()" title="How the voucher was used">VOU</button>
     <img class="adt-logo" alt="ADT" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAFcAAABYCAYAAACAnmu5AAAbb0lEQVR4nO2deXwUVbbHf3epXtPZICRsKgkBkUWFAKOAQCAJ4HMZFFDfuI0z4DYozigIQgiyuKAPRRTcl5FREEdnBIGAgMoSljCAbLLKnkBI0un0VnXvfX9UdwiQkF2E987nU3RCd1fV/dapc89WNwQNIopgyHyK+UOF7Z53vvTT2N/D5xUghAGqYQ5ZpRBAKQnNShj372yct6ZvXvbsfAyZxzB/qGigIzbAPocoSuYT4bhr9rulloSH+lwdIa9qHEGFVCANccRqiAJACVDq1+WCrYWUlhZsbn5k+c2Hfvj0eEMBru+hloF13vXm+x7a7MGRA5qJ1+7twrYdLAbjF4lsSHRdIrFpBFZuPyZunbmFaXrBroT81f0OL3v/WEMArs/REmSuYMjqa7jumjW7hDYb8VBqgv7uQ921/tO+w/JNxwEbB+RFMguEAIZEkxgr1j2fhp+OFBm3zsjlmlG0MyH/h/4NAbi+4J4BO2zmrBLa4tF7ejXRP33kRu3m6SuxaN0R8Gg7hFRlBzwX8bkncqH3a/rdsFBKIHw6YpwMuVMHYMfRIuPmVzdxzXDvaFqwuf+hJTPq1UTUB9wysBH3zHzJg+ZP/75bY+PLJ3rxO1//EQu+PwgebYchZD0cqu7CKIEICMQ6GDZOzcD2I4XGLa/mcosq2R51emv/k4umn6gvwLSO3z+jsfe8OdlDmj894LpY48snevJ7Z6/BglUHof2GwAKAkArMynDaa6DLs0vQrnksX/jXFCNIXe0LY69dFt33j1di/lCBIfNYXY9VF7jlbOzMSSUkftxN10Qa3z59E3/4/Rz8fdk+aDF26L8hsGExAXMU+gykjFuMds2j+TdPpRgGcbb3JPRcEZX2eKv6AFx7uGGwQ16ZWMKbj++e5DRWje3LR32aizkL90CLdvwmwYYlDLjIa6Dzs4vRrlkUX/i3roahRbcqbZKyLD5jxFV1BVw7uJkrOLL6GhF3vvxcifWqzE4t7cbqCf3Zc/O3YMaXO8Bjfttgw1IG2CeQMnYJrmkWzReN6iIMGplY0LjHsoRBj9bJRNR8QguBdQ2b/lSJ1uqVq5tajc1T0tkr3+4iz320GVqM85IAW17Ck1yMnWLDlAH4+XihGPRqLuOidG8Tz87UY19POYzemRyrsoya7LdmcIfP0fD2CD1yyMuPu22tZl7VyGpsnZrG3lu1j4x6dxN4lANCyosW4NZFwoCj7QS5Uwdi9/EiY+D0DZwjsKeRe0t63tcvHqypF1F9sxAGO/iFR9y2VjObRWli0/P92D/W/XIGrLo0wQJnvIgin0SXsYuRnBDFF/01RRjEnnw6ov2K2J4jrsH8oQK9M3l191k9zQ2Bjbj9hT97XElvxzm52DqtP83enk/um7EGPNIKoQiUulTRnhFKCWRAINpOsWnqQOw5XigGTN/INFl8LPJUTmrBktm7q2siqoYbAuu6ddIfPVFXv+eyc7F1cird9EsxuePl78GcVkgAlwHXMilvg9dPGYA9xwvFoFc2MU26j0Xl5fY5tez1PdUBfGG4IbDOWzL/4Itp94ld08TG5/vSAye9ZNDUVWB2DZJcXmDDEgYcZSfYOHUg9h4vEgOnb2SaKj0ceXJrWsGSl6vU4MrhhsBG3TJpsCemzReMMrkhqw897dVJ30krQC0aFL08wYaFUQIRNBBtY9g0ZQB2nygWg6avZ1x5jkUcWzew6Lu3tl4IcMVwu8zRsGmE7rp10q2+6DYLpGJ0zYRehFBGbpyQDcUZQCnk5Uw2JGEbHGWj2Dh1APbnFYuMlzcwTbhPOk/k9L8Q4PO9hd4rODaN0F2Dxt/sj07+whCELX/2RtisFnJT1jJIxgH2fwMsAMiQF1Hsl+g6bgkS4yPZ4r91FTp1xXkSemTHpT9+LVZlGRV5EWdrbu8VHKv6Go60ZwbqCdd/rRuULxp9g0qKd9HOY5eg1CCgGoWUCpSQi1ZV+DVFKUAqFTIRAlFWio1TBmB/vltkvJzDuCo96SrcmVq4cNpP52rwGTxdhmvY9LYecfP4XsFG1ywNBqn1i6e6q5TERvS6MYtQ5FegFgYplZl4DgpAFxevJPZrCAGgMRALhVJnm4jcqQOwL69YpL+cw7jynXSe2pxRvPjVzeUBm3BD/xGR8XQvvWnnhQEfcX3yeBfZv1Nz2umZRTjp0cGsHOEamDIkOrRw4eqESHBOG6QQd7FFATAMiR3H3dh5tATgDKqcBkdbCdZPycCBvBKRMX094wjkO46uucX93RvrwzxJGdjeI3saib/7t9/Louf8+Vo55IaraMdnFuJoYRDMziGEqaKcERjFfsx+uDse6pOIPcfdsFj45eU2EIJg0ECbZlF4a/lu/OXtTeBRNhghBmVums100w7kFYv0l3IYh7fQcWpLhnvxKxvQe4VZMYzqO7JLoGXXlf6AJeKV+9vL4altaKcxi3AgzwvmsECUS8RwRmAU+vD+Ez1gCIHhM9YAMXbgEkvWXFAYBQp9+OBvvRA0DIx4Iwc8xl4G1/xIGDBFzpQM/JLnFhnTcxhXgUJn4ba04oUvbKL21Me7+VqkfOsP2CKm3HO1eDytLe363GIcOOE7D2x5IQTgjAKcgXPz9XLZwuPhjIJUMmsLqUBDXkS3sUvQKj6KLXm6uzSoPaYkqv2SiIxne1HRLGVZUDnixt6RJEff0oF1z1yKXYdLwJ1apWD/X0wJu2nuoETXcYtxVZyL/uvJFGm1RzQKxCZn06Cwu/q0i1LP33kt7TEpG//ZUwQeYf1N1b1+yyKkArOE/OAJ2UjrkEAzOsUo3bBaOYJBdWWTSLL7eBFytueDRTouOlhGq/ChlTmbh33QsFCCSm/jmh5fVXUO5URIBWJhcJfqOHjKA5vGCYShOAghuiHBKAG1ctOPbUAJn/CFnAtRGqy6eYQSgDMQjZqTiwKkLgBD1rlhQDACeHUEjeq3XymlQBhgYaZPDEIIB84MWCrVoD4rAaBEKAip7EBK4b7UVmgaZYNQCuScdhACwBuUOFrkxc5jJdh1rASGVwAWjqSmTjSPtkGouvFllCBQEkCLaCv2ngxWe2dKnR1TVTurXlehlEB6Anj2zmuwfMdJbNh9GsTGz7qtCTHhj7+tPVrHR1a5T0MIbPnlNP6x7jDeWrQbo9KT8Vj/tvV63rkLt5t3SS3kV4FLCKB0iUaN7Mga3Altmh7A+p/yQR0cqKAiVVgahCGUmcOoaGAhxeeMoUtiHLokxuFwoQ+nSoKQChBCgbO63YOGUOCc1OkOqGvHTbWEUQLlC2JkRjI0xnBnyhVIuioK0i8qVApGCTi7wEaJuU8AQUNCSAUtBNOc1Oppq+O4GxwuIYAISsQnOPGX/m0glUKEzYKnBrSFChogNbjlDKFgCAUhVdn8QMOgQ56DkJVvlU2isoafr640OFxKKZRPx1/SkhHjtIZOWuH+nq1wRQsXZKBi7a1IwprLKAElBFKpMptNCOCya2CUwBryIM7dKp75VdkFKr9ZNWqaszoQblCbSwgggwLxCU48ktoaSilwSiGUgtOq4amM1njyvVxQqw0QFQ9CKQVCCIp9AbyRvQuRNiuSmjjRqWUMWjSKgIURSKlgSGDFthNoGW1HwBBlZsNp5dAYgTAkuiQ2QotGEVAhhyX8um5PPvLdPhBKoQsFKycI+A10b9MEFl77Jw0aFK7ZDxvEyDuvQWyEDYZU4BRgMG/jB29qjZe+3YPjBX5QjVY4BgXT9rl9Op6btx3wS8DCEOnkuKltYzxzSzv0apuAXsmN8cXqXzBn5T4Ieeai5OwvQKDUALxBfPB0TzzQqzWEUuCElH1mzIJtWPXDYSDGAotVQ7A0CBQF8MG4PnDZa9+w3WBwKQFkUKJJggMP90uGUgAL3Zdmk7dCpN2CkWlJGPPRFjCrDUJWHhlSQhAZaYPXIqAogVtX+GbjcSzcfAKv3ncdnsxoh8fS2pz3vXdX7sHwdzaCumyw8opbvhhluDIxGvf3uRJenw6vkHhn4T5wRqGL2rfpNpjNDdvaJ9KSEeu0mgFBOZvHiKm9I/q0RkJCBERQoCrHJzyhyVDSnkdYQCwco97dhI9/3A8A0IWEVApGaNIb3LUFGsfaIYKVtxhwCqS0jUWJT4dVo4i2a0huHY1Sv1GmELViUOtvXminBBBhW3uO1oaFEEAohWinDY/1S4Ty6xX7tJWIggkblIDaLRg19z/Id3vNNCFMdw0AYp123JAUC1Q0cYZ+5xTghOK0JwihgB3HSuCyaxB1dBcaBC4J+bV/SU8yPQRVcYwe1t6H+7VG4yY2CL3mt6CUZm3v9CkvPl1zCARmIsV8z7wIna+MNn859yRC7DwBiZ+PuXFlnAO7jhShe2IMtuwugMPK6lTlrne4YQ8hIcGFR1PbnKe15eeGsPY2jrCb3oRPr1WoaSZNGJZuOwEAoOFRhQKBxCauUGKj4u87rAybdxXgwzVHccwjMGXRPvg9OjRW8SRbXal3uGY0ZmBkhVqrQM/xHcPa+1i/ZMQ0toMYNR+OUoBiFAcKSiGkBCWkzMsAgBgnB2jlHpVSALFwHDrlw/qfC+HVBcDpbyuIoKForGlTBx5ObX2e1hZ6g3jzu50g5ExHJCFmZBUf5cCIPq2gfEFolczqFxQCBAxZYeO1hVFUFcwqpcA1Cmrj5jnXQ+a1XuESSqD8Op5Ib4MYp61Ma42QLfhu+3E88U4ufinwACBnRVdKAU+kt4Ut0orTHv956bsqRSpEWDks3BxSeZQBQ1ZrZ+EQur4y2vUGN+zXxic4Mbzv2VpLCQClMHPZPhilBv5n8e4yoOb7JuiEaAfu7nkFXlm0q0bdPJQAREi0TXCBElo2oYUhnSrRgYvw3HG9wSWUQvmDeDKt9Vm2VoRan1bsysOqn/LBGjvxwaoDOHzaA0bP197M29pj+Y58bD9SGIJenYMTKClxe+dmAMopaeiHn/NK6muYNZJ6gUtBQh5CBEaknh+NSaUw7V/bzRYoouAu8GH6ol0AztfeKxu7cHtKC4xbsM3UtCrgckZgeHW0aRWNwSktzWOHPA7Ta1DYuP80wNiv3rdSL+EvpQTKH8QT6dcgxmkN5RDCJoFASIUXh12LF4Zdi5CFMG1jqD0oLGHtzRrcAdeOXYyfTxQjOT7qvOOR0GcZpdADBiwceP+hbnBYNbMaG7pQhBAcOe1BzoFCwMoavD54rtQdLgGCukDThAiM6Hu+hwCYmnT9VY2r3FX4QrRuEolB1zbFhC+34bNHe555nxKzXAQAuoT0BxDf2I4PHvkderRpYvYRhC6WVAAnwGfrDqGkyG+6Vr9y12Dd4VIC6dPx5B3XmB6CPFsbwyLD03/4VicmzHMlrL2T7+yELhOWYn++G63iIiGkgscbBAIS1MaQGO/Abdc1w6hBV6N5rPOs4yozKkaJL4jXl+4BtWqQAb3OQ62p1AkuIQAJCjRvFY3hqUmhQZ0BVmE2X515DT9YZd7iZ5uRtk2j0K99PCZ9tR0fDr8BjSIsWPLXHiCUoXm0DUnxLlg1rew45S+oESr7jFuwFYePeWCNtiPgD9ZlqLWSOk1ojBAon45RGcmIdtjOisbCE8sFa2HlKgvlb9ky7b2jI77YeBhHCkvhtFqQ3qkl0jo0wzUtYmHVtLKqRpnGAtCFCXbu2v2YuXAPWIT1orVl1VpzKTH7BxzNIvCn3kln2VoFczL5PGc/9ud5wDlFeHjlDQEhBEbAwHWtYjHw2pZlyeuw9nZsGYNebeLw/NfbMeeBbgiGmlfMAiI5S1vDvcMaI5ifcxAPvLXBbHKBwsXqIK4DXAK3L4jhaUmItFtgCAXGSNkgD55y4643cgCfMK9ERXMJAaBLxCQ4sH96HCId1rJcbThamnRHB6ROXYlJgzsizmUz8wAgZWZFhkxR2Gee/NVWjP9iOwjnAA2F2eXYqgq2hpLamQVC4A0KXNfShZFpZhMGZ6SsGksJwWtL9gBBCVsjB3ikFTyqgs1lha2JE4UFfrz/w/4ySJSY5oISgq6t4tCrbRym/mt72fvh0jclZt6WEmDZT8dx06SlGD93G4hFMxM1FTi2BKGIrtxrQ0ntNJcSlPoNpLZvBa8u4NPNLL9SZjR2tLAUH/54EMSmIaCLCzrvUhcgVo6Zy/bits4tYNe0MqdCKNNn/XOfRDz03nqMTEtGnMsWWitH4VSpjhXb8/Dp2l+wasdJQAEs0lrWBX+uKKWAUPmdUNOUaKFAoyEw1w6ukIhyaliw4TBGvbcBlihbWXKGACgNChT7BMCqzi5JBUCjOHjKj47jloJRinO/xCiF2y/ROXMZbFo40lJw+3UESnSAUhC7ZobbFYAVUgF2jtHzf8K0b3aj/PRGQXCo0AfYWFlOor6EA2euW00SG4wQuP0GjuX7AF2dXRonBIST6oebysyo+XQFqIpqXabddvsE3N5y1QpKwCKs5ieqauIgFMdO+3FM+M5XUkZr3Q9WXig547UAAAfMWy8oFJRQoJbqPX2uANPeaRRcozCoOuu9msbx4R6CCgcZjj/O7f9SqJG2EU5BKlg4TtVDmpFSAumTZo9ZqCLAQajyBoJIjHORaJcVRaUGaDXjcAXztg5vdRVV9k8l79fxGGaQWP/+AWMEolRHmysikBzvQr7bp2CxEModlCzMPUGWbz+u1k1Mg1MDpC5rVIn9vyyMEQifgZZxNqyfmIFZ2bvksp+KiYV6iyg7uftPQWHgtlfXqbxin/oxKx0WSCijasCEnHG9wkmVy2ILjaeqOYhSAuE3EOfi2Dh5AP656ZAc+dFOqinPKfuJXf14YNHE9xy3vRgMxLb+OHXqKrEmsy9dNbEf6TkhGxIaKCOVlpcDuoT06ghaWaW9XpeiBENt+wH9Ah1A1MxhR9kociYPwOrdefLBtzZTi0V4rEdyby3+7rVcjuFzNO/bIz5xDJ3B/c6W7980eZXYMCmVZo9LJamTloNYLWZtrIIMTKs4J7p3jIcWaa13N+ZiCqMEQXcAVzV2YF/++VUMSgmkIWGjCmuy0rH3RJEcPGMDsVikz35y263Fy19bi96ZoakzvIbN3W+MKLU1n+0gusidkkb35JWS/5q2EsxuKVsRhFMCwxPA+KHt8UhqMgwpodFfpYf6VxU9FGC8nv0zpi3YBe4yQ3xqllZADB1rstIhpK56TvpBUSaVvWDb70u+mfrv8HoVZ6xKGPDQV5/xOJNejOa6sXVaOlu/v5Dc+fL3YBE2SJzxJTVqgj67FHg5CQGB2Zoatg6EEFClIPxBLBufiiYui0qZsEIKpZi95OCdni+fWRDmaO6hvIQWZHPc9cZzXnuL55tYDWPrCwP44p/y8cCMH8Fddogw4MuRZ2USzmWAQJT68dUzvdGhZZS6bmy28ArCnUU7Hyr56rn3y4MNfe0cCQF23vX6C6W2K0c3d0l927QM7fOcI3jkzRzwKDO2b5ho/LcnCqFkPiEw3D589GQPpLePVx3GLBUFfvBIz97H3QuemXUuWKCirFhWX4HMFbz0s5FjIoJHZhwt4VrK+KX6H3pciVce6gKjyHdWcvpy3wCzA9Io9uKNEd1w6/XNkTI+WxT4KY8o2TfeveCZWchcwc8FC1SufATzFMVQIuzDXn/fZ2v1YLs4pedOHahNX7QT4z/+D3i0A8YFmpUvF9EYhV7oxZQHOuOpAW3QccxifW+B0ly+fVNK5j31XPhOr+i7lU3zCkOJxDzFfJ+P/KNdP/b3nfnQfjcxW3/2lnZ4dlgHGEVeaOzy8xLKSxjsmGEdMfrmdug2IVvfe0ppEb6Db5QDW2nfaxVmUxFkgiCLSMe97871osndNyRa9DUT07SRf8/FzH/uhHaJLOdaUwmDffTWqzHr/hTcODFbX7s/oDmNI++U/uPR4ZinGIYSiQtM7VWoHlHIgkKmot5P/nSvUxxZvHZ/QEudstx4/Q9dMHxQG+iFl58Ga4xCL/Lh3rQkzLq/K9KmLTfW7vNrDnHss+qCBapV5iEKWRMBpWTp3EdvdyJ/6YqdPj7opeXGnIe64b/7J0Iv9F82gDk3wd7e4wp8/PCNGDxjhbFseyl30tNfeuc+fA8yFcVQVAkWqHYNLUuCTCQgJBCzIut2B/LWfrvVw+947Xvj74/0wOBeLaEX+S55wJxRGEV+9Etphn+Ougn3zV5t/HNDMXeQU8tSPn5wGDIVQdZEAKRaXn4NaGRJTJhAjxw56tN+nDXITgpyv8wp5P/91mpjwZO9MKh7c+jFfnPdm0tQOKMw3AHc0L4xlo3pg8c+zDE++T6fO3jh2qjlb922SikBTASQVe0JpmYksrIkMifQ4l+2FNHVcwfZLSWb5/6Qx4e/u9ZY+HQf9L4+AYb70gPMGIXhCaBTYjS+n5CGsZ9vNt5cepTbLe7NbP2ntxw/nuvFxIkEWdUHC9Q2yBoyhGH+fOHsfle8TE5b7TOik0YObCFm3NeV3TgxG+t2nAKPvDTWyWGMQHh1JCc4seXFgfifxTvFuLl7mM3i2Ut3Luzl3TD/RHi8Nd137VRs/nyBIfNYac5neerAylS7tXT/698eYmM/3yxWZ/bH9a1jYHgCv3kNZtSsIjSPtWH95Ay8t3KvGDd3N7PZ/Aetv6xNM8HOqxVYoK7pgdAC6VG9Hm/lT7phZcCnXfH83W3E0zd3YNeP/RY7D5WARVS+NtnFFHNdRgONnRzbXhqEpduOyvtnbaFWzX9SO/pjH893c3bU9c/I1E21QgukF//wxgF+4IebrVb/qfH/2MNmZe8S6ycPQFJTB4Q3CFbHVTvqWyglkLqAy0qwbnIG1u3Jl/e/uZlaLHqRrWBLuue7OTvQO5PX9e/z1M+oQ+tBOvo9db1omZId8LFGs//cSQ67oRXtOHoRjhQEwBzmInAXE7NCqAvekLAohU1T03Gi2Cv7T11DNG74rfnbBnoWT1tVm78JUZHU31hDJxR18/guvrh2y4N+FvXRY51lRqcWtNPohcgv1kFs/OKuyG8+twUqDKyelAaipLpx0ipQIqSjcM9A978zs+sLLFDfKdnQiTkzRvcxEq5bGAgS+/wnu6lurZvQ3z23BMc9QbMeB4S6QEKnoMLZ4RD48s9Rlf/5rDOv7DOh/YSfVgklZMMDtUiJf4/ujeZRNtV5/AppSEHsRTuGef6V9cWFMly1kfq/S0OrR0dmjM3wJ3T8Jqgz/tWoriq9UwtyorAUmtn5VsYz/ABK+Qd36sK27KmAcJtauWtoCAWX3YKTxV71u6xVyh2UNKJox4MlX0/4sKJkd12lYUxgCLDrtsxB3sh2C5TGrf2vjoVF4+ScdtlfVUJ3jFq997Qq8ujUXnLgEd9Xo2c3BFigIcdZ9jcmnr/bF9fuQ+kJcihJz6jUrywEMM0EkYiwE1vpoTH+eU++1FBgAeB/AfBshBlm/YGXAAAAAElFTkSuQmCC">
     <div class="brand-text"><b>Authorized<br>Dealer</b></div>
     <span class="brand-sep">|</span>
@@ -404,6 +425,15 @@
 
 <div class="ac-list" id="acList" style="display:none;"></div>
 
+<div class="modal-bg" id="vouBg">
+  <div class="modal">
+    <button type="button" class="modal-close" onclick="closeVoucherBreakdown()" aria-label="Close">&times;</button>
+    <h3 id="vouTitle">Voucher usage</h3>
+    <p class="sub">Where the voucher was applied (priority: BOGO first, then most expensive).</p>
+    <div id="vouRows" class="vou-rows"></div>
+  </div>
+</div>
+
 <div class="modal-bg" id="sigBg">
   <div class="modal sig-modal">
     <button type="button" class="modal-close" onclick="closeSignature()" aria-label="Close">&times;</button>
@@ -472,15 +502,16 @@
           <select id="qWalls"><option value="0">No cameras</option><option value="2">2 walls</option><option value="4" selected>4 walls</option></select></div>
         <div class="q"><label>Motion / Glassbreak (free)</label>
           <select id="qMotionType"><option value="motion" selected>Motion</option><option value="glassbreak">Glassbreak</option><option value="none">None</option></select></div>
+        <div class="q" id="qBogoWrap"><label>BOGO (Other only)</label><input type="number" id="qBogo" min="0" max="10" value="0"></div>
         <div class="q chk-q"><label><input type="checkbox" id="qCO" checked> Fuel burning system or garage attached (adds CO per floor)</label></div>
       </div>
 
       <div class="q-section">Free devices included</div>
       <div class="q-grid free-grid">
-        <div class="q chk-q"><label><input type="checkbox" id="qFreeDoorbell"> Doorbell Camera</label></div>
-        <div class="q chk-q"><label><input type="checkbox" id="qFreeDeako"> Deako Smart Switch</label></div>
-        <div class="q chk-q"><label><input type="checkbox" id="qFreeEcho"> Alexa Echo Pop</label></div>
-        <div class="q chk-q"><label><input type="checkbox" id="qFreeSmoke"> Smoke (top floor)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeDoorbell"> Doorbell Camera (free)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeDeako"> Deako Smart Switch (free)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeEcho"> Alexa Echo Pop (free)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeSmoke"> Smoke top floor (free)</label></div>
         <div class="q chk-q"><label><input type="checkbox" id="qFreePlug"> Smart Plug (free)</label></div>
       </div>
 
@@ -505,6 +536,7 @@
       <p class="sub">These devices aren't in the catalog. Enter a price to include them (this does not change the catalog).</p>
       <div id="modalRows"></div>
     </div>
+    <div id="calcError" class="calc-error" style="display:none;"></div>
     <div class="modal-actions">
       <button class="btn-ghost" onclick="closeModal()">Cancel</button>
       <button class="btn-primary" onclick="confirmCalc()">Calculate</button>
@@ -614,9 +646,10 @@
     var inputsBefore = inputSnapshot();
     var chkBefore = chkStates();
     blankAll();
+    resetCalcState();
     pushAction(
       function(){ restoreInputs(inputsBefore); setChkStates(chkBefore); },
-      function(){ blankAll(); }
+      function(){ blankAll(); resetCalcState(); }
     );
   }
 
@@ -672,7 +705,7 @@
 
   // tap = toggle, long-press (1.5s) = clear row — bound to the existing dot
   (function(){
-    var LONG_MS = 1000;
+    var LONG_MS = 500;
     var timer = null, longFired = false, activeDot = null;
     function start(e){
       var dot = e.target.closest('.dev-toggle');
@@ -793,7 +826,14 @@
       {id:"sec_mini_free", name:"Mini", price:0, free:true},
       {id:"sec_minishock_up", name:"Mini-Shock", price:50, free:true, upgrade:true},
       {id:"sec_motion_free", name:"Motion", price:0, free:true},
-      {id:"sec_glass_free",  name:"Glassbreak", price:0, free:true}
+      {id:"sec_glass_free",  name:"Glassbreak", price:0, free:true},
+      // ---- BOGO (Other template) ----
+      // ★ master = paid by voucher first ($125). Secondary = free ($0).
+      // The "→ Shock" variants add a $50 upgrade that is NEVER covered by voucher.
+      {id:"bogo_master",        name:"★ BOGO Mini",           price:125, bogoMaster:true},
+      {id:"bogo_master_shock",  name:"★ BOGO Mini → Shock",   price:125, bogoMaster:true, upgradeAdd:50},
+      {id:"bogo_secondary",     name:"BOGO Mini",             price:0, free:true, bogoSecondary:true},
+      {id:"bogo_secondary_shock",name:"BOGO Mini-Shock",      price:0, free:true, upgrade:true, bogoSecondary:true, upgradeAdd:50}
     ],
     fire: [
       {id:"fire_smoke", name:"Smoke", price:229},
@@ -1002,7 +1042,7 @@
 
   // ---------- Calculate ----------
   function gatherLineItems(){
-    // returns {recognized:[{price,qty}], unknown:[{name,qty,cat}]}
+    // returns {recognized:[{tr,price,qty,upgrade,bogoMaster,upgradeAdd,name}], unknown:[...]}
     var recognized = [], unknown = [];
     document.querySelectorAll('.type-input').forEach(function(inp){
       var tr = inp.closest('tr');
@@ -1016,8 +1056,17 @@
 
       var id = inp.getAttribute('data-device-id');
       var dev = id ? findById(cat, id) : findDevice(cat, name);
-      if(dev){ recognized.push({price:dev.price, qty:qty, upgrade:!!dev.upgrade}); }
-      else   { unknown.push({name:name, qty:qty, cat:cat}); }
+      if(dev){
+        recognized.push({
+          tr: tr, name: dev.name, price: dev.price, qty: qty,
+          upgrade: !!dev.upgrade,
+          bogoMaster: !!dev.bogoMaster,
+          bogoSecondary: !!dev.bogoSecondary,
+          upgradeAdd: dev.upgradeAdd || 0
+        });
+      } else {
+        unknown.push({tr: tr, name:name, qty:qty, cat:cat});
+      }
     });
     return {recognized:recognized, unknown:unknown};
   }
@@ -1027,31 +1076,90 @@
     openModal(items.recognized, items.unknown);
   }
 
+  var lastVoucherBreakdown = [];   // for the VOU popup
+  var lastVoucherAmount = 0;       // voucher entered for the last calc
+
   function finishCalc(recognized, manual, taxRate, voucher){
     voucher = voucher || 0;
-    // Split into upgrades (voucher cannot apply) and the rest (voucher applies)
-    var upgrades = 0, rest = 0;
-    recognized.forEach(function(r){
-      if(r.upgrade) upgrades += r.price * r.qty;
-      else          rest    += r.price * r.qty;
+    lastVoucherAmount = voucher;
+
+    // Build a flat list of "units" the voucher can be applied to (price each, qty expanded as a group).
+    // Upgrades ($50 etc.) are NEVER voucher-eligible.
+    // Each entry: {tr, name, base (voucher-eligible $ for the whole row), upgradeExtra ($ not voucher-eligible), bogoMaster}
+    var rows = [];
+    var upgradesTotal = 0;   // money that bypasses the voucher entirely
+
+    function addRow(it, isManual){
+      var qty = it.qty || 1;
+      // voucher-eligible base for this row
+      var base = 0, upExtra = 0;
+      if(it.upgrade){
+        // a pure upgrade line ($50) — entirely non-voucher
+        upExtra += (it.price || 0) * qty;          // usually price 0 for free upgrade rows
+      } else {
+        base += (it.price || 0) * qty;
+      }
+      // extra shock add-on baked into BOGO rows ($50) — non-voucher
+      if(it.upgradeAdd){ upExtra += it.upgradeAdd * qty; }
+      upgradesTotal += upExtra;
+      if(base > 0 || it.bogoMaster){
+        rows.push({ tr: it.tr || null, name: it.name || '', base: base,
+                    bogoMaster: !!it.bogoMaster });
+      } else if(upExtra > 0 && it.tr){
+        // a free-upgrade row contributes only non-voucher money; mark tr as not voucher-colored
+        rows.push({ tr: it.tr, name: it.name || '', base: 0, bogoMaster:false, upgradeOnly:true });
+      }
+    }
+    recognized.forEach(function(r){ addRow(r, false); });
+    manual.forEach(function(m){ addRow({tr:m.tr, name:m.name, price:m.price, qty:m.qty}, true); });
+
+    // ---- BOGO shortfall check ----
+    var bogoNeed = 0;
+    rows.forEach(function(r){ if(r.bogoMaster) bogoNeed += r.base; });
+    if(bogoNeed > voucher){
+      return false;  // guarded earlier in confirmCalc with a visible banner
+    }
+
+    // ---- Apply voucher: BOGO masters first, then by price (high -> low) ----
+    var order = rows.filter(function(r){ return r.base > 0; }).slice();
+    order.sort(function(a,b){
+      if(a.bogoMaster && !b.bogoMaster) return -1;
+      if(!a.bogoMaster && b.bogoMaster) return 1;
+      return b.base - a.base;   // expensive first
     });
-    manual.forEach(function(m){ rest += m.price * m.qty; });  // manual items are voucher-eligible
 
-    // Apply voucher to the "rest" only, never below zero
-    var voucherUsed = Math.min(voucher, rest);
-    var voucherLeft = voucher - voucherUsed;
-    var restAfter = rest - voucherUsed;
+    var remaining = voucher;
+    lastVoucherBreakdown = [];
+    order.forEach(function(r){
+      r.coverState = 'none';   // none | full | partial
+      r.covered = 0;
+      if(remaining <= 0){ return; }
+      if(remaining >= r.base){
+        r.covered = r.base; remaining -= r.base; r.coverState = 'full';
+      } else {
+        r.covered = remaining; r.coverState = 'partial'; remaining = 0;
+      }
+      lastVoucherBreakdown.push({name:r.name, base:r.base, covered:r.covered,
+                                 state:r.coverState, outOfPocket: r.base - r.covered});
+    });
+    var voucherLeft = remaining;
+    var voucherUsed = voucher - voucherLeft;
 
-    var sub = restAfter + upgrades;           // taxable base after voucher
+    // ---- Totals ----
+    var voucherEligibleTotal = 0;
+    rows.forEach(function(r){ voucherEligibleTotal += r.base; });
+    var restAfter = voucherEligibleTotal - voucherUsed;
+    var sub = restAfter + upgradesTotal;
     var tax = sub * (taxRate/100);
     var total = sub + tax;
+
+    // ---- Color the rows (green = fully covered, yellow = partial) ----
+    paintVoucherColors(order);
 
     document.getElementById('subTotal').value  = '$'+sub.toFixed(2);
     document.getElementById('taxField').value   = '$'+tax.toFixed(2);
     document.getElementById('totalField').value = '$'+total.toFixed(2);
 
-    // Financing: /25 if <= 3500, else /36 (interest-free) — this is what we show the client
-    var box = document.getElementById('financeBox');
     var leftBox = document.getElementById('voucherLeftBox');
     if(voucherLeft > 0){
       leftBox.textContent = '$'+voucherLeft.toFixed(2)+' voucher left';
@@ -1060,6 +1168,11 @@
       leftBox.textContent = '';
       leftBox.style.display = 'none';
     }
+
+    // show the VOU button if a voucher was actually used
+    document.getElementById('vouBtn').style.display = (voucher > 0) ? 'inline-block' : 'none';
+
+    var box = document.getElementById('financeBox');
     if(total > 0){
       var months = total <= 3500 ? 25 : 36;
       var monthly = total / months;
@@ -1076,9 +1189,38 @@
     } else {
       box.innerHTML = '';
     }
-    // keep full price hidden by default after each calc
     document.getElementById('totalsTable').classList.remove('show');
     document.getElementById('toggleFull').classList.remove('active');
+    return true;
+  }
+
+  // paint voucher coverage colors on device rows
+  function paintVoucherColors(order){
+    // clear previous coloring everywhere first
+    document.querySelectorAll('.type-input, .loc-input').forEach(function(i){
+      i.classList.remove('vou-full','vou-partial');
+    });
+    order.forEach(function(r){
+      if(!r.tr) return;
+      var t = r.tr.querySelector('.type-input');
+      var l = r.tr.querySelector('.loc-input');
+      var cls = r.coverState === 'full' ? 'vou-full' : (r.coverState === 'partial' ? 'vou-partial' : '');
+      if(cls){ if(t) t.classList.add(cls); if(l) l.classList.add(cls); }
+    });
+  }
+
+  // clear everything produced by a previous Calculate (totals, financing, colors, buttons)
+  function resetCalcState(){
+    document.querySelectorAll('.type-input, .loc-input').forEach(function(i){
+      i.classList.remove('vou-full','vou-partial');
+    });
+    var fb = document.getElementById('financeBox'); if(fb) fb.innerHTML = '';
+    var lb = document.getElementById('voucherLeftBox'); if(lb){ lb.textContent=''; lb.style.display='none'; }
+    ['subTotal','taxField','totalField'].forEach(function(id){ var el=document.getElementById(id); if(el) el.value=''; });
+    var tt = document.getElementById('totalsTable'); if(tt) tt.classList.remove('show');
+    var tf = document.getElementById('toggleFull'); if(tf){ tf.classList.remove('active'); }
+    var vb = document.getElementById('vouBtn'); if(vb) vb.style.display='none';
+    lastVoucherBreakdown = [];
   }
 
   function toggleFullPrice(){
@@ -1087,6 +1229,31 @@
     var shown = t.classList.toggle('show');
     btn.classList.toggle('active', shown);
   }
+
+  function openVoucherBreakdown(){
+    document.getElementById('vouTitle').textContent = 'Voucher usage ($'+lastVoucherAmount.toFixed(2)+')';
+    var box = document.getElementById('vouRows');
+    if(!lastVoucherBreakdown.length){
+      box.innerHTML = '<p style="color:#777;">Voucher was not applied to anything.</p>';
+    } else {
+      var html = '';
+      lastVoucherBreakdown.forEach(function(r){
+        if(r.state === 'full'){
+          html += '<div class="vou-line"><span class="vou-dot green"></span>'
+                + '<span class="vou-name">'+r.name+'</span>'
+                + '<span class="vou-amt">−$'+r.covered.toFixed(2)+'</span></div>';
+        } else {
+          html += '<div class="vou-line"><span class="vou-dot yellow"></span>'
+                + '<span class="vou-name">'+r.name+'</span>'
+                + '<span class="vou-amt">−$'+r.covered.toFixed(2)+'</span></div>'
+                + '<div class="vou-sub">partially covered · still owe <b>$'+r.outOfPocket.toFixed(2)+'</b> on this device</div>';
+        }
+      });
+      box.innerHTML = html;
+    }
+    document.getElementById('vouBg').classList.add('show');
+  }
+  function closeVoucherBreakdown(){ document.getElementById('vouBg').classList.remove('show'); }
 
   // ---------- Calculate modal (tax + unrecognized) ----------
   var pendingRecognized = [], pendingUnknown = [];
@@ -1108,6 +1275,7 @@
       wrap.style.display = 'none';
       document.getElementById('modalRows').innerHTML = '';
     }
+    document.getElementById('calcError').style.display = 'none';
     document.getElementById('modalBg').classList.add('show');
     setTimeout(function(){ document.getElementById('taxInput').focus(); }, 50);
   }
@@ -1125,12 +1293,23 @@
       var i = parseInt(inp.getAttribute('data-i'),10);
       var v = parseFloat(inp.value);
       if(isNaN(v) || v < 0){ ok = false; inp.style.borderColor = '#d9534f'; return; }
-      manual.push({name:pendingUnknown[i].name, price:v, qty:pendingUnknown[i].qty});
+      manual.push({tr:pendingUnknown[i].tr, name:pendingUnknown[i].name, price:v, qty:pendingUnknown[i].qty});
     });
     if(!ok) return;  // wait until every unknown has a valid price
 
-    closeModal();
-    finishCalc(pendingRecognized, manual, taxRate, voucher);
+    // BOGO voucher-shortfall check — show a clear banner inside the modal
+    var bogoNeed = 0;
+    pendingRecognized.forEach(function(r){ if(r.bogoMaster) bogoNeed += (r.price||0) * (r.qty||1); });
+    var errBox = document.getElementById('calcError');
+    if(bogoNeed > voucher){
+      errBox.innerHTML = 'Not enough voucher for BOGO.<br>BOGO needs <b>$'+bogoNeed.toFixed(2)+'</b>, but the voucher is only <b>$'+voucher.toFixed(2)+'</b>.<br>Increase the voucher or reduce the number of BOGO.';
+      errBox.style.display = 'block';
+      return;
+    }
+    errBox.style.display = 'none';
+
+    var success = finishCalc(pendingRecognized, manual, taxRate, voucher);
+    if(success){ closeModal(); }   // keep modal open on any shortfall so the user can fix the voucher
   }
 
   // =====================================================================
@@ -1162,12 +1341,14 @@
     document.getElementById('qFreeEcho').checked = false;
     document.getElementById('qFreeSmoke').checked = false;
     document.getElementById('qFreePlug').checked = false;
+    document.getElementById('qBogo').value = 0;
   }
   function startDrHorton(){
     templateKind = 'drhorton';
     resetTemplateDefaults();
     document.getElementById('qFreeDoorbell').checked = true;   // DR Horton: doorbell included
     document.getElementById('qFreeDeako').checked = true;      // DR Horton: deako included
+    document.getElementById('qBogoWrap').style.display = 'none';  // BOGO is Other-only
     document.getElementById('tmplStepQuestions').style.display = 'block';
     document.querySelector('#tmplStepQuestions .sub').textContent =
       'DR Horton — answer a few questions and the form fills itself. You can edit everything after.';
@@ -1177,6 +1358,7 @@
     templateKind = 'other';
     resetTemplateDefaults();
     document.getElementById('qMotionType').value = 'none';   // Other: Motion/Glassbreak rarely given
+    document.getElementById('qBogoWrap').style.display = '';  // show BOGO for Other
     document.getElementById('tmplStepQuestions').style.display = 'block';
     document.querySelector('#tmplStepQuestions .sub').textContent =
       'Other (generic) — answer a few questions and the form fills itself. You can edit everything after.';
@@ -1268,6 +1450,9 @@
     var freeSmoke= document.getElementById('qFreeSmoke').checked;
     var freePlug = document.getElementById('qFreePlug').checked;
     var motionType = document.getElementById('qMotionType').value; // 'motion' | 'glassbreak' | 'none'
+    var bogoCount = (templateKind === 'other') ? n('qBogo') : 0;
+    if(bogoCount < 0) bogoCount = 0;
+    if(bogoCount > 10) bogoCount = 10;
 
     // ---------- FIRE & CO ----------
     var fire = [];
@@ -1308,32 +1493,41 @@
     var sec = [];
 
     if(templateKind === 'other'){
-      // Other: exactly 4 free Mini slots, assigned by priority:
-      // 1) Main Door (Mini free), 2) Garage Door (Mini free, if garage),
-      // 3) Back Door (Mini-Shock upgrade), 4+) windows (Mini-Shock upgrade).
-      // Anything beyond the 4 free slots is paid Mini-Shock.
+      // Order: free Mini slots (doors first, then windows) -> BOGO -> paid windows -> extra doors.
+      // Exactly 4 free slots by priority: Main Door, Garage Door (if garage),
+      // Back Door (Mini-Shock upgrade), then windows (Mini-Shock upgrade).
+      // BOGO devices count as window coverage. Anything left over is paid Mini-Shock.
       var freeLeft = 4;
-      // Main Door
-      sec.push({id:'sec_mini_free', location:'Main Door', qty:1}); freeLeft--;
-      // Garage Door
-      if(hasGarage && freeLeft > 0){ sec.push({id:'sec_mini_free', location:'Garage Door', qty:1}); freeLeft--; }
-      // Back Door (only if there are >=2 doors, i.e. a back door exists)
       var backDoorExists = doors >= 2;
+
+      // 1) free door slots
+      sec.push({id:'sec_mini_free', location:'Main Door', qty:1}); freeLeft--;
+      if(hasGarage && freeLeft > 0){ sec.push({id:'sec_mini_free', location:'Garage Door', qty:1}); freeLeft--; }
       if(backDoorExists && freeLeft > 0){ sec.push({id:'sec_minishock_up', location:'Back Door', qty:1}); freeLeft--; }
-      // remaining free slots go to windows as free Mini-Shock upgrades
-      var winIdx = 1;
-      while(freeLeft > 0 && winIdx <= windows){
-        sec.push({id:'sec_minishock_up', location:'Window '+winIdx, qty:1});
-        winIdx++; freeLeft--;
+
+      // 2) remaining free slots go to windows (free Mini-Shock upgrades)
+      var winsCovered = 0;   // how many windows are already covered
+      while(freeLeft > 0 && winsCovered < windows){
+        sec.push({id:'sec_minishock_up', location:'Window', qty:1});
+        winsCovered++; freeLeft--;
       }
-      // extra doors beyond Main/Garage/Back -> paid Mini-Shock
+
+      // 3) BOGO pairs (default upgraded to Shock) — each device covers one window
+      for(var bg=0; bg<bogoCount; bg++){
+        sec.push({id:'bogo_master_shock',    location:'Window', qty:1});
+        sec.push({id:'bogo_secondary_shock', location:'Window', qty:1});
+        winsCovered += 2;
+      }
+
+      // 4) remaining windows -> paid Mini-Shock
+      for(var rw=winsCovered; rw<windows; rw++){
+        sec.push({id:'sec_minishock', location:'Window', qty:1});
+      }
+
+      // 5) extra doors beyond Main/Garage/Back -> paid Mini-Shock
       var assignedDoors = 1 + (hasGarage?1:0) + (backDoorExists?1:0);
       for(var xd=assignedDoors; xd<doors; xd++){
         sec.push({id:'sec_minishock', location:'Extra Door', qty:1});
-      }
-      // remaining windows beyond the free ones -> paid Mini-Shock
-      for(var xw=winIdx; xw<=windows; xw++){
-        sec.push({id:'sec_minishock', location:'Window '+xw, qty:1});
       }
     } else {
       // DR Horton door/window system
@@ -1398,6 +1592,7 @@
     // ---- wipe form and fill ----
     blankAll();
     clearBadges();
+    resetCalcState();
     fillCategory('fire', fire);
     fillCategory('video', video);
     fillCategory('security', sec);
