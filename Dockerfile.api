@@ -16,7 +16,9 @@ COPY robots.txt .
 COPY sitemap.xml .
 COPY icon-192.png .
 COPY icon-512.png .
-COPY customization.html .
+COPY cs-index.html .
+COPY cs-styles.css .
+COPY cs-app.js .
 COPY cs-manifest.json .
 COPY cs-sw.js .
 COPY cs-icon-192.png .
