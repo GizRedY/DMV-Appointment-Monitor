@@ -241,11 +241,25 @@ def send_push_notification(subscription_info: dict, title: str, body: str,
 @app.get("/customization-sheet", response_class=HTMLResponse)
 async def serve_customization_sheet():
     """Serve the Home Customization sheet (standalone tool)."""
-    html_file = BASE_DIR / "customization.html"
+    html_file = BASE_DIR / "cs-index.html"
     if html_file.exists():
         return FileResponse(html_file)
     return HTMLResponse("<h1>customization.html not found</h1>", status_code=404)
 
+@app.get("/cs-styles.css")
+async def serve_cs_styles():
+    f = BASE_DIR / "cs-styles.css"
+    if f.exists():
+        return FileResponse(f, media_type="text/css")
+    return HTMLResponse("cs-styles.css not found", status_code=404)
+
+
+@app.get("/cs-app.js")
+async def serve_cs_app():
+    f = BASE_DIR / "cs-app.js"
+    if f.exists():
+        return FileResponse(f, media_type="application/javascript")
+    return HTMLResponse("cs-app.js not found", status_code=404)
 
 @app.get("/cs-manifest.json")
 async def serve_cs_manifest():

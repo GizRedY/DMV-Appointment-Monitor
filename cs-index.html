@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Home Customization">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#2f5fc4">
+<link rel="manifest" href="/cs-manifest.json">
+<link rel="apple-touch-icon" href="/cs-icon-192.png">
+<link rel="icon" type="image/png" href="/cs-icon-192.png">
+<title>Home Customization — Safe Haven / ADT</title>
+<link rel="stylesheet" href="/cs-styles.css">
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="doPrint()">Print / Save PDF</button>
+  <button class="tmpl-btn" onclick="openTemplate()">Template</button>
+  <button onclick="duplicateSheet()">Duplicate</button>
+  <button id="undoBtn" onclick="doUndo()" disabled>&#8630; Undo</button>
+  <button id="redoBtn" onclick="doRedo()" disabled>&#8631; Redo</button>
+  <button onclick="clearAll()">Clear form</button>
+  <span class="toolbar-hint">This screen prints identically to the paper form</span>
+</div>
+
+<div class="tabs-bar" id="tabsBar"></div>
+
+<div class="sheet">
+
+  <div class="brand">
+    <button type="button" class="sfp-btn" id="toggleFull" onclick="toggleFullPrice()" title="">SFP</button>
+    <button type="button" class="vou-btn" id="vouBtn" onclick="openVoucherBreakdown()" title="How the voucher was used">VOU</button>
+    <button type="button" class="info-btn" onclick="openDeviceInfo()" title="Device guide">i</button>
+    <img class="adt-logo" alt="ADT" src="data:image/png;base64,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">
+    <div class="brand-text"><b>Authorized<br>Dealer</b></div>
+    <span class="brand-sep">|</span>
+    <div class="brand-haven">Safe Haven</div>
+    <input class="plan-name" type="text" placeholder="Name this plan…">
+  </div>
+
+  <h1>HOME CUSTOMIZATION</h1>
+  <div class="head-rule"></div>
+
+  <!-- ================= SECURITY DEVICES ================= -->
+  <div class="section" data-cat="security">
+    <div class="icon-col">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5 4.5 5.5v5.2c0 4.6 3.2 7.9 7.5 9.8 4.3-1.9 7.5-5.2 7.5-9.8V5.5L12 2.5z" fill="rgba(255,255,255,0.08)"/><path d="M8.5 11.8l2.4 2.4 4.6-4.8"/></svg></div>
+      <div class="icon-label">Security<br>Devices</div>
+    </div>
+    <table data-rows="6"></table>
+    <table data-rows="6"></table>
+  </div>
+
+  <!-- ================= FIRE & CO ================= -->
+  <div class="section" data-cat="fire">
+    <div class="icon-col">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5c0 3 3.6 5 8 5s8-2 8-5c0-.6-.4-1-1-1H5c-.6 0-1 .4-1 1z" fill="rgba(255,255,255,0.08)"/><path d="M7.5 12.2h2M11 12.4h2M14.5 12.2h2"/><path d="M7 19c.9-.8.9-1.8 0-2.6M11.2 19.5c.9-.8.9-1.8 0-2.6M15.4 19c.9-.8.9-1.8 0-2.6"/></svg></div>
+      <div class="icon-label">Fire and<br>CO Detection</div>
+    </div>
+    <table data-rows="5"></table>
+    <table data-rows="5"></table>
+  </div>
+
+  <!-- ================= VIDEO SURVEILLANCE ================= -->
+  <div class="section" data-cat="video">
+    <div class="icon-col">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="9" r="5" fill="rgba(255,255,255,0.08)"/><circle cx="12" cy="9" r="1.9" fill="#fff" stroke="none"/><path d="M5 9c0-3.9 3.1-7 7-7"/><path d="M7 20c1.3-2.6 3-3.8 5-3.8s3.7 1.2 5 3.8"/></svg></div>
+      <div class="icon-label">Video<br>Surveillance</div>
+    </div>
+    <table data-rows="3"></table>
+    <table data-rows="3"></table>
+  </div>
+
+  <!-- ================= HOME AUTOMATION ================= -->
+  <div class="section" data-cat="home">
+    <div class="icon-col">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 13l7-5.5 7 5.5"/><path d="M6.5 12v7.5h9V12" fill="rgba(255,255,255,0.08)"/><path d="M9 19.5v-4h3.5v4"/><path d="M17 7.2c1.1-1 2.9-1 4 0M15.8 5.3c1.8-1.6 4.4-1.6 6.2 0" stroke-width="1.4"/><circle cx="19" cy="9" r="0.6" fill="#fff" stroke="none"/></svg></div>
+      <div class="icon-label">Home<br>Automation</div>
+    </div>
+    <table data-rows="3"></table>
+    <table data-rows="3"></table>
+  </div>
+
+  <!-- ================= KEYPADS / KEY FOBS + FOOTER ================= -->
+  <div class="section" data-cat="keypad">
+    <div class="icon-col">
+      <div class="icon-circle"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3.5" width="14" height="17" rx="2.2" fill="rgba(255,255,255,0.08)"/><rect x="7.5" y="5.5" width="9" height="3" rx="1" fill="rgba(255,255,255,0.25)" stroke="none"/><circle cx="9" cy="12.5" r="1.1" fill="#fff" stroke="none"/><circle cx="12" cy="12.5" r="1.1" fill="#fff" stroke="none"/><circle cx="15" cy="12.5" r="1.1" fill="#fff" stroke="none"/><circle cx="9" cy="16.5" r="1.1" fill="#fff" stroke="none"/><circle cx="12" cy="16.5" r="1.1" fill="#fff" stroke="none"/><circle cx="15" cy="16.5" r="1.1" fill="#fff" stroke="none"/></svg></div>
+      <div class="icon-label">Keypads/<br>Key Fobs</div>
+    </div>
+
+    <table data-rows="4"></table>
+
+    <!-- Right column: Accept/Decline + totals -->
+    <div class="accept-box">
+      <div class="accept-col">
+        <div class="accept-row">Accept <span class="chk" onclick="toggleChk(this,'accept')"></span></div>
+        <div class="accept-row">Decline <span class="chk" onclick="toggleChk(this,'decline')"></span></div>
+      </div>
+      <table class="totals" id="totalsTable">
+        <tr><td class="lbl">Sub Total</td><td><input type="text" id="subTotal" readonly></td></tr>
+        <tr><td class="lbl">Tax</td><td><input type="text" id="taxField" readonly></td></tr>
+        <tr><td class="lbl">Total</td><td><input type="text" id="totalField" readonly></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bottom: two columns — left signing + disclaimer, right calculate + financing -->
+  <div class="footer-2col">
+    <div class="footer-left">
+      <div class="sign-fields">
+        <div class="sign-line">
+          <span class="sign-label">Customer Name:</span>
+          <input type="text" class="sign-input" id="custName">
+        </div>
+        <div class="sign-line">
+          <span class="sign-label">Date:</span>
+          <input type="text" class="sign-input" id="custDate" readonly onclick="openDatePicker()" placeholder="tap to pick date">
+          <input type="date" id="custDatePicker" class="date-hidden">
+        </div>
+        <div class="sign-line">
+          <span class="sign-label">Signature:</span>
+          <div class="sign-pad" id="sigPad" onclick="openSignature()"><span class="sig-hint">tap to sign</span><img id="sigImg" alt=""></div>
+        </div>
+      </div>
+      <div class="disclaimer">
+        Safe Haven Security has explained the security enhancements pertaining to this assessment.
+        The customer fully understands these enhancements and has elected to accept or decline the assessment.
+      </div>
+    </div>
+    <div class="footer-right">
+      <div class="voucher-left" id="voucherLeftBox" style="display:none;"></div>
+      <button type="button" class="calc-btn" onclick="calculate()">Calculate</button>
+      <div class="finance" id="financeBox"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="icon-menu" id="iconMenu">
+  <button type="button" onclick="menuAddLines()">Add 2 more lines</button>
+</div>
+
+<div class="ac-list" id="acList" style="display:none;"></div>
+
+<div class="modal-bg" id="infoBg">
+  <div class="modal info-modal">
+    <button type="button" class="modal-close" onclick="closeDeviceInfo()" aria-label="Close">&times;</button>
+    <h3>Device guide</h3>
+    <p class="sub">Tap a device to see what it is, how it works, and why it helps.</p>
+    <div id="infoList" class="info-list"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="vouBg">
+  <div class="modal">
+    <button type="button" class="modal-close" onclick="closeVoucherBreakdown()" aria-label="Close">&times;</button>
+    <h3 id="vouTitle">Voucher usage</h3>
+    <p class="sub">Where the voucher was applied (priority: BOGO first, then most expensive).</p>
+    <div id="vouRows" class="vou-rows"></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="sigBg">
+  <div class="modal sig-modal">
+    <button type="button" class="modal-close" onclick="closeSignature()" aria-label="Close">&times;</button>
+    <h3>Signature</h3>
+    <p class="sub">Sign with your finger or mouse.</p>
+    <canvas id="sigCanvas" width="440" height="180"></canvas>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="clearSignature()">Clear</button>
+      <button class="btn-ghost" onclick="closeSignature()">Cancel</button>
+      <button class="btn-primary" onclick="saveSignature()">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="tmplBg">
+  <div class="modal tmpl-modal">
+    <button type="button" class="modal-close" onclick="closeTemplate()" aria-label="Close">&times;</button>
+    <h3>Template</h3>
+    <div class="tmpl-step" id="tmplStepBuilder">
+      <p class="sub">Choose a builder template to auto-fill the form.</p>
+      <div class="builder-choice">
+        <button type="button" class="builder-card" onclick="startDrHorton()">
+          <span class="bc-name">DR Horton</span>
+          <span class="bc-desc">Partner · Alarm.com cameras · free starter devices</span>
+        </button>
+        <button type="button" class="builder-card" onclick="startOther()">
+          <span class="bc-name">Other</span>
+          <span class="bc-desc">Generic builder · same questions · Mini door/window system</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="tmpl-step" id="tmplStepQuestions" style="display:none;">
+      <p class="sub">DR Horton — answer a few questions and the form fills itself. You can edit everything after.</p>
+
+      <div class="q-grid">
+        <div class="q"><label>Floors</label><input type="number" id="qFloors" min="1" max="3" value="2"></div>
+        <div class="q"><label>Bedrooms</label><input type="number" id="qBeds" min="0" max="10" value="4"></div>
+        <div class="q"><label>Adults living in home</label><input type="number" id="qAdults" min="0" max="6" value="2"></div>
+      </div>
+
+      <div class="q-section">Doors &amp; windows (Security)</div>
+      <div class="q-grid">
+        <div class="q"><label>Exterior doors</label><input type="number" id="qDoors" min="0" max="12" value="3"></div>
+        <div class="q"><label>Windows</label><input type="number" id="qWindows" min="0" max="30" value="5"></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qHasGarage" checked> Has a garage</label></div>
+      </div>
+
+      <div class="q-section">Rooms — Heat sensors (enter how many of each)</div>
+      <div class="q-grid">
+        <div class="q"><label>Laundry</label><input type="number" id="qLaundry" min="0" max="5" value="1"></div>
+        <div class="q"><label>Kitchen</label><input type="number" id="qKitchen" min="0" max="5" value="1"></div>
+        <div class="q"><label>Big Closet</label><input type="number" id="qCloset" min="0" max="5" value="0"></div>
+      </div>
+
+      <div class="q-section">Water leak — Flood sensors (enter how many)</div>
+      <div class="q-grid">
+        <div class="q"><label>Dishwasher</label><input type="number" id="qDishwasher" min="0" max="5" value="1"></div>
+        <div class="q"><label>Heating Tank</label><input type="number" id="qHeatTank" min="0" max="5" value="1"></div>
+        <div class="q note-q">Laundry above also adds a Flood each.</div>
+      </div>
+
+      <div class="q-section">Other</div>
+      <div class="q-grid">
+        <div class="q"><label>Exterior walls (cameras)</label>
+          <select id="qWalls"><option value="0">No cameras</option><option value="2">2 walls</option><option value="4" selected>4 walls</option></select></div>
+        <div class="q"><label>Motion / Glassbreak (free)</label>
+          <select id="qMotionType"><option value="motion" selected>Motion</option><option value="glassbreak">Glassbreak</option><option value="none">None</option></select></div>
+        <div class="q" id="qBogoWrap"><label>BOGO (Other only)</label><input type="number" id="qBogo" min="0" max="10" value="0"></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qCO" checked> Fuel burning system or garage attached (adds CO per floor)</label></div>
+      </div>
+
+      <div class="q-section">Free devices included</div>
+      <div class="q-grid free-grid">
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeDoorbell"> Doorbell Camera (free)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeDeako"> Deako Smart Switch (free)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeEcho"> Alexa Echo Pop (free)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreeSmoke"> Smoke top floor (free)</label></div>
+        <div class="q chk-q"><label><input type="checkbox" id="qFreePlug"> Smart Plug (free)</label></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-ghost" onclick="backToBuilder()">Back</button>
+        <button class="btn-primary" onclick="applyDrHorton()">Fill form</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h3>Calculate</h3>
+    <div class="tax-block">
+      <label for="taxInput">Tax rate (%)</label>
+      <input type="number" id="taxInput" min="0" step="0.01" value="0" placeholder="0">
+      <label for="voucherInput" style="margin-left:8px;">Voucher ($)</label>
+      <input type="number" id="voucherInput" min="0" step="1" value="0" placeholder="0">
+    </div>
+    <div id="unknownWrap" style="display:none;">
+      <p class="sub">These devices aren't in the catalog. Enter a price to include them (this does not change the catalog).</p>
+      <div id="modalRows"></div>
+    </div>
+    <div id="calcError" class="calc-error" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="confirmCalc()">Calculate</button>
+    </div>
+  </div>
+</div>
+
+<script src="/cs-app.js"></script>
+</body>
+</html>
