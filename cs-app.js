@@ -465,12 +465,10 @@ function calculate() {
   openModal(items.recognized, items.unknown);
 }
 
-var lastVoucherBreakdown = [];   // for the VOU popup
-var lastVoucherAmount = 0;       // voucher entered for the last calc
-
 function finishCalc(recognized, manual, taxRate, voucher) {
   voucher = voucher || 0;
-  lastVoucherAmount = voucher;
+  var calc = getActiveCalc();   // voucher breakdown lives on the active sheet, not globally
+  calc.voucherAmount = voucher;
 
   // Build a flat list of "units" the voucher can be applied to (price each, qty expanded as a group).
   // Upgrades ($50 etc.) are NEVER voucher-eligible.
@@ -520,7 +518,7 @@ function finishCalc(recognized, manual, taxRate, voucher) {
   });
 
   var remaining = voucher;
-  lastVoucherBreakdown = [];
+  var breakdown = [];
   order.forEach(function (r) {
     r.coverState = 'none';   // none | full | partial
     r.covered = 0;
@@ -530,11 +528,12 @@ function finishCalc(recognized, manual, taxRate, voucher) {
     } else {
       r.covered = remaining; r.coverState = 'partial'; remaining = 0;
     }
-    lastVoucherBreakdown.push({
+    breakdown.push({
       name: r.name, base: r.base, covered: r.covered,
       state: r.coverState, outOfPocket: r.base - r.covered
     });
   });
+  calc.voucherBreakdown = breakdown;
   var voucherLeft = remaining;
   var voucherUsed = voucher - voucherLeft;
 
@@ -613,7 +612,7 @@ function resetCalcState() {
   var tt = document.getElementById('totalsTable'); if (tt) tt.classList.remove('show');
   var tf = document.getElementById('toggleFull'); if (tf) { tf.classList.remove('active'); }
   var vb = document.getElementById('vouBtn'); if (vb) vb.style.display = 'none';
-  lastVoucherBreakdown = [];
+  var calc = getActiveCalc(); calc.voucherBreakdown = []; calc.voucherAmount = 0;
 }
 
 function toggleFullPrice() {
@@ -624,13 +623,16 @@ function toggleFullPrice() {
 }
 
 function openVoucherBreakdown() {
-  document.getElementById('vouTitle').textContent = 'Voucher usage ($' + lastVoucherAmount.toFixed(2) + ')';
+  var calc = getActiveCalc();
+  var amount = calc.voucherAmount || 0;
+  var breakdown = calc.voucherBreakdown || [];
+  document.getElementById('vouTitle').textContent = 'Voucher usage ($' + amount.toFixed(2) + ')';
   var box = document.getElementById('vouRows');
-  if (!lastVoucherBreakdown.length) {
+  if (!breakdown.length) {
     box.innerHTML = '<p style="color:#777;">Voucher was not applied to anything.</p>';
   } else {
     var html = '';
-    lastVoucherBreakdown.forEach(function (r) {
+    breakdown.forEach(function (r) {
       if (r.state === 'full') {
         html += '<div class="vou-line"><span class="vou-dot green"></span>'
           + '<span class="vou-name">' + r.name + '</span>'
@@ -1075,8 +1077,8 @@ var tabSeq = 0;
 // per-sheet Calculate state: tax, voucher and manual prices live on the tab object
 function getActiveCalc() {
   var t = tabs.find(function (x) { return x.id === activeTabId; });
-  if (!t) return { tax: '', voucher: '', prices: {} };
-  if (!t.calc) t.calc = { tax: '', voucher: '', prices: {} };
+  if (!t) return { tax: '', voucher: '', prices: {}, voucherBreakdown: [], voucherAmount: 0 };
+  if (!t.calc) t.calc = { tax: '', voucher: '', prices: {}, voucherBreakdown: [], voucherAmount: 0 };
   return t.calc;
 }
 
@@ -1135,7 +1137,9 @@ function duplicateSheet() {
     calc: {
       tax: (t.calc ? t.calc.tax : ''),
       voucher: (t.calc ? t.calc.voucher : ''),
-      prices: Object.assign({}, t.calc ? t.calc.prices : {})
+      prices: Object.assign({}, t.calc ? t.calc.prices : {}),
+      voucherBreakdown: (t.calc && t.calc.voucherBreakdown ? t.calc.voucherBreakdown.slice() : []),
+      voucherAmount: (t.calc ? (t.calc.voucherAmount || 0) : 0)
     }
   };
   tabs.push(copy);
@@ -1163,7 +1167,7 @@ function closeTab(id) {
   tabSeq = 1;
   activeTabId = 1;
   syncDomValues();
-  tabs.push({ id: 1, name: currentPlanName() || 'Plan 1', html: sheetEl.innerHTML, calc: { tax: '', voucher: '', prices: {} } });
+  tabs.push({ id: 1, name: currentPlanName() || 'Plan 1', html: sheetEl.innerHTML, calc: { tax: '', voucher: '', prices: {}, voucherBreakdown: [], voucherAmount: 0 } });
   renderTabs();
 })();
 
