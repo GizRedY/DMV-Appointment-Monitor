@@ -766,7 +766,6 @@ function toggleInfoItem(i) {
 
 // ---------- Calculate modal (tax + unrecognized) ----------
 var pendingRecognized = [], pendingUnknown = [];
-var manualPriceMemory = {};
 function openModal(recognized, unknown) {
   pendingRecognized = recognized;
   pendingUnknown = unknown;
@@ -775,8 +774,8 @@ function openModal(recognized, unknown) {
   if (unknown.length) {
     wrap.style.display = 'block';
     document.getElementById('modalRows').innerHTML = unknown.map(function (u, i) {
-      var remembered = manualPriceMemory[u.name.toLowerCase()];
-      var valAttr = (remembered != null) ? (' value="' + remembered + '"') : '';
+      var remembered = u.tr ? u.tr.getAttribute('data-manual-price') : null;
+      var valAttr = (remembered != null && remembered !== '') ? (' value="' + remembered + '"') : '';
       return '<div class="mrow">'
         + '<span class="mname">' + u.name + '</span>'
         + '<span class="mqty">×' + u.qty + '</span>'
@@ -806,7 +805,7 @@ function confirmCalc() {
     var v = parseFloat(inp.value);
     if (isNaN(v) || v < 0) { ok = false; inp.style.borderColor = '#d9534f'; return; }
     manual.push({ tr: pendingUnknown[i].tr, name: pendingUnknown[i].name, price: v, qty: pendingUnknown[i].qty, activation: pendingUnknown[i].activation });
-    manualPriceMemory[pendingUnknown[i].name.toLowerCase()] = v;   // запомнить на следующий Calculate
+    if (pendingUnknown[i].tr) pendingUnknown[i].tr.setAttribute('data-manual-price', v);
   });
   if (!ok) return;  // wait until every unknown has a valid price
 
