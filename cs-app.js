@@ -671,7 +671,7 @@ var DEVICE_INFO = [
   { name: 'Smart Switch', text: 'A smart light switch that lets you control lighting remotely or on a schedule, and adds convenience and an away-from-home look.' },
   { name: 'Keypad', text: 'The control panel for the system. Arm and disarm the alarm, and it acts as the hub that communicates with all the sensors.' },
   { name: 'Key Fob', text: 'A small remote on your keychain to arm or disarm the system with one button, and many include a panic button for emergencies.' },
-  { name: 'Indoor Siren', text: 'A loud siren inside the home. When the alarm triggers, it scares off intruders and alerts everyone in the house.' }
+  { name: 'Indoor Siren', text: 'A loud indoor siren. When the alarm triggers, it scares off intruders and alerts everyone in the house. For homes with more than one level, an additional siren is recommended because sound can be significantly reduced between floors and through closed doors. NFPA 72 requires audible alarm notification to be loud enough in sleeping areas, typically at least 75 dBA at pillow level.' }
 ];
 
 function openDeviceInfo() {
