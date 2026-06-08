@@ -86,7 +86,7 @@ function clearRow(dot) {
   tr.classList.remove('off');
 }
 
-// tap = toggle, long-press (1.5s) = clear row — bound to the existing dot
+// tap = toggle, long-press (0.5s) = clear row — bound to the existing dot
 (function () {
   var LONG_MS = 500;
   var timer = null, longFired = false, activeDot = null;
@@ -654,12 +654,12 @@ function closeVoucherBreakdown() { document.getElementById('vouBg').classList.re
 // Your own wording for Mini & Mini-Shock; the rest are drafts you can edit.
 var DEVICE_INFO = [
   { name: 'Mini', text: 'A small sensor installed on doors and windows. When the door or window is opened, the system detects this action and can trigger an alarm.' },
-  { name: 'Mini-Shock', text: 'An upgraded version of the Mini, installed on doors and windows. Thanks to a built-in accelerometer it reacts to vibration or impact — not just opening. If someone tries to force or break a door or window without opening the frame, the device detects it, sends an alarm signal, and sets off the siren. Example: someone tries to pry or kick in a door — the Shock detects it, the siren goes off, and the intruder, hearing it from outside, most likely runs away. In that case your door or window usually stays intact and you lose nothing. This is the best choice for protecting entry points.' },
-  { name: 'Motion', text: 'A motion detector for a room or hallway. It senses movement inside the protected area and triggers the alarm if someone is moving where they should not be.' },
-  { name: 'Glassbreak', text: 'A sensor that listens for the specific sound frequency of breaking glass. If a window is smashed, it detects the sound and triggers the alarm, even if the frame is never opened.' },
-  { name: 'Smoke', text: 'A smoke detector connected to the security system. It senses smoke from a fire and can alert both the household and the monitoring center, day or night.' },
-  { name: 'CO', text: 'A carbon monoxide detector. CO is an invisible, odorless gas from fuel-burning systems. The sensor warns you before levels become dangerous.' },
-  { name: 'Heat', text: 'A heat detector for areas where smoke detectors are not ideal (garage, attic, kitchen). It triggers when the temperature rises sharply, indicating a fire.' },
+  { name: 'Mini-Shock', text: 'An upgraded version of the Mini, installed on doors and windows. Thanks to a built-in accelerometer, it reacts to vibration or impact — not just opening. It provides stronger protection and helps prevent damage before an entry point is fully forced open. Not recommended for the main door to help avoid false alarms.' },
+  { name: 'Motion', text: 'A motion detector for a room or hallway. It senses movement inside the protected area and triggers the alarm if someone is moving where they should not be. Recommended placement: second floor or basement, especially when the first floor is already fully protected with Mini-Shocks. It is not active in Arm Stay mode.' },
+  { name: 'Glassbreak', text: 'A sensor that listens for the specific sound frequency of breaking glass. If a window is smashed, it detects the sound and triggers the alarm. It is active in both Arm Stay and Arm Away modes.' },
+  { name: 'Smoke', text: 'Following International Residential Code requirements (R314.3), smoke detectors are recommended on every level of the home, inside each sleeping room, and outside each sleeping area.' },
+  { name: 'CO', text: 'A carbon monoxide detector. CO is an invisible, odorless gas from fuel-burning systems. The sensor warns you before levels become dangerous. Following International Residential Code requirements (R315), CO detectors are recommended on every level of the home when there is any fuel-burning system or an attached garage.' },
+  { name: 'Heat', text: 'A heat detector for areas where smoke detectors are not ideal, such as garages, attics, kitchens, etc. It triggers when the temperature rises sharply, indicating a fire. Following NFPA 72 requirements, the appropriate detection device should be selected based on the specific area and its conditions.' },
   { name: 'Flood', text: 'A water/flood sensor placed near water sources (laundry, water heater, dishwasher). It alerts you at the first sign of a leak, helping prevent water damage.' },
   { name: 'OUT Camera', text: 'An outdoor camera that watches the exterior of the home (driveway, yard, sides). It records video and can deter intruders before they reach the house.' },
   { name: 'IN Camera', text: 'An indoor camera for monitoring inside the home. Useful for checking on activity, pets, or deliveries while you are away.' },
