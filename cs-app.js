@@ -43,40 +43,6 @@ function rowHTML(side, cat) {
     + '</tr>';
 }
 
-// ===== Undo / Redo engine (structural actions) =====
-var undoStack = [], redoStack = [];
-function updateUndoButtons() {
-  document.getElementById('undoBtn').disabled = undoStack.length === 0;
-  document.getElementById('redoBtn').disabled = redoStack.length === 0;
-}
-function pushAction(undoFn, redoFn) {
-  undoStack.push({ undo: undoFn, redo: redoFn });
-  redoStack = [];
-  updateUndoButtons();
-}
-function doUndo() {
-  if (!undoStack.length) return;
-  var a = undoStack.pop(); a.undo(); redoStack.push(a); updateUndoButtons();
-}
-function doRedo() {
-  if (!redoStack.length) return;
-  var a = redoStack.pop(); a.redo(); undoStack.push(a); updateUndoButtons();
-}
-
-// helpers for checkbox state
-function chkStates() {
-  return Array.prototype.map.call(document.querySelectorAll('.chk'), function (c) { return c.classList.contains('on'); });
-}
-function setChkStates(arr) {
-  document.querySelectorAll('.chk').forEach(function (c, i) { c.classList.toggle('on', !!arr[i]); });
-}
-// helpers for full input snapshot (for Clear)
-function inputSnapshot() {
-  return Array.prototype.map.call(document.querySelectorAll('input'), function (i) { return i.value; });
-}
-function restoreInputs(arr) {
-  document.querySelectorAll('input').forEach(function (i, idx) { if (idx < arr.length) i.value = arr[idx]; });
-}
 function blankAll() {
   document.querySelectorAll('input').forEach(function (i) { i.value = ''; });
   document.querySelectorAll('.chk').forEach(function (c) { c.classList.remove('on'); });
@@ -85,25 +51,15 @@ function blankAll() {
 }
 
 function toggleChk(el, kind) {
-  var before = chkStates();
   el.classList.toggle('on');
-  var other = kind === 'accept' ? 'decline' : 'accept';
   document.querySelectorAll('.chk').forEach(function (c) {
     if (c !== el && el.classList.contains('on')) c.classList.remove('on');
   });
-  var after = chkStates();
-  pushAction(function () { setChkStates(before); }, function () { setChkStates(after); });
 }
 
 function clearAll() {
-  var inputsBefore = inputSnapshot();
-  var chkBefore = chkStates();
   blankAll();
   resetCalcState();
-  pushAction(
-    function () { restoreInputs(inputsBefore); setChkStates(chkBefore); },
-    function () { blankAll(); resetCalcState(); }
-  );
 }
 
 // ---- Add rows via icon menu ----
@@ -116,44 +72,18 @@ function makeRow(side, cat) {
 function toggleDevice(e, dot) {
   if (e && e.stopPropagation) e.stopPropagation();
   var tr = dot.closest('tr');
-  var wasOff = tr.classList.contains('off');
   tr.classList.toggle('off');
-  pushAction(
-    function () { tr.classList.toggle('off', wasOff); },
-    function () { tr.classList.toggle('off', !wasOff); }
-  );
 }
 
-// clear a whole row (Type / Location / QTY + badge + device id), Undo-aware
+// clear a whole row (Type / Location / QTY + badge + device id)
 function clearRow(dot) {
   var tr = dot.closest('tr');
   if (!tr) return;
   var typeInp = tr.querySelector('.type-input');
   var inputs = tr.querySelectorAll('input');
-  // snapshot for undo
-  var snap = [];
-  inputs.forEach(function (i) { snap.push({ el: i, val: i.value, fs: i.style.fontSize }); });
-  var devId = typeInp ? typeInp.getAttribute('data-device-id') : null;
-  var wasOff = tr.classList.contains('off');
-  var hadBadge = typeInp ? typeInp.closest('td').classList.contains('has-badge') : false;
-
-  function doClear() {
-    inputs.forEach(function (i) { i.value = ''; i.style.fontSize = ''; });
-    if (typeInp) { typeInp.removeAttribute('data-device-id'); setRowBadge(typeInp, null); }
-    tr.classList.remove('off');
-  }
-  function restore() {
-    snap.forEach(function (s) { s.el.value = s.val; s.el.style.fontSize = s.fs; });
-    if (typeInp) {
-      if (devId) typeInp.setAttribute('data-device-id', devId);
-      var cat = typeInp.getAttribute('data-cat') || '';
-      var dev = devId ? findById(cat, devId) : null;
-      setRowBadge(typeInp, dev);
-    }
-    tr.classList.toggle('off', wasOff);
-  }
-  doClear();
-  pushAction(restore, doClear);
+  inputs.forEach(function (i) { i.value = ''; i.style.fontSize = ''; });
+  if (typeInp) { typeInp.removeAttribute('data-device-id'); setRowBadge(typeInp, null); }
+  tr.classList.remove('off');
 }
 
 // tap = toggle, long-press (1.5s) = clear row — bound to the existing dot
@@ -204,10 +134,6 @@ function addTwoLines(section) {
     pairs.push({ row: makeRow(side, cat), table: tables[0] });
   }
   pairs.forEach(function (p) { p.table.appendChild(p.row); });
-  pushAction(
-    function () { pairs.forEach(function (p) { p.row.remove(); }); },
-    function () { pairs.forEach(function (p) { p.table.appendChild(p.row); }); }
-  );
 }
 
 var currentSection = null;
@@ -1127,8 +1053,6 @@ function applyDrHorton() {
     planEl.dispatchEvent(new Event('input', { bubbles: true }));  // trigger auto-shrink
   }
 
-  // reset undo history (template is a fresh start)
-  undoStack = []; redoStack = []; updateUndoButtons();
   closeTemplate();
 }
 
@@ -1144,7 +1068,7 @@ function clearBadges() {
 //  TABS — multiple independent sheets (Path 1: state snapshots)
 // =====================================================================
 var sheetEl = document.querySelector('.sheet');
-var tabs = [];           // [{id, name, html, undo, redo, calc}]
+var tabs = [];           // [{id, name, html, calc}]
 var activeTabId = null;
 var tabSeq = 0;
 
@@ -1171,15 +1095,13 @@ function captureActive() {
   if (activeTabId === null) return;
   syncDomValues();
   var t = tabs.find(function (x) { return x.id === activeTabId; });
-  if (t) { t.html = sheetEl.innerHTML; t.undo = undoStack; t.redo = redoStack; t.name = currentPlanName() || t.name; }
+  if (t) { t.html = sheetEl.innerHTML; t.name = currentPlanName() || t.name; }
 }
 function loadTab(id) {
   var t = tabs.find(function (x) { return x.id === id; });
   if (!t) return;
   sheetEl.innerHTML = t.html;
-  undoStack = t.undo || []; redoStack = t.redo || [];
   activeTabId = id;
-  updateUndoButtons();
   renderTabs();
 }
 function switchTab(id) {
@@ -1209,7 +1131,7 @@ function duplicateSheet() {
   if (!t) return;
   var copyId = ++tabSeq;
   var copy = {
-    id: copyId, name: 'Budget-Friendly Coverage', html: t.html, undo: [], redo: [],
+    id: copyId, name: 'Budget-Friendly Coverage', html: t.html,
     calc: {
       tax: (t.calc ? t.calc.tax : ''),
       voucher: (t.calc ? t.calc.voucher : ''),
@@ -1241,7 +1163,7 @@ function closeTab(id) {
   tabSeq = 1;
   activeTabId = 1;
   syncDomValues();
-  tabs.push({ id: 1, name: currentPlanName() || 'Plan 1', html: sheetEl.innerHTML, undo: undoStack, redo: redoStack, calc: { tax: '', voucher: '', prices: {} } });
+  tabs.push({ id: 1, name: currentPlanName() || 'Plan 1', html: sheetEl.innerHTML, calc: { tax: '', voucher: '', prices: {} } });
   renderTabs();
 })();
 
