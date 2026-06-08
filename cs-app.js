@@ -770,11 +770,15 @@ function openModal(recognized, unknown) {
   pendingRecognized = recognized;
   pendingUnknown = unknown;
 
+  var calc = getActiveCalc();
+  document.getElementById('taxInput').value = (calc.tax != null ? calc.tax : '');
+  document.getElementById('voucherInput').value = (calc.voucher != null ? calc.voucher : '');
+
   var wrap = document.getElementById('unknownWrap');
   if (unknown.length) {
     wrap.style.display = 'block';
     document.getElementById('modalRows').innerHTML = unknown.map(function (u, i) {
-      var remembered = u.tr ? u.tr.getAttribute('data-manual-price') : null;
+      var remembered = calc.prices[u.name.toLowerCase()];
       var valAttr = (remembered != null && remembered !== '') ? (' value="' + remembered + '"') : '';
       return '<div class="mrow">'
         + '<span class="mname">' + u.name + '</span>'
@@ -800,14 +804,19 @@ function confirmCalc() {
 
   var manual = [];
   var ok = true;
+  var calc = getActiveCalc();
   document.querySelectorAll('#modalRows input').forEach(function (inp) {
     var i = parseInt(inp.getAttribute('data-i'), 10);
     var v = parseFloat(inp.value);
     if (isNaN(v) || v < 0) { ok = false; inp.style.borderColor = '#d9534f'; return; }
     manual.push({ tr: pendingUnknown[i].tr, name: pendingUnknown[i].name, price: v, qty: pendingUnknown[i].qty, activation: pendingUnknown[i].activation });
-    if (pendingUnknown[i].tr) pendingUnknown[i].tr.setAttribute('data-manual-price', v);
+    calc.prices[pendingUnknown[i].name.toLowerCase()] = v;   // remember this price on THIS sheet
   });
   if (!ok) return;  // wait until every unknown has a valid price
+
+  // remember tax & voucher on this sheet too
+  calc.tax = document.getElementById('taxInput').value;
+  calc.voucher = document.getElementById('voucherInput').value;
 
   // BOGO voucher-shortfall check — show a clear banner inside the modal
   var bogoNeed = 0;
@@ -1135,9 +1144,17 @@ function clearBadges() {
 //  TABS — multiple independent sheets (Path 1: state snapshots)
 // =====================================================================
 var sheetEl = document.querySelector('.sheet');
-var tabs = [];           // [{id, name, html, undo, redo}]
+var tabs = [];           // [{id, name, html, undo, redo, calc}]
 var activeTabId = null;
 var tabSeq = 0;
+
+// per-sheet Calculate state: tax, voucher and manual prices live on the tab object
+function getActiveCalc() {
+  var t = tabs.find(function (x) { return x.id === activeTabId; });
+  if (!t) return { tax: '', voucher: '', prices: {} };
+  if (!t.calc) t.calc = { tax: '', voucher: '', prices: {} };
+  return t.calc;
+}
 
 // write current input values & sizes into the DOM attributes so innerHTML keeps them
 function syncDomValues() {
@@ -1191,7 +1208,14 @@ function duplicateSheet() {
   var t = tabs.find(function (x) { return x.id === activeTabId; });
   if (!t) return;
   var copyId = ++tabSeq;
-  var copy = { id: copyId, name: 'Budget-Friendly Coverage', html: t.html, undo: [], redo: [] };
+  var copy = {
+    id: copyId, name: 'Budget-Friendly Coverage', html: t.html, undo: [], redo: [],
+    calc: {
+      tax: (t.calc ? t.calc.tax : ''),
+      voucher: (t.calc ? t.calc.voucher : ''),
+      prices: Object.assign({}, t.calc ? t.calc.prices : {})
+    }
+  };
   tabs.push(copy);
   loadTab(copyId);
   // rename the plan on the new copy
@@ -1217,7 +1241,7 @@ function closeTab(id) {
   tabSeq = 1;
   activeTabId = 1;
   syncDomValues();
-  tabs.push({ id: 1, name: currentPlanName() || 'Plan 1', html: sheetEl.innerHTML, undo: undoStack, redo: redoStack });
+  tabs.push({ id: 1, name: currentPlanName() || 'Plan 1', html: sheetEl.innerHTML, undo: undoStack, redo: redoStack, calc: { tax: '', voucher: '', prices: {} } });
   renderTabs();
 })();
 
