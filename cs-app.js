@@ -1017,6 +1017,11 @@ function applyDrHorton() {
     if (hasGarage) home.push({ id: 'home_garage_free', location: 'Garage', qty: 1 });
     home.push({ id: 'home_thermo_free', location: 'Up / Down', qty: floors });  // 2 floors -> 2, 1 floor -> 1
     home.push({ id: 'home_lock_free', location: 'Entry', qty: 1 });
+    // Eero Pro per floor
+    home.push({ id: 'home_eero_pro', location: '1 Floor', qty: 1 });
+    if (floors >= 2) {
+      home.push({ id: 'home_eero_pro', location: '2 Floor', qty: 1 });
+    }
     // always-offered paid Smart Switches (not free)
     home.push({ id: 'home_deako_sw', location: 'Driveway Light', qty: 1 });
     home.push({ id: 'home_deako_sw', location: 'BackYard Light', qty: 1 });
