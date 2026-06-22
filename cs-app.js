@@ -543,7 +543,7 @@ function finishCalc(recognized, manual, taxRate, voucher) {
   var restAfter = voucherEligibleTotal - voucherUsed;
   var sub = restAfter + upgradesTotal;
   var tax = sub * (taxRate / 100);
-  var total = sub + tax;
+  var total = Math.floor((sub + tax + 1e-9) * 100) / 100;
 
   // ---- Color the rows (green = fully covered, yellow = partial) ----
   paintVoucherColors(order);
