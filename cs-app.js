@@ -315,11 +315,11 @@ function fitTypeFont(input) {
 // ---------- Autocomplete ----------
 // Suggested location names per category (free typing still allowed)
 var LOCATIONS = {
-  security: ['Main Door', 'Garage Door', 'Back Door', 'Windows', '2 Floor', 'Garage'],
+  security: ['Main Door', 'Garage Door', 'Back Door', 'Window', '2 Floor', 'Garage'],
   fire: ['1 Floor', '2 Floor', 'Each BedRoom', 'Laundry', 'Garage', 'Kitchen', 'Big Closet', 'Dishwasher', 'Heating Tank'],
-  video: ['Front Porch', 'Driveway', 'Back Yard', 'Left Side', 'Right Side', 'Back Windows'],
-  home: ['Garage', 'Up / Down', 'Entry', 'Driveway Light', 'BackYard Light', 'Porch Light', 'Any'],
-  keypad: ['Entry', '2 Floor', 'Person']
+  video: ['Front Porch', 'Driveway', 'Back Yard', 'Left Side', 'Right Side', 'Back Windows', 'Office'],
+  home: ['Garage', 'Up / Down', 'Entry Door', 'Back Door', 'Driveway Light', 'BackYard Light', 'Porch Light', 'Any'],
+  keypad: ['Entry', '2 Floor', 'Person', 'Keypad']
 };
 
 var acList = document.getElementById('acList');
@@ -651,7 +651,6 @@ function openVoucherBreakdown() {
 function closeVoucherBreakdown() { document.getElementById('vouBg').classList.remove('show'); }
 
 // ---- Device guide (info button) ----
-// Your own wording for Mini & Mini-Shock; the rest are drafts you can edit.
 var DEVICE_INFO = [
   { name: 'Mini', text: 'A small sensor installed on doors and windows. When the door or window is opened, the system detects this action and can trigger an alarm.' },
   { name: 'Mini-Shock', text: 'An upgraded version of the Mini, installed on doors and windows. Thanks to a built-in accelerometer, it reacts to vibration or impact — not just opening. It provides stronger protection and helps prevent damage before an entry point is fully forced open. Not recommended for the main door to help avoid false alarms.' },

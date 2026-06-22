@@ -165,6 +165,7 @@
     .sfp-btn{display:none!important;}
     .vou-btn{display:none!important;}
     .info-btn{display:none!important;}
+    .dev-toggle{display:none!important;}
     .totals input{visibility:visible!important;}
     .sheet{margin:0;box-shadow:none;width:auto;min-height:auto;padding:0;}
     /* tighten vertical spacing so everything fits one Letter page */
