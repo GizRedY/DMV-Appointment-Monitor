@@ -919,6 +919,8 @@ function applyDrHorton() {
   for (var l = 0; l < laundry; l++) fire.push({ id: 'fire_flood', location: 'Laundry', qty: 1 });
   for (var dw = 0; dw < dishwash; dw++) fire.push({ id: 'fire_flood', location: 'Dishwasher', qty: 1 });
   for (var ht = 0; ht < heatTank; ht++) fire.push({ id: 'fire_flood', location: 'Heating Tank', qty: 1 });
+  // Flood under Fridge always
+  fire.push({ id: 'fire_flood', location: 'Refrigerator', qty: 1 });
   // CO: per floor if fuel burning / attached garage
   if (addCO) { for (var c = 1; c <= floors; c++) fire.push({ id: 'fire_co', location: floorName(c), qty: 1 }); }
   // keep Fire grouped by type: Smoke -> Heat -> Flood -> CO
