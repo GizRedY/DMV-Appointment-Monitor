@@ -231,7 +231,6 @@ var CATALOG = {
   home: [
     { id: "home_garage", name: "Garage Door", price: 249 },
     { id: "home_plug", name: "Smart Plug", price: 159 },
-    { id: "home_plug_free", name: "Smart Plug", price: 0, free: true },
     { id: "home_lock", name: "Smart Lock", price: 249 },
     { id: "home_thermo", name: "Thermostat", price: 249 },
     { id: "home_deako_sd", name: "Deako Simple Dimmer", price: 79 },
@@ -240,6 +239,7 @@ var CATALOG = {
     { id: "home_eero_base", name: "Eero Base WiFi Hub", price: 159 },
     { id: "home_eero_pro", name: "Eero Pro WiFi Hub", price: 249 },
     { id: "home_lever", name: "Lever Lock", price: 369 },
+    { id: "home_plug_free", name: "Smart Plug", price: 0, free: true },
     { id: "home_echo_free", name: "Alexa Echo Pop", price: 0, free: true },
     { id: "home_deako_sw_free", name: "Smart Switch", price: 0, free: true },
     { id: "home_garage_free", name: "Garage Door", price: 0, free: true },
@@ -670,14 +670,37 @@ var DEVICE_INFO = [
   { name: 'Smart Switch', text: 'A smart light switch that lets you control lighting remotely or on a schedule, and adds convenience and an away-from-home look.' },
   { name: 'Keypad', text: 'The control panel for the system. Arm and disarm the alarm, and it acts as the hub that communicates with all the sensors.' },
   { name: 'Key Fob', text: 'A small remote on your keychain to arm or disarm the system with one button, and many include a panic button for emergencies.' },
-  { name: 'Indoor Siren', text: 'A loud indoor siren. When the alarm triggers, it scares off intruders and alerts everyone in the house. For homes with more than one level, an additional siren is recommended because sound can be significantly reduced between floors and through closed doors. NFPA 72 requires audible alarm notification to be loud enough in sleeping areas, typically at least 75 dBA at pillow level.' }
+  { name: 'Indoor Siren', text: 'A loud indoor siren. When the alarm triggers, it scares off intruders and alerts everyone in the house. For homes with more than one level, an additional siren is recommended because sound can be significantly reduced between floors and through closed doors. NFPA 72 requires audible alarm notification to be loud enough in sleeping areas, typically at least 75 dBA at pillow level.' },
+  { name: 'Standard Extended', text: 'A hardwired transmitter that works together with the Tilt sensor. The Tilt mounts on the door and wires back to the Standard Extended, which relays the open and closed signal to the keypad.' },
+  { name: 'Tilt', text: 'Mounts on the garage door and senses its angle to tell whether it is open or closed. It wires to a Standard Extended, which sends the signal to the keypad, and can trigger the alarm if the door opens unexpectedly.' },
+  { name: 'Smart Chime', text: 'An in-home chime that pairs with the Video Doorbell, so you hear the doorbell throughout the house even when your phone is not nearby.' },
+  { name: 'Deako Simple Dimmer', text: 'A Deako module that replaces a standard switch to give dimmable control of a light. It works offline only and is not connected to an account, so it cannot be controlled from a phone. Deako switches are modular and swap in without rewiring once the base is installed.' },
+  { name: 'Deako Smart Dimmer', text: 'The same as the Deako Smart Switch, with a dimmer built in. It connects to your account, so you can control the light and adjust brightness from your phone or on a schedule.' },
+  { name: 'Eero Base WiFi Hub', text: 'Dual-band mesh WiFi hub (2.4 + 5 GHz), WiFi 6. One unit is the main router off the modem, and added units kill dead zones. A good fit for most single-story homes on a standard plan.' },
+  { name: 'Eero Pro WiFi Hub', text: 'Tri-band mesh hub. A third radio carries the link between units (backhaul), so it holds speed better across floors and with many devices connected. Best for larger or multi-story homes and gigabit plans.' },
+  { name: 'Lever Lock', text: 'A smart lock for doors that have only a lever handle and no hole for a deadbolt. It installs where a standard deadbolt-style smart lock cannot go, with the same remote lock and unlock and guest codes.' },
+  { name: '2nd Keypad', text: 'An additional keypad for a second entry point or floor. It is usually installed on the second floor or in a bedroom, and lets you control the system from there. It is especially valuable for its panic buttons, so if something happens you do not have to run to the main keypad.' },
+  { name: 'Speaker Base', text: 'A base the keypad attaches to so it can sit on a counter or shelf instead of being mounted on the wall, with a built-in speaker for the panel.' }
 ];
+
+function guidePrice(name) {
+  var n = (name || '').trim().toLowerCase();
+  for (var cat in CATALOG) {
+    var list = CATALOG[cat];
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].name.toLowerCase() === n && !list[i].free) return list[i].price;
+    }
+  }
+  return null;
+}
 
 function openDeviceInfo() {
   var box = document.getElementById('infoList');
   box.innerHTML = DEVICE_INFO.map(function (d, i) {
+    var p = guidePrice(d.name);
+    var priceTag = (p != null && p > 0) ? '<span class="info-price">$' + p + '</span>' : '';
     return '<div class="info-item">'
-      + '<button type="button" class="info-name" onclick="toggleInfoItem(' + i + ')">' + d.name + '<span class="info-caret">›</span></button>'
+      + '<button type="button" class="info-name" onclick="toggleInfoItem(' + i + ')"><span class="info-label">' + d.name + priceTag + '</span><span class="info-caret">›</span></button>'
       + '<div class="info-text" id="infoText' + i + '">' + d.text + '</div>'
       + '</div>';
   }).join('');

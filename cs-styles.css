@@ -204,6 +204,8 @@
     font-size:15px;font-weight:700;color:#2f5fc4;cursor:pointer;font-family:inherit;
     display:flex;justify-content:space-between;align-items:center;}
   .info-caret{transition:transform .15s;color:#9aa3b2;font-size:18px;}
+  .info-label{display:flex;align-items:center;}
+  .info-price{margin-left:10px;color:#6b7280;font-weight:600;font-size:13px;}
   .info-text{display:none;padding:0 4px 12px;font-size:13.5px;line-height:1.5;color:#333;}
   .info-text.open{display:block;}
   .vou-rows{margin-top:6px;}
