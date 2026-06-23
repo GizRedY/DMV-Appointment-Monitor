@@ -5,7 +5,7 @@
   "start_url": "/customization-sheet",
   "scope": "/customization-sheet",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "any",
   "background_color": "#ffffff",
   "theme_color": "#2f5fc4",
   "icons": [
