@@ -99,6 +99,7 @@
   .accept-box{padding-top:6px;display:flex;align-items:center;gap:18px;}
   .accept-col{display:flex;flex-direction:column;gap:14px;}
   .accept-row{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600;}
+  .accept-row .acc-label{width:64px;}
   .accept-row .chk{width:34px;height:26px;border:1.4px solid var(--line);display:inline-block;cursor:pointer;}
   .accept-row .chk.on::after{content:"\2713";display:flex;align-items:center;justify-content:center;height:100%;font-size:18px;}
   .totals{flex:1;border-collapse:collapse;}
