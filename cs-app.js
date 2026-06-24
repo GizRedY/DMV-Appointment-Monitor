@@ -1259,7 +1259,7 @@ function initSignature() {
   var img = document.getElementById('sigImg');
   if (img.src && document.getElementById('sigPad').classList.contains('signed')) {
     var im = new Image();
-    im.onload = function () { sigCtx.drawImage(im, 0, 0, sigCanvas.width, sigCanvas.height); };
+    im.onload = function () { sigCtx.drawImage(im, 0, 0, sigCanvas.width, sigCanvas.height); sigHasInk = true; };
     im.src = img.src;
   }
 }
@@ -1280,10 +1280,13 @@ document.getElementById('sigCanvas').addEventListener('touchmove', sigMove, { pa
 document.getElementById('sigCanvas').addEventListener('touchend', sigEnd);
 function clearSignature() { if (sigCtx) sigCtx.clearRect(0, 0, sigCanvas.width, sigCanvas.height); sigHasInk = false; }
 function saveSignature() {
-  if (!sigHasInk) { closeSignature(); return; }
-  var data = sigCanvas.toDataURL('image/png');
   var img = document.getElementById('sigImg');
-  img.src = data;
-  document.getElementById('sigPad').classList.add('signed');
+  if (sigHasInk) {
+    img.src = sigCanvas.toDataURL('image/png');
+    document.getElementById('sigPad').classList.add('signed');
+  } else {
+    img.src = '';
+    document.getElementById('sigPad').classList.remove('signed');
+  }
   closeSignature();
 }
