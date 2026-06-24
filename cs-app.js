@@ -1241,6 +1241,11 @@ function openSignature() {
   setTimeout(initSignature, 30);
 }
 function closeSignature() { document.getElementById('sigBg').classList.remove('show'); }
+document.addEventListener('click', function (e) {
+  if (e.target.classList.contains('modal-bg')) {
+    e.target.classList.remove('show');
+  }
+});
 function initSignature() {
   sigCanvas = document.getElementById('sigCanvas');
   // match internal resolution to displayed size for crisp lines

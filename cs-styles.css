@@ -108,7 +108,6 @@
   .footer-2col{grid-column:1 / 4;margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;}
   .footer-left{display:flex;flex-direction:column;}
   .footer-right{display:flex;flex-direction:column;align-items:flex-end;gap:10px;}
-  .sign-fields{}
   .sign-line{font-size:13px;margin:14px 0;display:flex;align-items:flex-end;gap:8px;}
   .sign-label{font-weight:600;white-space:nowrap;width:108px;flex:none;}
   .sign-input{flex:1;border:0;border-bottom:1px solid #000;background:transparent;
