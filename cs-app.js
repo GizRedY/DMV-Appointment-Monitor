@@ -316,7 +316,7 @@ function fitTypeFont(input) {
 // Suggested location names per category (free typing still allowed)
 var LOCATIONS = {
   security: ['Main Door', 'Garage Door', 'Back Door', 'Window', '2 Floor', 'Garage'],
-  fire: ['1 Floor', '2 Floor', 'Each BedRoom', 'Laundry', 'Garage', 'Kitchen', 'Big Closet', 'Dishwasher', 'Heating Tank'],
+  fire: ['1 Floor', '2 Floor', 'Each BedRoom', 'Laundry', 'Garage', 'Kitchen', 'Walk-in Closet', 'Dishwasher', 'Heating Tank'],
   video: ['Front Porch', 'Driveway', 'Back Yard', 'Left Side', 'Right Side', 'Back Windows', 'Office'],
   home: ['Garage', 'Up / Down', 'Entry Door', 'Back Door', 'Driveway Light', 'BackYard Light', 'Porch Light', 'Any'],
   keypad: ['Entry', '2 Floor', 'Person', 'Keypad']
@@ -937,7 +937,7 @@ function applyDrHorton() {
   for (var i = 0; i < laundry; i++) fire.push({ id: 'fire_heat', location: 'Laundry', qty: 1 });
   if (hasGarage) fire.push({ id: 'fire_heat', location: 'Garage', qty: 1 });
   for (var i3 = 0; i3 < kitchen; i3++) fire.push({ id: 'fire_heat', location: 'Kitchen', qty: 1 });
-  for (var i4 = 0; i4 < closet; i4++) fire.push({ id: 'fire_heat', location: 'Big Closet', qty: 1 });
+  for (var i4 = 0; i4 < closet; i4++) fire.push({ id: 'fire_heat', location: 'Walk-in Closet', qty: 1 });
   // Flood: laundry + dishwasher + heating tank
   for (var l = 0; l < laundry; l++) fire.push({ id: 'fire_flood', location: 'Laundry', qty: 1 });
   for (var dw = 0; dw < dishwash; dw++) fire.push({ id: 'fire_flood', location: 'Dishwasher', qty: 1 });
