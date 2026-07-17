@@ -233,11 +233,11 @@ var CATALOG = {
     { id: "home_plug", name: "Smart Plug", price: 159 },
     { id: "home_lock", name: "Smart Lock", price: 249 },
     { id: "home_thermo", name: "Thermostat", price: 249 },
-    { id: "home_deako_sd", name: "Deako Simple Dimmer", price: 79 },
-    { id: "home_deako_sw", name: "Smart Switch", price: 149 },
-    { id: "home_deako_dim", name: "Deako Smart Dimmer", price: 179 },
-    { id: "home_eero_base", name: "Eero Base WiFi Hub", price: 159 },
-    { id: "home_eero_pro", name: "Eero Pro WiFi Hub", price: 249 },
+    { id: "home_deako_sd", name: "Deako Simple Dimmer", price: 79, noVoucher: true },
+    { id: "home_deako_sw", name: "Smart Switch", price: 149, noVoucher: true },
+    { id: "home_deako_dim", name: "Deako Smart Dimmer", price: 179, noVoucher: true },
+    { id: "home_eero_base", name: "Eero Base WiFi Hub", price: 159, noVoucher: true },
+    { id: "home_eero_pro", name: "Eero Pro WiFi Hub", price: 249, noVoucher: true },
     { id: "home_lever", name: "Lever Lock", price: 369 },
     { id: "home_plug_free", name: "Smart Plug", price: 0, free: true },
     { id: "home_echo_free", name: "Alexa Echo Pop", price: 0, free: true },
@@ -449,6 +449,7 @@ function gatherLineItems() {
       recognized.push({
         tr: tr, name: dev.name, price: dev.price, qty: qty,
         upgrade: !!dev.upgrade,
+        noVoucher: !!dev.noVoucher,
         bogoMaster: !!dev.bogoMaster,
         bogoSecondary: !!dev.bogoSecondary,
         upgradeAdd: dev.upgradeAdd || 0
@@ -480,9 +481,9 @@ function finishCalc(recognized, manual, taxRate, voucher) {
     var qty = it.qty || 1;
     // voucher-eligible base for this row
     var base = 0, upExtra = 0;
-    if (it.upgrade) {
-      // a pure upgrade line ($50) — entirely non-voucher
-      upExtra += (it.price || 0) * qty;          // usually price 0 for free upgrade rows
+    if (it.upgrade || it.noVoucher) {
+      // upgrades and noVoucher devices (Eero/Deako) — entirely non-voucher
+      upExtra += (it.price || 0) * qty;
     } else {
       base += (it.price || 0) * qty;
     }
