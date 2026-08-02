@@ -239,6 +239,7 @@ var CATALOG = {
     { id: "home_eero_base", name: "Eero Base WiFi Hub", price: 159, noVoucher: true },
     { id: "home_eero_pro", name: "Eero Pro WiFi Hub", price: 249, noVoucher: true },
     { id: "home_lever", name: "Lever Lock", price: 369 },
+    { id: "home_echo", name: "Alexa Echo Pop", price: 40 },
     { id: "home_plug_free", name: "Smart Plug", price: 0, free: true },
     { id: "home_echo_free", name: "Alexa Echo Pop", price: 0, free: true },
     { id: "home_deako_sw_free", name: "Smart Switch", price: 0, free: true },
@@ -247,10 +248,14 @@ var CATALOG = {
     { id: "home_lock_free", name: "Smart Lock", price: 0, free: true }
   ],
   keypad: [
+    { id: "kp_keypad", name: "Keypad", price: 420 },
     { id: "kp_secondary", name: "2nd Keypad", price: 420 },
     { id: "kp_fob", name: "Key Fob", price: 119 },
     { id: "kp_speaker", name: "Speaker Base", price: 129 },
-    { id: "kp_keypad_free", name: "Keypad", price: 0, free: true }
+    { id: "kp_keypad_free", name: "Keypad", price: 0, free: true },
+    // BA activation fees — picked by plan, hidden from autocomplete, never voucher-covered
+    { id: "kp_actfee_129", name: "Activation Fee", price: 129, noVoucher: true, hidden: true },
+    { id: "kp_actfee_99", name: "Activation Fee", price: 99, noVoucher: true, hidden: true }
   ]
 };
 
@@ -343,7 +348,7 @@ function showAutocomplete(input) {
       .map(function (name) { return { name: name }; });
     if (q === '') matches = locs.map(function (name) { return { name: name }; });
   } else {
-    var list = CATALOG[cat] || [];
+    var list = (CATALOG[cat] || []).filter(function (d) { return !d.hidden; });
     matches = list.filter(function (d) { return d.name.toLowerCase().indexOf(q) !== -1; });
     if (q === '') matches = list.slice();
 
@@ -438,13 +443,15 @@ function gatherLineItems() {
     var qty = parseInt((qtyInput && qtyInput.value).trim(), 10);
     if (isNaN(qty) || qty < 1) qty = 1;
 
-    if (name.toLowerCase() === 'activation fee') {
+    var id = inp.getAttribute('data-device-id');
+    var dev = id ? findById(cat, id) : null;
+
+    // manually typed "Activation Fee" (no catalog link) keeps the old ask-for-price flow
+    if (!dev && name.toLowerCase() === 'activation fee') {
       unknown.push({ tr: tr, name: 'Activation Fee', qty: qty, cat: cat, activation: true });
       return;
     }
-
-    var id = inp.getAttribute('data-device-id');
-    var dev = id ? findById(cat, id) : findDevice(cat, name);
+    if (!dev) dev = findDevice(cat, name);
     if (dev) {
       recognized.push({
         tr: tr, name: dev.name, price: dev.price, qty: qty,
@@ -1290,4 +1297,290 @@ function saveSignature() {
     document.getElementById('sigPad').classList.remove('signed');
   }
   closeSignature();
+}
+
+// =====================================================================
+//  BUILDER AFFILIATE (BA) — conversion options comparison sheet
+//  Plan data is hardcoded here for now; moves to the backend later.
+// =====================================================================
+var BA_PLANS = {
+  2: { no: 2, actFee: 129, mmr: 65.99, voucher: 1000, cameras: true,  label: 'Option 1', actFeeId: 'kp_actfee_129' },
+  3: { no: 3, actFee: 99,  mmr: 55.99, voucher: 750,  cameras: false, label: 'Option 2', actFeeId: 'kp_actfee_99' }
+};
+var baState = null;   // answers from the BA questionnaire (survives Edit answers / Use this plan)
+
+function catPrice(cat, id) { var d = findById(cat, id); return d ? d.price : 0; }
+
+// $1,234.56 — trims ".00", adds thousands separators
+function baMoney(n) {
+  var s = (Math.round(n * 100) / 100).toFixed(2).replace(/\.00$/, '');
+  return '$' + s.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function openBA() {
+  // blankAll() wipes every input on the page, so restore saved answers when reopening
+  if (baState) {
+    document.getElementById('baFloors').value = baState.floors;
+    document.getElementById('baDoors').value = baState.doors;
+    document.getElementById('baWindows').value = baState.windows;
+    document.getElementById('baBell').checked = baState.hasBell;
+    document.getElementById('baSwitch').checked = baState.hasSwitch;
+    document.getElementById('baEcho').checked = baState.hasEcho;
+    document.getElementById('baPlug').checked = baState.hasPlug;
+  }
+  document.getElementById('baBg').classList.add('show');
+}
+function closeBA() { document.getElementById('baBg').classList.remove('show'); }
+
+// Free conversion gear: 3 door Minis + up to 4 window Minis + 1 Motion
+function baFreeGear(windows) {
+  var winFree = Math.min(Math.max(windows, 0), 4);
+  var items = [{ id: 'sec_mini', cat: 'security', name: 'Mini - doors', qty: 3 }];
+  if (winFree > 0) items.push({ id: 'sec_mini', cat: 'security', name: 'Mini - windows', qty: winFree });
+  items.push({ id: 'sec_motion', cat: 'security', name: 'Motion', qty: 1 });
+  items.forEach(function (it) { it.each = catPrice(it.cat, it.id); });
+  return items;
+}
+
+// Recommended voucher spend, greedy by priority:
+// missing window Minis -> OUT Camera (plan 1 only) -> Smoke -> CO -> Flood -> Key Fob
+function baSpend(plan, windows) {
+  var left = plan.voucher;
+  var out = [];
+  var miniP = catPrice('security', 'sec_mini');
+  var missing = Math.max(0, windows - 4);
+  if (missing > 0 && miniP > 0) {
+    var can = Math.min(missing, Math.floor(left / miniP));
+    if (can > 0) {
+      out.push({ id: 'sec_mini', cat: 'security', name: 'Mini - extra windows', qty: can, each: miniP });
+      left -= can * miniP;
+    }
+  }
+  var wish = [];
+  if (plan.cameras) wish.push({ id: 'vid_out', cat: 'video', name: 'OUT Camera' });
+  wish.push({ id: 'fire_smoke', cat: 'fire', name: 'Smoke' });
+  wish.push({ id: 'fire_co', cat: 'fire', name: 'CO' });
+  wish.push({ id: 'fire_flood', cat: 'fire', name: 'Flood' });
+  wish.push({ id: 'kp_fob', cat: 'keypad', name: 'Key Fob' });
+  wish.forEach(function (w) {
+    var p = catPrice(w.cat, w.id);
+    if (p > 0 && left >= p) {
+      out.push({ id: w.id, cat: w.cat, name: w.name, qty: 1, each: p });
+      left -= p;
+    }
+  });
+  return { items: out, left: left };
+}
+
+// list of {name, qty, each, note?} -> {html, sub}
+// opts.freeLabel = true renders a "Free for you ->" tag before every price
+function baListHTML(items, opts) {
+  opts = opts || {};
+  var sub = 0;
+  var html = items.map(function (it) {
+    var line = it.each * it.qty; sub += line;
+    var nm = it.name + (it.note ? ' <span class="ba-inline-note">(' + it.note + ')</span>' : '');
+    var tag = opts.freeLabel ? '<span class="ba-free-for-you">Free for you</span><span class="ba-free-arrow">&rarr;</span>' : '';
+    return '<div class="ba-line"><span class="ba-qty">' + it.qty + '×</span>'
+      + '<span class="ba-name">' + nm + '</span>'
+      + tag
+      + '<span class="ba-amt">' + baMoney(line) + '</span></div>';
+  }).join('');
+  return { html: html, sub: sub };
+}
+
+function buildBA() {
+  var n = function (id) { var v = parseFloat(document.getElementById(id).value); return isNaN(v) ? 0 : v; };
+  var windows = Math.max(0, Math.round(n('baWindows')));
+  var doors = Math.max(1, Math.round(n('baDoors')));
+  var floors = Math.max(1, Math.round(n('baFloors')));
+  var tax = 7;   // default tax for the transferred sheet's Calculate (BA sheet itself ignores tax)
+
+  var included = [{ id: 'kp_keypad', cat: 'keypad', name: 'Keypad (control panel)', qty: 1 }];
+  if (document.getElementById('baBell').checked) included.push({ id: 'vid_bell', cat: 'video', name: 'Doorbell Camera', qty: 1, note: "doesn't record" });
+  if (document.getElementById('baSwitch').checked) included.push({ id: 'home_deako_sw', cat: 'home', name: 'Smart Switch', qty: 1 });
+  if (document.getElementById('baEcho').checked) included.push({ id: 'home_echo', cat: 'home', name: 'Alexa Echo Pop', qty: 1 });
+  if (document.getElementById('baPlug').checked) included.push({ id: 'home_plug', cat: 'home', name: 'Smart Plug', qty: 1 });
+  included.forEach(function (it) { it.each = catPrice(it.cat, it.id); });
+
+  baState = {
+    windows: windows, doors: doors, floors: floors, tax: tax,
+    included: included,
+    freeGear: baFreeGear(windows),
+    hasBell: document.getElementById('baBell').checked,
+    hasSwitch: document.getElementById('baSwitch').checked,
+    hasEcho: document.getElementById('baEcho').checked,
+    hasPlug: document.getElementById('baPlug').checked
+  };
+  renderBA();
+  closeBA();
+  document.body.classList.add('ba-mode');
+  document.getElementById('baSheet').style.display = 'block';
+  window.scrollTo(0, 0);
+}
+
+function exitBA() {
+  document.body.classList.remove('ba-mode');
+  document.getElementById('baSheet').style.display = 'none';
+}
+
+// what monitoring unlocks — shown in the free-upgrade band
+var BA_BENEFITS = [
+  { t: 'Full home protection', d: 'arm the system 24/7 with professional monitoring' },
+  { t: 'Camera recordings', d: 'your doorbell and all other cameras will be able to record' },
+  { t: 'Insurance discount eligibility', d: "monitored smoke detection will make you eligible for a discount on your homeowner's insurance (varies by insurer)" },
+  { t: 'Smart Features', d: 'your cameras get smart features: a camera can control your smart switch (for example turn the lights on after sunset if someone is on the porch), and cameras can send you an alert when they detect someone' },
+  { t: 'Panic Buttons', d: 'call police, fire, or medical help in two taps' }
+];
+
+var BA_ARROW_DOWN =
+  '<div class="ba-arrow-down">'
+  + '<svg viewBox="0 0 26 46" width="24" height="42"><path d="M13 2v40" stroke="#1d9e75" stroke-width="4.5" fill="none" stroke-linecap="round"/>'
+  + '<path d="M4 29l9 13 9-13" fill="none" stroke="#1d9e75" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+  + '<span class="ba-arrow-label">If upgraded</span></div>';
+
+var BA_ARROW_SPLIT =
+  '<div class="ba-arrow-split"><svg viewBox="0 0 700 46" width="100%" height="46" preserveAspectRatio="none">'
+  + '<path d="M350 4 C 300 22, 230 30, 185 38" fill="none" stroke="#2f5fc4" stroke-width="4.5" stroke-linecap="round"/>'
+  + '<path d="M350 4 C 400 22, 470 30, 515 38" fill="none" stroke="#2f5fc4" stroke-width="4.5" stroke-linecap="round"/>'
+  + '<path d="M197 26l-16 12 19 3" fill="none" stroke="#2f5fc4" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>'
+  + '<path d="M503 26l16 12-19 3" fill="none" stroke="#2f5fc4" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>'
+  + '</svg></div>';
+
+function renderBA() {
+  var s = baState;
+  var wrap = document.getElementById('baSheet');
+
+  var inc = baListHTML(s.included, { freeLabel: true });
+  var gear = baListHTML(s.freeGear, { freeLabel: true });
+
+  var logo = document.querySelector('.adt-logo');
+  var logoHTML = logo ? '<img class="adt-logo" alt="ADT" src="' + logo.src + '">' : '';
+
+  function totalLine(sub) {
+    return '<div class="ba-total">Retail value: <b class="ba-retail">' + baMoney(sub) + '</b></div>';
+  }
+
+  var benefitsHTML = '<div class="ba-benefits">' + BA_BENEFITS.map(function (b) {
+    return '<div class="ba-benefit"><b><span class="ba-star">★</span>' + b.t + '<span class="ba-star">★</span></b> - ' + b.d + '</div>';
+  }).join('') + '</div>';
+
+  function planCard(no) {
+    var plan = BA_PLANS[no];
+    var sp = baSpend(plan, s.windows);
+    var spend = baListHTML(sp.items);
+    var rebate = plan.mmr * 2;
+    var value = gear.sub + plan.voucher + rebate;
+    var threeYr = plan.mmr * 36;
+    return '<div class="ba-card">'
+      + '<div class="ba-card-head"><span class="ba-card-title">' + plan.label
+      + ' <span class="ba-card-sub">(' + (plan.cameras ? 'with extra cameras' : 'no extra cameras') + ')</span></span>'
+      + '<span class="ba-vou-tag">' + baMoney(plan.voucher) + ' voucher</span></div>'
+      + '<div class="ba-fees"><span><b>' + baMoney(plan.actFee) + '</b> activation (one-time)</span>'
+      + '<span><b>$' + plan.mmr.toFixed(2) + '</b>/mo</span></div>'
+      + '<div class="ba-sub-h">Recommended voucher use <span class="ba-adj">(adjustable)</span></div>'
+      + spend.html
+      + (sp.left > 0 ? '<div class="ba-left">Voucher left: ' + baMoney(sp.left) + '</div>' : '')
+      + '<div class="ba-rebate">Rebate check: 2 × $' + plan.mmr.toFixed(2) + ' ≈ <b>' + baMoney(rebate) + '</b> (cashback)</div>'
+      + '<div class="ba-why">'
+      + '<div class="ba-why-h">Why do I need to sign a 3-year agreement with ADT?</div>'
+      + '<div class="ba-perk">Total value you receive (your equipment + voucher + rebate check) ≈ <b>' + baMoney(value) + '</b></div>'
+      + '<div class="ba-perk">3-year monitoring: 36 × $' + plan.mmr.toFixed(2) + ' = ' + baMoney(threeYr) + '</div>'
+      + '</div>'
+      + '<button type="button" class="ba-use no-print" onclick="useBAPlan(' + no + ')">Use this plan →</button>'
+      + '</div>';
+  }
+
+  wrap.innerHTML =
+    '<div class="ba-actions no-print">'
+    + '<button type="button" onclick="exitBA()">← Back to sheet</button>'
+    + '<button type="button" onclick="openBA()">Edit answers</button>'
+    + '</div>'
+    + '<div class="brand">' + logoHTML
+    + '<div class="brand-text"><b>Authorized<br>Dealer</b></div><span class="brand-sep">|</span>'
+    + '<div class="brand-haven">Safe Haven</div></div>'
+    + '<h1 class="ba-h1">HOME SECURITY OPTIONS</h1>'
+    + '<div class="head-rule"></div>'
+
+    + '<div class="ba-box">'
+    + '<div class="ba-box-head"><span class="ba-card-title">Basic Package</span>'
+    + '<span class="ba-free-tag">Already yours - FREE</span></div>'
+    + inc.html
+    + totalLine(inc.sub)
+    + '</div>'
+
+    + BA_ARROW_DOWN
+
+    + '<div class="ba-upgrade-band">'
+    + '<div class="ba-upg-title">Smart Home Protection Package</div>'
+    + '<div class="ba-upg-intro">You will get for free:</div>'
+    + gear.html
+    + totalLine(gear.sub)
+    + benefitsHTML
+    + '</div>'
+
+    + BA_ARROW_SPLIT
+
+    + '<div class="ba-cards">' + planCard(2) + planCard(3) + '</div>';
+}
+
+// Fill the normal sheet with the chosen plan (like a template), pre-set tax & voucher
+function useBAPlan(no) {
+  var s = baState; if (!s) return;
+  var plan = BA_PLANS[no];
+  var spend = baSpend(plan, s.windows).items;
+
+  // ---------- SECURITY ----------
+  var sec = [];
+  sec.push({ id: 'sec_mini_free', location: 'Main Door', qty: 1 });
+  if (s.doors >= 2) sec.push({ id: 'sec_mini_free', location: 'Back Door', qty: 1 });
+  if (s.doors >= 3) sec.push({ id: 'sec_mini_free', location: 'Garage Door', qty: 1 });
+  for (var xd = 3; xd < s.doors; xd++) sec.push({ id: 'sec_mini', location: 'Extra Door', qty: 1 });
+  var winFree = Math.min(s.windows, 4);
+  for (var w = 0; w < winFree; w++) sec.push({ id: 'sec_mini_free', location: 'Window', qty: 1 });
+  spend.forEach(function (it) {
+    if (it.id === 'sec_mini') {
+      for (var k = 0; k < it.qty; k++) sec.push({ id: 'sec_mini', location: 'Window', qty: 1 });
+    }
+  });
+  sec.push({ id: 'sec_motion_free', location: s.floors >= 2 ? '2 Floor' : 'Garage', qty: 1 });
+
+  // ---------- OTHER CATEGORIES ----------
+  var fire = [], video = [], home = [], keypad = [];
+  keypad.push({ id: 'kp_keypad_free', location: 'Entry', qty: 1 });
+  if (s.hasBell) video.push({ id: 'vid_bell_free', location: 'Front Porch', qty: 1 });
+  if (s.hasSwitch) home.push({ id: 'home_deako_sw_free', location: 'Porch Light', qty: 1 });
+  if (s.hasEcho) home.push({ id: 'home_echo_free', location: 'Any', qty: 1 });
+  if (s.hasPlug) home.push({ id: 'home_plug_free', location: 'Any', qty: 1 });
+  spend.forEach(function (it) {
+    if (it.id === 'vid_out') video.push({ id: 'vid_out', location: 'Back Yard', qty: 1 });
+    if (it.id === 'fire_smoke') fire.push({ id: 'fire_smoke', location: '1 Floor', qty: 1 });
+    if (it.id === 'fire_co') fire.push({ id: 'fire_co', location: '1 Floor', qty: 1 });
+    if (it.id === 'fire_flood') fire.push({ id: 'fire_flood', location: 'Laundry', qty: 1 });
+    if (it.id === 'kp_fob') keypad.push({ id: 'kp_fob', location: '1 Person', qty: 1 });
+  });
+  // one-time activation fee for the chosen plan
+  keypad.push({ id: plan.actFeeId, location: 'One-time', qty: 1 });
+
+  exitBA();
+  blankAll();
+  clearBadges();
+  resetCalcState();
+  fillCategory('fire', fire);
+  fillCategory('video', video);
+  fillCategory('security', sec);
+  fillCategory('home', home);
+  fillCategory('keypad', keypad);
+
+  // pre-fill tax & voucher for the Calculate modal on this sheet
+  var calc = getActiveCalc();
+  calc.tax = String(s.tax);
+  calc.voucher = String(plan.voucher);
+
+  var planEl = document.querySelector('.plan-name');
+  if (planEl) {
+    planEl.value = 'Builder - ' + plan.label;
+    planEl.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  window.scrollTo(0, 0);
 }

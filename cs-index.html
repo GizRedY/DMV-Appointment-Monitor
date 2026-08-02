@@ -19,6 +19,7 @@
 <div class="toolbar">
   <button onclick="doPrint()">Print / Save PDF</button>
   <button class="tmpl-btn" onclick="openTemplate()">Template</button>
+  <button class="ba-btn" onclick="openBA()">BA</button>
   <button onclick="duplicateSheet()">Duplicate</button>
   <button onclick="clearAll()">Clear form</button>
 </div>
@@ -136,6 +137,9 @@
 
 </div>
 
+<!-- Builder Affiliate comparison sheet (rendered by JS, shown instead of the main sheet) -->
+<div class="ba-sheet" id="baSheet" style="display:none;"></div>
+
 <div class="icon-menu" id="iconMenu">
   <button type="button" onclick="menuAddLines()">Add 2 more lines</button>
 </div>
@@ -245,6 +249,34 @@
         <button class="btn-ghost" onclick="backToBuilder()">Back</button>
         <button class="btn-primary" onclick="applyDrHorton()">Fill form</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="baBg">
+  <div class="modal tmpl-modal">
+    <button type="button" class="modal-close" onclick="closeBA()" aria-label="Close">&times;</button>
+    <h3>Builder Affiliate</h3>
+    <p class="sub">Answer a few questions and get a printable comparison of the three options.</p>
+
+    <div class="q-grid">
+      <div class="q"><label>Floors</label><input type="number" id="baFloors" min="1" max="3" value="2"></div>
+      <div class="q"><label>Exterior doors</label><input type="number" id="baDoors" min="1" max="8" value="3"></div>
+      <div class="q"><label>Windows</label><input type="number" id="baWindows" min="0" max="30" value="6"></div>
+    </div>
+
+    <div class="q-section">Builder-installed equipment (already in the home)</div>
+    <div class="q-grid free-grid">
+      <div class="q chk-q"><label><input type="checkbox" id="baKeypad" checked disabled> Keypad (always)</label></div>
+      <div class="q chk-q"><label><input type="checkbox" id="baBell" checked> Doorbell Camera</label></div>
+      <div class="q chk-q"><label><input type="checkbox" id="baSwitch" checked> Smart Switch</label></div>
+      <div class="q chk-q"><label><input type="checkbox" id="baEcho"> Alexa Echo Pop</label></div>
+      <div class="q chk-q"><label><input type="checkbox" id="baPlug"> Smart Plug</label></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeBA()">Cancel</button>
+      <button class="btn-primary" onclick="buildBA()">Build comparison</button>
     </div>
   </div>
 </div>
