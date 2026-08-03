@@ -1483,10 +1483,10 @@ function renderBA() {
       + '<div class="ba-sub-h">Recommended voucher use <span class="ba-adj">(adjustable)</span></div>'
       + spend.html
       + (sp.left > 0 ? '<div class="ba-left">Voucher left: ' + baMoney(sp.left) + '</div>' : '')
-      + (s.hasRebate ? '<div class="ba-rebate">Rebate check: 2 × $' + plan.mmr.toFixed(2) + ' ≈ <b>' + baMoney(rebate) + '</b> (cashback)</div>' : '')
+      + (s.hasRebate ? '<div class="ba-rebate">Rebate check ≈ <b>' + baMoney(rebate) + '</b> (mailed to you)</div>' : '')
       + '<div class="ba-why">'
       + '<div class="ba-why-h">Why do I need to sign a 3-year agreement with ADT?</div>'
-      + '<div class="ba-perk">Total value you receive (your equipment + voucher + rebate check) ≈ <b>' + baMoney(value) + '</b></div>'
+      + '<div class="ba-perk">Total value of this upgrade ≈ <b>' + baMoney(value) + '</b></div>'
       + '<div class="ba-perk">3-year monitoring: 36 × $' + plan.mmr.toFixed(2) + ' = ' + baMoney(threeYr) + '</div>'
       + '</div>'
       + '<button type="button" class="ba-use no-print" onclick="useBAPlan(' + no + ')">Use this plan →</button>'
@@ -1494,11 +1494,7 @@ function renderBA() {
   }
 
   wrap.innerHTML =
-    '<div class="ba-actions no-print">'
-    + '<button type="button" onclick="exitBA()">← Back to sheet</button>'
-    + '<button type="button" onclick="openBA()">Edit answers</button>'
-    + '</div>'
-    + '<div class="brand">' + logoHTML
+    '<div class="brand">' + logoHTML
     + '<div class="brand-text"><b>Authorized<br>Dealer</b></div><span class="brand-sep">|</span>'
     + '<div class="brand-haven">Safe Haven</div></div>'
     + '<h1 class="ba-h1">HOME SECURITY OPTIONS</h1>'
