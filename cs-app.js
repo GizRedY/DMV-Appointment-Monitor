@@ -1327,6 +1327,7 @@ function openBA() {
     document.getElementById('baSwitch').checked = baState.hasSwitch;
     document.getElementById('baEcho').checked = baState.hasEcho;
     document.getElementById('baPlug').checked = baState.hasPlug;
+    document.getElementById('baRebate').checked = baState.hasRebate;
   }
   document.getElementById('baBg').classList.add('show');
 }
@@ -1410,7 +1411,8 @@ function buildBA() {
     hasBell: document.getElementById('baBell').checked,
     hasSwitch: document.getElementById('baSwitch').checked,
     hasEcho: document.getElementById('baEcho').checked,
-    hasPlug: document.getElementById('baPlug').checked
+    hasPlug: document.getElementById('baPlug').checked,
+    hasRebate: document.getElementById('baRebate').checked
   };
   renderBA();
   closeBA();
@@ -1469,7 +1471,7 @@ function renderBA() {
     var plan = BA_PLANS[no];
     var sp = baSpend(plan, s.windows);
     var spend = baListHTML(sp.items);
-    var rebate = plan.mmr * 2;
+    var rebate = s.hasRebate ? plan.mmr * 2 : 0;
     var value = gear.sub + plan.voucher + rebate;
     var threeYr = plan.mmr * 36;
     return '<div class="ba-card">'
@@ -1481,7 +1483,7 @@ function renderBA() {
       + '<div class="ba-sub-h">Recommended voucher use <span class="ba-adj">(adjustable)</span></div>'
       + spend.html
       + (sp.left > 0 ? '<div class="ba-left">Voucher left: ' + baMoney(sp.left) + '</div>' : '')
-      + '<div class="ba-rebate">Rebate check: 2 × $' + plan.mmr.toFixed(2) + ' ≈ <b>' + baMoney(rebate) + '</b> (cashback)</div>'
+      + (s.hasRebate ? '<div class="ba-rebate">Rebate check: 2 × $' + plan.mmr.toFixed(2) + ' ≈ <b>' + baMoney(rebate) + '</b> (cashback)</div>' : '')
       + '<div class="ba-why">'
       + '<div class="ba-why-h">Why do I need to sign a 3-year agreement with ADT?</div>'
       + '<div class="ba-perk">Total value you receive (your equipment + voucher + rebate check) ≈ <b>' + baMoney(value) + '</b></div>'
