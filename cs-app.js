@@ -1460,12 +1460,15 @@ function renderBA() {
   var logoHTML = logo ? '<img class="adt-logo" alt="ADT" src="' + logo.src + '">' : '';
 
   function totalLine(sub) {
-    return '<div class="ba-total">Retail value: <b class="ba-retail">' + baMoney(sub) + '</b></div>';
+    return '<div class="ba-total">Equipment retail value: <b class="ba-retail">' + baMoney(sub) + '</b></div>';
   }
 
-  var benefitsHTML = '<div class="ba-benefits">' + BA_BENEFITS.map(function (b) {
-    return '<div class="ba-benefit"><b><span class="ba-star">★</span>' + b.t + '<span class="ba-star">★</span></b> - ' + b.d + '</div>';
-  }).join('') + '</div>';
+  var benefitsHTML = '<div class="ba-benefits-band">'
+    + '<div class="ba-benefits-title">What the upgrade unlocks</div>'
+    + '<div class="ba-benefits">' + BA_BENEFITS.map(function (b) {
+      return '<div class="ba-benefit"><b><span class="ba-star">★</span>' + b.t + '<span class="ba-star">★</span></b> - ' + b.d + '</div>';
+    }).join('') + '</div>'
+    + '</div>';
 
   function planCard(no) {
     var plan = BA_PLANS[no];
@@ -1475,9 +1478,11 @@ function renderBA() {
     var value = gear.sub + plan.voucher + rebate;
     var threeYr = plan.mmr * 36;
     return '<div class="ba-card">'
-      + '<div class="ba-card-head"><span class="ba-card-title">' + plan.label
-      + ' <span class="ba-card-sub">(' + (plan.cameras ? 'with extra cameras' : 'no extra cameras') + ')</span></span>'
+      + '<div class="ba-card-head"><span class="ba-card-title">' + plan.label + '</span>'
       + '<span class="ba-vou-tag">' + baMoney(plan.voucher) + ' voucher</span></div>'
+      + '<div class="ba-for">'
+      + (plan.cameras ? 'If you want extra cameras' : "If you don't need extra cameras")
+      + '</div>'
       + '<div class="ba-fees"><span><b>' + baMoney(plan.actFee) + '</b> activation (one-time)</span>'
       + '<span><b>$' + plan.mmr.toFixed(2) + '</b>/mo</span></div>'
       + '<div class="ba-sub-h">Recommended voucher use <span class="ba-adj">(adjustable)</span></div>'
@@ -1486,8 +1491,12 @@ function renderBA() {
       + (s.hasRebate ? '<div class="ba-rebate">Rebate check ≈ <b>' + baMoney(rebate) + '</b> (mailed to you)</div>' : '')
       + '<div class="ba-why">'
       + '<div class="ba-why-h">Why do I need to sign a 3-year agreement with ADT?</div>'
-      + '<div class="ba-perk">Total value of this upgrade ≈ <b>' + baMoney(value) + '</b></div>'
-      + '<div class="ba-perk">3-year monitoring: 36 × $' + plan.mmr.toFixed(2) + ' = ' + baMoney(threeYr) + '</div>'
+      + '<div class="ba-perk">Total value of this upgrade'
+      + ' <span class="ba-perk-note">(equipment value + voucher'
+      + (s.hasRebate ? ' + rebate' : '') + ')</span></div>'
+      + '<div class="ba-perk-amt">' + baMoney(value) + '</div>'
+      + '<div class="ba-perk">You will pay for 3-year monitoring: 36 × $' + plan.mmr.toFixed(2) + '</div>'
+      + '<div class="ba-perk-amt">' + baMoney(threeYr) + '</div>'
       + '</div>'
       + '<button type="button" class="ba-use no-print" onclick="useBAPlan(' + no + ')">Use this plan →</button>'
       + '</div>';
@@ -1514,12 +1523,13 @@ function renderBA() {
     + '<div class="ba-upg-intro">You will get for free:</div>'
     + gear.html
     + totalLine(gear.sub)
-    + benefitsHTML
     + '</div>'
 
     + BA_ARROW_SPLIT
 
-    + '<div class="ba-cards">' + planCard(2) + planCard(3) + '</div>';
+    + '<div class="ba-cards">' + planCard(2) + planCard(3) + '</div>'
+
+    + benefitsHTML;
 }
 
 // Fill the normal sheet with the chosen plan (like a template), pre-set tax & voucher

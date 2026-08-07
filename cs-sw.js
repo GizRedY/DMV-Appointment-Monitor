@@ -1,5 +1,5 @@
 // Service worker for the Home Customization sheet (offline support)
-const CACHE = 'customization-v4';
+const CACHE = 'customization-v6';
 const ASSETS = [
   '/customization-sheet',
   '/cs-styles.css',
