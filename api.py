@@ -16,10 +16,7 @@ from database import Database
 BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 
-#  ============================================================================
-#  LOGGING SETUP
-#  ============================================================================
-
+# --- Logging setup ---
 SHARED_DIR = BASE_DIR / "shared"
 DATA_DIR = SHARED_DIR / "data"
 
@@ -116,10 +113,7 @@ DMV_CATEGORIES = {
 }
 
 
-#  ============================================================================
-#  REQUEST/RESPONSE MODELS
-#  ============================================================================
-
+# --- Request/response models ---
 class PushSubscriptionKeys(BaseModel):
     """Push subscription keys"""
     p256dh: str
@@ -170,10 +164,7 @@ class AvailabilityItem(BaseModel):
     last_checked: str
 
 
-#  ============================================================================
-#  HELPER FUNCTIONS
-#  ============================================================================
-
+# --- Helper functions ---
 def send_push_notification(subscription_info: dict, title: str, body: str,
                            url: str = "/") -> bool:
     """Send push notification to a subscriber"""
@@ -234,10 +225,7 @@ def send_push_notification(subscription_info: dict, title: str, body: str,
         return False
 
 
-#  ============================================================================
-#  STATIC FILE SERVING
-#  ============================================================================
-
+# --- Static file serving ---
 @app.get("/", response_class=HTMLResponse)
 async def serve_index():
     """Serve main HTML UI"""
@@ -326,10 +314,7 @@ async def serve_robots():
     return HTMLResponse("Robots.txt not found", status_code=404)
 
 
-#  ============================================================================
-#   API ENDPOINTS
-#  ============================================================================
-
+# --- API endpoints ---
 @app.get("/vapid-public-key", response_model=VapidKeyResponse)
 async def get_vapid_public_key():
     """Get VAPID public key for push notifications"""
@@ -497,10 +482,7 @@ async def test_notification(user_id: str):
         raise HTTPException(status_code=500, detail="Failed to send test notification")
 
 
-#  ============================================================================
-#  DATABASE MAINTENANCE ENDPOINTS
-#  ============================================================================
-
+# --- Database maintenance endpoints ---
 @app.delete("/maintenance/cleanup-old-subscriptions", dependencies=[Depends(require_admin)])
 async def cleanup_old_subscriptions(max_age_hours: int = 72):
     """Remove subscriptions older than specified hours (admin endpoint)"""
@@ -531,19 +513,13 @@ async def get_locations_with_slots():
         raise HTTPException(status_code=500, detail="Failed to get locations")
 
 
-#  ============================================================================
-#  API ENDPOINTS
-#  ============================================================================
-
+# --- Health check ---
 @app.api_route("/health", methods=["GET", "HEAD"])
 async def health():
     return {"status": "ok"}
 
 
-#  ============================================================================
-#  RUN SERVER
-#  ============================================================================
-
+# --- Run server ---
 if __name__ == "__main__":
     import uvicorn
 

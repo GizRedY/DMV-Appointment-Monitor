@@ -1,7 +1,4 @@
-// ============================================================================
-// APP STATE
-// ============================================================================
-
+// --- App state ---
 const state = {
     platform: null,
     selectedCategories: [],
@@ -12,10 +9,7 @@ const state = {
 
 const API_URL = window.location.origin;
 
-// ============================================================================
-// TEMPORARY MAINTENANCE MODE
-// ============================================================================
-
+// --- Temporary maintenance mode ---
 const MONITORING_PAUSED = true;
 
 function openMaintenanceModal() {
@@ -36,41 +30,12 @@ function closeMaintenanceModal() {
 
 function applyMaintenanceMode() {
     if (!MONITORING_PAUSED) return;
-
     openMaintenanceModal();
-
-    const startBtn = document.querySelector('button[onclick="showScreen(\'platform\')"]');
-    const availabilityBtn = document.getElementById('availabilityFloatingBtn');
-    const categoryNextBtn = document.getElementById('categoryNextBtn');
-    const subscribeBtn = document.getElementById('subscribeBtn');
-
-    [startBtn, availabilityBtn, categoryNextBtn, subscribeBtn].forEach(btn => {
-        if (!btn) return;
-
-        btn.disabled = true;
-        btn.classList.add('maintenance-disabled');
-        btn.title = 'Monitoring is temporarily paused while we update the DMV tracker.';
-    });
-
-    if (startBtn) {
-        startBtn.textContent = '⚠️ Monitoring temporarily paused';
-    }
-
-    if (availabilityBtn) {
-        availabilityBtn.textContent = '⚠️ Live availability temporarily unavailable';
-    }
-
-    if (subscribeBtn) {
-        subscribeBtn.textContent = '⚠️ Monitoring paused';
-    }
 }
 
 window.closeMaintenanceModal = closeMaintenanceModal;
 
-// ============================================================================
-// SCREEN MANAGEMENT
-// ============================================================================
-
+// --- Screen management ---
 function showScreen(screenName) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     const screenEl = document.getElementById(`screen-${screenName}`);
@@ -100,10 +65,7 @@ function showScreen(screenName) {
 
 window.showScreen = showScreen;
 
-// ============================================================================
-// PLATFORM SELECTION
-// ============================================================================
-
+// --- Platform selection ---
 function selectPlatform(platform) {
     state.platform = platform;
 
@@ -120,10 +82,7 @@ function selectPlatform(platform) {
 
 window.selectPlatform = selectPlatform;
 
-// ============================================================================
-// NOTIFICATION PERMISSION
-// ============================================================================
-
+// --- Notification permission ---
 async function requestNotificationPermission() {
     if (!('Notification' in window)) {
         const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
@@ -157,10 +116,7 @@ async function requestNotificationPermission() {
     return { granted: false, error: 'Notifications are blocked in browser settings. Please enable them and try again.' };
 }
 
-// ============================================================================
-// LOAD CATEGORIES
-// ============================================================================
-
+// --- Load categories ---
 async function loadCategories() {
     try {
         const response = await fetch(`${API_URL}/categories`);
@@ -209,10 +165,7 @@ function toggleCategory(key, element) {
     if (nextBtn) nextBtn.disabled = state.selectedCategories.length === 0;
 }
 
-// ============================================================================
-// LOCATION SELECTION
-// ============================================================================
-
+// --- Location selection ---
 const NC_LOCATIONS = [
     'Aberdeen', 'Ahoskie', 'Albemarle', 'Andrews', 'Asheboro',
     'Asheville', 'Boone', 'Brevard', 'Bryson City', 'Burgaw',
@@ -283,10 +236,7 @@ window.filterLocations = function () {
     });
 };
 
-// ============================================================================
-// SUBSCRIBE
-// ============================================================================
-
+// --- Subscribe ---
 function showInlineError(msg) {
     const el = document.getElementById('subscribeError');
     el.textContent = msg;
@@ -359,18 +309,14 @@ async function subscribe() {
                 let reg = await navigator.serviceWorker.getRegistration('/');
 
                 if (!reg) {
-                    console.log('No existing registration, creating new one...');
                     reg = await navigator.serviceWorker.register('/sw.js');
                 }
 
                 // Wait for SW to be ready (active)
-                console.log('Waiting for service worker to be ready...');
                 const readyReg = await navigator.serviceWorker.ready;
-                console.log('Service worker is ready, state:', readyReg.active?.state);
 
                 // Extra safety: wait a bit if SW just activated
                 if (readyReg.active?.state === 'activating') {
-                    console.log('SW still activating, waiting...');
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
@@ -378,7 +324,6 @@ async function subscribe() {
                 let existingSub = await readyReg.pushManager.getSubscription();
 
                 if (existingSub) {
-                    console.log('Using existing push subscription');
                     pushSubscription = existingSub;
                 } else {
                     const vapidKey = await getVapidPublicKey();
@@ -388,7 +333,6 @@ async function subscribe() {
                             userVisibleOnly: true,
                             applicationServerKey: urlBase64ToUint8Array(vapidKey)
                         });
-                        console.log('Created new push subscription');
                     } catch (subError) {
                         console.error('Push subscription error:', subError);
 
@@ -427,8 +371,6 @@ async function subscribe() {
 
         for (let attempt = 1; attempt <= 3; attempt++) {
             try {
-                console.log(`API subscription attempt ${attempt}/3...`);
-
                 const response = await fetch(`${API_URL}/subscriptions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -447,16 +389,15 @@ async function subscribe() {
                 }
 
                 const result = await response.json();
-                console.log('✅ Subscription created successfully:', result);
+                console.log('Subscription created:', result.user_id);
                 subscriptionCreated = true;
                 break;
 
             } catch (apiError) {
                 lastError = apiError;
-                console.error(`❌ API attempt ${attempt} failed:`, apiError);
+                console.error(`Subscription attempt ${attempt} failed:`, apiError);
 
                 if (attempt < 3) {
-                    console.log('Retrying in 1 second...');
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
             }
@@ -482,10 +423,7 @@ async function subscribe() {
 
 window.subscribe = subscribe;
 
-// ============================================================================
-// SUCCESS SCREEN
-// ============================================================================
-
+// --- Success screen ---
 function showSuccessScreen() {
     const categoryEl = document.getElementById('successCategory');
     const locationsEl = document.getElementById('successLocations');
@@ -499,10 +437,7 @@ function showSuccessScreen() {
     showScreen('success');
 }
 
-// ============================================================================
-// UNSUBSCRIBE
-// ============================================================================
-
+// --- Unsubscribe ---
 async function unsubscribe() {
     if (!confirm('Unsubscribe?')) return;
 
@@ -538,12 +473,8 @@ async function unsubscribe() {
 
 window.unsubscribe = unsubscribe;
 
-// ============================================================================
-// TEST NOTIFICATION
-// ============================================================================
-
+// --- Test notification ---
 function testNotification() {
-    console.log('testNotification called');
 
     if (Notification.permission === 'granted') {
         if ('serviceWorker' in navigator) {
@@ -577,10 +508,7 @@ function testNotification() {
 
 window.testNotification = testNotification;
 
-// ============================================================================
-// HELPERS
-// ============================================================================
-
+// --- Helpers ---
 function showAlert(msg, type = 'info') {
     const alert = document.getElementById('alert');
     alert.textContent = msg;
@@ -596,32 +524,25 @@ function urlBase64ToUint8Array(str) {
     return Uint8Array.from([...raw].map(ch => ch.charCodeAt(0)));
 }
 
-// ============================================================================
-// RESTORE EXISTING SUBSCRIPTION
-// ============================================================================
-
+// --- Restore existing subscription ---
 async function restoreExistingSubscription() {
     try {
         const savedUserId = localStorage.getItem('dmv_user_id');
         if (!savedUserId) {
-            console.log('No saved user ID found');
             return false;
         }
-
-        console.log('Checking for existing subscription:', savedUserId);
 
         const resp = await fetch(`${API_URL}/subscriptions/${encodeURIComponent(savedUserId)}`);
 
         if (!resp.ok) {
             if (resp.status === 404) {
-                console.log('No active subscription found on server, clearing local storage');
                 localStorage.removeItem('dmv_user_id');
             }
             return false;
         }
 
         const subData = await resp.json();
-        console.log('✅ Found existing subscription:', subData);
+console.log('Restored existing subscription:', savedUserId);
 
         state.userId = savedUserId;
         state.selectedCategories = subData.categories || [];
@@ -640,20 +561,14 @@ async function restoreExistingSubscription() {
     }
 }
 
-// ============================================================================
-// GET VAPID KEY
-// ============================================================================
-
+// --- Get VAPID key ---
 async function getVapidPublicKey() {
     const resp = await fetch(`${API_URL}/vapid-public-key`);
     const data = await resp.json();
     return data.public_key;
 }
 
-// ============================================================================
-// LIVE AVAILABILITY POPUP
-// ============================================================================
-
+// --- Live availability popup ---
 let availabilityData = [];
 
 // Format category key into pretty label
@@ -751,7 +666,6 @@ async function openAvailabilityModal() {
 
     // If data isn't loaded yet, load it now and wait
     if (availabilityData.length === 0) {
-        console.log('Data not loaded yet, loading now...');
         await updateAvailabilityData();
 
         // If still no data after loading, show error
@@ -810,21 +724,16 @@ window.openAvailabilityModal = openAvailabilityModal;
 window.closeAvailabilityModal = closeAvailabilityModal;
 window.onAvailabilityCategoryChange = onAvailabilityCategoryChange;
 
-// ============================================================================
-// AUTO-UPDATE AVAILABILITY DATA
-// ============================================================================
-
+// --- Auto-update availability data ---
 //let availabilityUpdateInterval = null;
 
 async function updateAvailabilityData() {
     try {
-        console.log('🔄 Loading availability data...');
         const resp = await fetch(`${API_URL}/availability?t=${Date.now()}`);
         if (!resp.ok) {
             throw new Error('HTTP ' + resp.status);
         }
         availabilityData = await resp.json();
-        console.log('✅ Availability data loaded:', availabilityData.length, 'items');
 
         // If the modal is open, update the UI
         const modal = document.getElementById('availabilityModal');
@@ -858,14 +767,11 @@ async function updateAvailabilityData() {
             }
         }
     } catch (err) {
-        console.error('❌ Failed to update availability data', err);
+        console.error('Failed to update availability data:', err);
     }
 }
 
-// ============================================================================
-// DONATE POPUP
-// ============================================================================
-
+// --- Donate popup ---
 function showDonatePopup() {
     const popup = document.getElementById('donatePopup');
     if (!popup) return;
@@ -897,10 +803,7 @@ function handleDonateClick() {
 window.closeDonatePopup = closeDonatePopup;
 window.handleDonateClick = handleDonateClick;
 
-// ============================================================================
-// SKIP LOCATIONS (SELECT/DESELECT ALL)
-// ============================================================================
-
+// --- Skip locations (select/deselect all) ---
 function skipLocations() {
     const allLocations = NC_LOCATIONS;
     const selected = state.selectedLocations || [];
@@ -946,10 +849,7 @@ function skipLocations() {
 // So that onclick="skipLocations()" works
 window.skipLocations = skipLocations;
 
-// ============================================================================
-// INSTRUCTIONS MODAL
-// ============================================================================
-
+// --- Instructions modal ---
 function openInstructionsModal() {
     const modal = document.getElementById('instructionsModal');
     if (!modal) {
@@ -991,15 +891,10 @@ window.openInstructionsModal = openInstructionsModal;
 window.closeInstructionsModal = closeInstructionsModal;
 window.showInstructionForPlatform = showInstructionForPlatform;
 
-// ============================================================================
-// INITIALIZATION - SINGLE DOMContentLoaded HANDLER
-// ============================================================================
-
+// --- Initialization ---
 // Define all window functions BEFORE DOMContentLoaded
 // This ensures onclick handlers work immediately
-console.log('App.js loaded, defining window functions...');
-
-// Re-export all functions to window to ensure they're available
+// Expose handlers used by inline onclick attributes
 window.showScreen = showScreen;
 window.selectPlatform = selectPlatform;
 window.subscribe = subscribe;
@@ -1016,46 +911,12 @@ window.closeInstructionsModal = closeInstructionsModal;
 window.showInstructionForPlatform = showInstructionForPlatform;
 window.filterLocations = filterLocations;
 
-console.log('All window functions defined successfully');
-
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('='.repeat(60));
-    console.log('DMV Monitor - Frontend Initialization');
-    console.log('='.repeat(60));
-    console.log('DOM loaded, initializing app...');
-
     applyMaintenanceMode();
 
-    if (MONITORING_PAUSED) {
-    console.log('Monitoring is paused. Backend calls skipped.');
-    console.log('✅ App initialized in maintenance mode');
-    console.log('='.repeat(60));
-    return;
-    }
-    console.log('User Agent:', navigator.userAgent);
-    console.log('Service Worker support:', 'serviceWorker' in navigator);
-    console.log('Push Manager support:', 'PushManager' in window);
-    console.log('Notification support:', 'Notification' in window);
-    console.log('Current permission:', Notification?.permission);
+    restoreExistingSubscription();
 
-    // Restore existing subscription
-    restoreExistingSubscription().then(restored => {
-        console.log('Subscription restore result:', restored);
+    updateAvailabilityData().catch(() => {
+        setTimeout(updateAvailabilityData, 2000);
     });
-
-    // Load availability data immediately with retry
-    console.log('Starting initial data load...');
-    updateAvailabilityData().then(() => {
-        console.log('Initial data load completed');
-    }).catch(err => {
-        console.error('Initial data load failed:', err);
-        // Retry after 2 seconds
-        setTimeout(() => {
-            console.log('Retrying data load...');
-            updateAvailabilityData();
-        }, 2000);
-    });
-
-    console.log('✅ App initialized successfully');
-    console.log('='.repeat(60));
 });
